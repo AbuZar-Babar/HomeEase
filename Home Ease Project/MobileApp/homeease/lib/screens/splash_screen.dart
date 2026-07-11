@@ -78,11 +78,13 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: HomeEaseTheme.cardDark,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 18, 22, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+        child: SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 18, 22, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
               const Spacer(),
               FadeTransition(
                 opacity: _logoOpacity,
@@ -144,6 +146,7 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

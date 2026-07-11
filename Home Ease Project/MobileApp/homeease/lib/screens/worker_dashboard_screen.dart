@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
@@ -44,7 +45,10 @@ class WorkerDashboardScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: InkWell(
-                  onTap: onManageAvailability,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    onManageAvailability();
+                  },
                   borderRadius: BorderRadius.circular(20),
                   child: const HomeEaseCard(
                     color: HomeEaseTheme.cardDark,
@@ -63,7 +67,10 @@ class WorkerDashboardScreen extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: InkWell(
-                  onTap: onOpenNotifications,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    onOpenNotifications();
+                  },
                   borderRadius: BorderRadius.circular(20),
                   child: HomeEaseCard(
                     color: HomeEaseTheme.card,
@@ -224,7 +231,10 @@ class WorkerDashboardScreen extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: FilledButton(
-                                    onPressed: () => onAcceptBooking(booking),
+                                    onPressed: () {
+                                      HapticFeedback.lightImpact();
+                                      onAcceptBooking(booking);
+                                    },
                                     style: FilledButton.styleFrom(backgroundColor: Colors.green),
                                     child: const Text('Accept'),
                                   ),
@@ -232,7 +242,10 @@ class WorkerDashboardScreen extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: FilledButton(
-                                    onPressed: () => onRejectBooking(booking),
+                                    onPressed: () {
+                                      HapticFeedback.lightImpact();
+                                      onRejectBooking(booking);
+                                    },
                                     style: FilledButton.styleFrom(backgroundColor: Colors.red),
                                     child: const Text('Decline'),
                                   ),

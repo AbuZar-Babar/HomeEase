@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/home_ease_theme.dart';
 
@@ -81,13 +82,16 @@ class _BackHeader extends StatelessWidget {
     return Row(
       children: [
         GestureDetector(
-          onTap: onBack,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onBack();
+          },
           child: Container(
-            width: 42,
-            height: 42,
+            width: 46,
+            height: 46,
             decoration: BoxDecoration(
               color: HomeEaseTheme.white.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: const Icon(
               Icons.arrow_back_ios_new_rounded,

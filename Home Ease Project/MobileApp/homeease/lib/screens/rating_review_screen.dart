@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+
 
 class RatingReviewScreen extends StatefulWidget {
   const RatingReviewScreen({
@@ -55,7 +57,10 @@ class _RatingReviewScreenState extends State<RatingReviewScreen> {
                 color: Colors.amber,
                 size: 28,
               ),
-              onPressed: () => onChanged(starValue),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                onChanged(starValue);
+              },
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             );

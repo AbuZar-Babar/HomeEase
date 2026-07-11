@@ -8,7 +8,7 @@ class HomeEaseTheme {
   static const Color brand = Color(0xFF754B38);
   static const Color brandSoft = Color(0xFFB78C69);
   static const Color text = Color(0xFF31241E);
-  static const Color muted = Color(0xFF857067);
+  static const Color muted = Color(0xFF6A5246);
   static const Color white = Colors.white;
 
   static ThemeData get theme {

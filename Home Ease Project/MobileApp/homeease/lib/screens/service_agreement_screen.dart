@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
@@ -42,6 +43,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
   }
 
   void _simulatePhotoSelect() {
+    HapticFeedback.lightImpact();
     setState(() {
       _simulatedReceiptPath = 'assets/mock/receipt_${DateTime.now().millisecondsSinceEpoch}.jpg';
     });
@@ -324,7 +326,10 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                       children: [
                         Expanded(
                           child: FilledButton(
-                            onPressed: widget.onConfirmPayment,
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              widget.onConfirmPayment();
+                            },
                             style: FilledButton.styleFrom(
                               backgroundColor: Colors.green,
                               shape: RoundedRectangleBorder(
@@ -337,7 +342,10 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: widget.onRejectPayment,
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              widget.onRejectPayment();
+                            },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),
@@ -352,7 +360,10 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextButton(
-                      onPressed: widget.onRaiseDispute,
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        widget.onRaiseDispute();
+                      },
                       style: TextButton.styleFrom(foregroundColor: Colors.red),
                       child: const Center(child: Text('Raise Payment Dispute')),
                     ),

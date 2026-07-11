@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
@@ -77,6 +78,7 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
                   contentPadding: EdgeInsets.zero,
                   onChanged: (val) {
                     if (val != null) {
+                      HapticFeedback.lightImpact();
                       setState(() => _currentStatus = val);
                     }
                   },
@@ -89,6 +91,7 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
                   contentPadding: EdgeInsets.zero,
                   onChanged: (val) {
                     if (val != null) {
+                      HapticFeedback.lightImpact();
                       setState(() => _currentStatus = val);
                     }
                   },
@@ -101,6 +104,7 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
                   contentPadding: EdgeInsets.zero,
                   onChanged: (val) {
                     if (val != null) {
+                      HapticFeedback.lightImpact();
                       setState(() => _currentStatus = val);
                     }
                   },
@@ -129,7 +133,10 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
                     return ChoiceChip(
                       label: Text(day),
                       selected: isSelected,
-                      onSelected: (_) => _toggleDay(day),
+                      onSelected: (_) {
+                        HapticFeedback.lightImpact();
+                        _toggleDay(day);
+                      },
                       labelStyle: TextStyle(
                         color: isSelected ? HomeEaseTheme.white : HomeEaseTheme.brand,
                         fontWeight: FontWeight.w600,

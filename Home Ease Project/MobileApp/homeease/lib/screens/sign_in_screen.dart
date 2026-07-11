@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
@@ -70,6 +71,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         label: 'Household',
                         isSelected: _selectedRole == 'Household',
                         onTap: () {
+                          HapticFeedback.lightImpact();
                           setState(() {
                             _selectedRole = 'Household';
                           });
@@ -83,6 +85,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         label: 'Worker',
                         isSelected: _selectedRole == 'Worker',
                         onTap: () {
+                          HapticFeedback.lightImpact();
                           setState(() {
                             _selectedRole = 'Worker';
                           });

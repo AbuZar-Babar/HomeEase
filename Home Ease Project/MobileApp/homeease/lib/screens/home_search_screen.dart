@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
@@ -183,7 +184,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               // Bookings History Card Button
               Expanded(
                 child: InkWell(
-                  onTap: widget.onOpenBookings,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    widget.onOpenBookings();
+                  },
                   borderRadius: BorderRadius.circular(20),
                   child: const HomeEaseCard(
                     color: HomeEaseTheme.cardDark,
@@ -203,7 +207,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               // Notifications Card Button with unread count
               Expanded(
                 child: InkWell(
-                  onTap: widget.onOpenNotifications,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    widget.onOpenNotifications();
+                  },
                   borderRadius: BorderRadius.circular(20),
                   child: HomeEaseCard(
                     color: HomeEaseTheme.card,
@@ -304,7 +311,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: _showFilterSheet,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  _showFilterSheet();
+                },
                 child: Container(
                   width: 52,
                   height: 52,
@@ -326,7 +336,10 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               return ChoiceChip(
                 label: Text(service),
                 selected: isSelected,
-                onSelected: (_) => widget.onToggleService(service),
+                onSelected: (_) {
+                  HapticFeedback.lightImpact();
+                  widget.onToggleService(service);
+                },
                 labelStyle: TextStyle(
                   color: isSelected ? HomeEaseTheme.white : HomeEaseTheme.brand,
                   fontWeight: FontWeight.w600,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/home_ease_theme.dart';
 
@@ -31,7 +32,10 @@ class HomeEaseButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        onPressed: onPressed,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          onPressed();
+        },
         child: Text(
           label,
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
@@ -58,7 +62,10 @@ class HomeEaseTextAction extends StatelessWidget {
     return Align(
       alignment: alignment,
       child: TextButton(
-        onPressed: onTap,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
         style: TextButton.styleFrom(
           foregroundColor: HomeEaseTheme.brandSoft,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),

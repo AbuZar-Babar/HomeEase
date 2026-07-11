@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
@@ -57,6 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _simulateCnicUpload() {
+    HapticFeedback.lightImpact();
     setState(() {
       _simulatedCnicPath = 'assets/mock/cnic_${DateTime.now().millisecondsSinceEpoch}.jpg';
     });
@@ -91,6 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     contentPadding: EdgeInsets.zero,
                     onChanged: (val) {
                       if (val != null) {
+                        HapticFeedback.lightImpact();
                         setState(() => _selectedRole = val);
                       }
                     },
@@ -105,6 +108,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     contentPadding: EdgeInsets.zero,
                     onChanged: (val) {
                       if (val != null) {
+                        HapticFeedback.lightImpact();
                         setState(() => _selectedRole = val);
                       }
                     },
@@ -140,80 +144,89 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   decoration: const InputDecoration(hintText: 'Create password'),
                 ),
                 
-                // Worker specific input section
-                if (isWorker) ...[
-                  const Divider(height: 32, color: HomeEaseTheme.background),
-                  const Text(
-                    'Professional Profile Details',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: HomeEaseTheme.brand, fontSize: 15),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    dropdownColor: HomeEaseTheme.surface,
-                    decoration: const InputDecoration(
-                      hintText: 'Select service type',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                    items: _serviceCategories.map((cat) {
-                      return DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(color: HomeEaseTheme.text)));
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          _selectedCategory = val;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: _rateController,
-                    decoration: const InputDecoration(hintText: 'Expected rate (e.g. PKR 3,000 / visit)'),
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: _experienceController,
-                    decoration: const InputDecoration(hintText: 'Experience (e.g. 4 years)'),
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: _bioController,
-                    maxLines: 2,
-                    decoration: const InputDecoration(hintText: 'Tell households about yourself...'),
-                  ),
-                  const SizedBox(height: 14),
-                  GestureDetector(
-                    onTap: _simulateCnicUpload,
-                    child: Container(
-                      height: 80,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: HomeEaseTheme.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: HomeEaseTheme.card, width: 2),
-                      ),
-                      alignment: Alignment.center,
-                      child: _simulatedCnicPath != null
-                          ? const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.check_circle_rounded, color: Colors.green),
-                                SizedBox(width: 8),
-                                Text('CNIC Photo Added', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                              ],
-                            )
-                          : const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.upload_file_rounded, color: HomeEaseTheme.brand, size: 24),
-                                SizedBox(height: 4),
-                                Text('Upload CNIC/ID card copy for verification', style: TextStyle(fontSize: 11)),
-                              ],
+                // Animated Worker specific input section
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isWorker) ...[
+                        const Divider(height: 32, color: HomeEaseTheme.background),
+                        const Text(
+                          'Professional Profile Details',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: HomeEaseTheme.brand, fontSize: 15),
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          dropdownColor: HomeEaseTheme.surface,
+                          decoration: const InputDecoration(
+                            hintText: 'Select service type',
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          ),
+                          items: _serviceCategories.map((cat) {
+                            return DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(color: HomeEaseTheme.text)));
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                _selectedCategory = val;
+                              });
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _rateController,
+                          decoration: const InputDecoration(hintText: 'Expected rate (e.g. PKR 3,000 / visit)'),
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _experienceController,
+                          decoration: const InputDecoration(hintText: 'Experience (e.g. 4 years)'),
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _bioController,
+                          maxLines: 2,
+                          decoration: const InputDecoration(hintText: 'Tell households about yourself...'),
+                        ),
+                        const SizedBox(height: 14),
+                        GestureDetector(
+                          onTap: _simulateCnicUpload,
+                          child: Container(
+                            height: 80,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: HomeEaseTheme.surface,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: HomeEaseTheme.card, width: 2),
                             ),
-                    ),
+                            alignment: Alignment.center,
+                            child: _simulatedCnicPath != null
+                                ? const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.check_circle_rounded, color: Colors.green),
+                                      SizedBox(width: 8),
+                                      Text('CNIC Photo Added', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                                    ],
+                                  )
+                                : const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.upload_file_rounded, color: HomeEaseTheme.brand, size: 24),
+                                      SizedBox(height: 4),
+                                      Text('Upload CNIC/ID card copy for verification', style: TextStyle(fontSize: 11)),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
                 
                 const SizedBox(height: 20),
                 HomeEaseButton(
