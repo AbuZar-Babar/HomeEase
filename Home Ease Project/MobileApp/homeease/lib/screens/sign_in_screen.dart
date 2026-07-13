@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../data/dummy_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
@@ -117,19 +118,117 @@ class _SignInScreenState extends State<SignInScreen> {
                 HomeEaseButton(
                   label: 'Sign In',
                   onPressed: () {
-                    if (_emailController.text.trim().isEmpty ||
-                        _passwordController.text.trim().isEmpty) {
+                    final email = _emailController.text.trim();
+                    final password = _passwordController.text;
+                    if (email.isEmpty || password.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please enter your email and password.')),
                       );
                       return;
                     }
-                    if (_selectedRole == 'Household') {
-                      widget.onSignIn();
+                    
+                    final user = DummyAuthService().signIn(email, password, _selectedRole);
+                    if (user != null) {
+                      if (_selectedRole == 'Household') {
+                        widget.onSignIn();
+                      } else {
+                        widget.onWorkerSignIn();
+                      }
                     } else {
-                      widget.onWorkerSignIn();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Invalid credentials for $_selectedRole. Try a demo account or sign up.',
+                          ),
+                        ),
+                      );
                     }
                   },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          HomeEaseCard(
+            color: HomeEaseTheme.card,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: HomeEaseTheme.brand, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Demo Accounts',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: HomeEaseTheme.brand,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Tap a demo role below to auto-fill credentials and update your role.',
+                  style: TextStyle(fontSize: 12, color: HomeEaseTheme.muted),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.home_rounded, size: 16),
+                        label: const Text('Household', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HomeEaseTheme.cardDark,
+                          foregroundColor: HomeEaseTheme.brand,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          setState(() {
+                            _selectedRole = 'Household';
+                            _emailController.text = 'household@homeease.com';
+                            _passwordController.text = 'password123';
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Household demo credentials loaded.')),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.cleaning_services_rounded, size: 16),
+                        label: const Text('Worker', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HomeEaseTheme.cardDark,
+                          foregroundColor: HomeEaseTheme.brand,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          setState(() {
+                            _selectedRole = 'Worker';
+                            _emailController.text = 'worker@homeease.com';
+                            _passwordController.text = 'password123';
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Worker demo credentials loaded.')),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

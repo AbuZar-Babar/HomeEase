@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../data/dummy_auth_service.dart';
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
@@ -173,8 +174,12 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
   Widget build(BuildContext context) {
     final filteredList = _getFilteredWorkers();
 
+    final currentUser = DummyAuthService().currentUser;
+    final subtitle = currentUser != null ? 'Welcome back, ${currentUser.fullName}' : null;
+
     return AppScaffold(
       title: 'Find help nearby',
+      subtitle: subtitle,
       onLogout: widget.onLogout,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

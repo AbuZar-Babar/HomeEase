@@ -11,6 +11,7 @@ class WorkerDashboardScreen extends StatelessWidget {
     super.key,
     required this.bookings,
     required this.verificationStatus,
+    this.workerName,
     required this.onAcceptBooking,
     required this.onRejectBooking,
     required this.onManageAvailability,
@@ -22,6 +23,7 @@ class WorkerDashboardScreen extends StatelessWidget {
 
   final List<Booking> bookings;
   final String verificationStatus;
+  final String? workerName;
   final ValueChanged<Booking> onAcceptBooking;
   final ValueChanged<Booking> onRejectBooking;
   final VoidCallback onManageAvailability;
@@ -37,6 +39,7 @@ class WorkerDashboardScreen extends StatelessWidget {
 
     return AppScaffold(
       title: 'Worker dashboard',
+      subtitle: workerName != null ? 'Welcome back, $workerName' : null,
       onLogout: onLogout,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/dummy_auth_service.dart';
 import '../data/sample_data.dart';
 import '../models/worker_profile.dart';
 import '../screens/booking_request_screen.dart';
@@ -174,6 +175,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return SignUpScreen(
           initialRole: _selectedRoleForSignUp,
           onCreateAccount: (role, data) {
+            DummyAuthService().signUp(
+              name: data['name'],
+              email: data['email'],
+              phone: data['phone'],
+              password: data['password'],
+              role: role,
+            );
             setState(() {
               _currentUserRole = role;
             });
@@ -201,7 +209,10 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onToggleService: _toggleService,
           onOpenWorkers: () => _goTo(AppStage.workerList),
           onOpenWorker: (worker) => _selectWorker(worker, AppStage.workerDetail),
-          onLogout: () => _goTo(AppStage.signIn),
+          onLogout: () {
+            DummyAuthService().signOut();
+            _goTo(AppStage.signIn);
+          },
           onOpenBookings: () => _goTo(AppStage.bookingsHistory),
           onOpenNotifications: () => _goTo(AppStage.notifications),
           unreadNotificationsCount: _getUnreadNotificationsCount(),
@@ -230,7 +241,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               _bookings.add(
                 Booking(
                   id: 'booking_${DateTime.now().millisecondsSinceEpoch}',
-                  householdId: 'h_1',
+                  householdId: DummyAuthService().currentUser?.id ?? 'h_1',
                   workerId: _selectedWorker.id,
                   serviceCategoryId: _selectedWorker.role,
                   bookingDate: bookingData['date'],
@@ -248,7 +259,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               _notifications.add(
                 NotificationModel(
                   id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
-                  userId: 'h_1',
+                  userId: DummyAuthService().currentUser?.id ?? 'h_1',
                   title: 'Booking Request Sent',
                   message: 'Booking request sent to ${_selectedWorker.name}. waiting for acceptance.',
                   type: 'Booking',
@@ -492,11 +503,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         );
         
       case AppStage.workerDashboard:
-        // Filter bookings belonging to worker_1 (Rabia Bibi, for simplicity in local demo)
-        final workerBookings = _bookings.where((b) => b.workerId == 'worker_1').toList();
+        // Filter bookings belonging to current logged in worker (or worker_1 as default)
+        final currentWorkerId = DummyAuthService().currentUser?.id ?? 'worker_1';
+        final workerBookings = _bookings.where((b) => b.workerId == currentWorkerId).toList();
         return WorkerDashboardScreen(
           bookings: workerBookings,
           verificationStatus: _workerVerificationStatus,
+          workerName: DummyAuthService().currentUser?.fullName,
           onAcceptBooking: (booking) {
             setState(() {
               final index = _bookings.indexWhere((b) => b.id == booking.id);
@@ -554,7 +567,10 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             });
             _goTo(AppStage.serviceAgreement);
           },
-          onLogout: () => _goTo(AppStage.signIn),
+          onLogout: () {
+            DummyAuthService().signOut();
+            _goTo(AppStage.signIn);
+          },
         );
         
       case AppStage.workerAvailability:
