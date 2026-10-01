@@ -1,0 +1,6 @@
+.agents/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/

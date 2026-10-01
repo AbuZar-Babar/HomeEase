@@ -11,6 +11,15 @@ class HomeEaseTheme {
   static const Color muted = Color(0xFF6A5246);
   static const Color white = Colors.white;
 
+  // Semantic aliases for consistency
+  static const Color primary = brand;
+  static const Color primaryDark = brand;
+  static const Color secondary = brandSoft;
+  static const Color textPrimary = text;
+  static const Color textSecondary = muted;
+  static const Color outline = cardDark;
+  static const Color cardBackground = surface;
+
   static ThemeData get theme {
     final base = ThemeData(
       useMaterial3: true,

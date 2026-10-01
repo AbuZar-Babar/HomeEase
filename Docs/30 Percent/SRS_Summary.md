@@ -20,28 +20,32 @@ The SRS document formally specifies what the HomeEase platform must do and the c
 
 ## 2. Key Target Modules & Scope
 
-### In-Scope (Core Features)
+### In-Scope (Core Features & 60% Committee Mandates)
 - **Mobile Application:** Built with Flutter/Dart for Household and Worker users.
 - **Admin Dashboard:** Built with React/Vite for Admin users.
 - **Backend & Database:** Supabase authentication and PostgreSQL database.
-- **10 Core Functional Modules:**
+- **Core Functional Modules:**
   1. *Authentication & Role Management:* Secure login/registration and role choice.
   2. *Household User Management:* Profile information, preferences, and booking history.
   3. *Worker Profile Management:* Bios, experience, charges, availability slots, and visibility.
   4. *Worker Verification:* Identity confirmation, profile completeness, and admin verification status.
   5. *Service Categories & Pricing:* Maid, cook, cleaner, nanny, caregiver categories, and worker rates.
-  6. *Search & Matching:* Hyper-local search filtered by city/area, services, ratings, and experience.
-  7. *Booking & Availability:* Date/time slot booking, status tracking, and scheduling conflict prevention.
-  8. *Rating & Review:* Multi-factor rating (performance, punctuality, behavior) after service completion.
-  9. *Notification & Communication:* Automated push notifications/alerts for bookings, updates, and messages.
-  10. *Admin Dashboard Management:* User overviews, verification approvals, bookings monitor, and dispute resolution.
+  6. *AI-Based Content Recommendation Engine (60% Mandate):* Algorithmic worker recommendation using Cosine Similarity on skills/categories, Haversine geo-distance, and rating normalization with Explainable AI badges (`Match %` + reason), strictly replacing static dropdown filters.
+  7. *Bidirectional Job Marketplace (60% Mandate):* Household "Post a Job / Request" workflow and Worker "Available Jobs / Browse & Apply" feed for direct gig acquisition.
+  8. *Bilingual UI & Visual Iconography (60% Mandate):* Dual-language toggle (`EN | اردو`) and high-affordance visual icons for low-literacy domestic workers.
+  9. *Booking & Availability:* Date/time slot booking, status tracking, and scheduling conflict prevention.
+  10. *Service Agreements:* Auto-generated formal service agreements prior to booking confirmation.
+  11. *Manual Payment Logging:* Direct Cash, EasyPaisa, JazzCash tracking with receipt uploads.
+  12. *Rating & Behavioral Reviews:* Multi-factor rating (performance, punctuality, behavior) after service completion.
+  13. *Notification & Communication:* Automated push notifications/alerts for bookings, updates, and messages.
+  14. *Admin Dashboard Management:* User overviews, verification approvals, bookings monitor, and dispute resolution.
 
 ### Out-of-Scope (Excluded Features)
-- Online payment gateway integration (EasyPaisa/JazzCash) - manual receipt uploads are handled instead.
-- Government-level, NADRA, or police background checks.
-- Direct legal employment contracts.
+- Online automated payment gateway escrow (EasyPaisa/JazzCash merchant escrow APIs) - manual receipt uploads and confirmation are handled instead.
+- Government-level, NADRA, or police database live API verification.
+- Direct legal employment contract enforcement in labor courts.
 - In-app video calling or real-time voice chat.
-- AI-based recommendations or worker matching.
+- Static dropdown/filter-only matching presented as recommendation (explicitly rejected by FYP committee).
 
 ---
 
@@ -99,7 +103,7 @@ graph TD
 
 ## 4. Use Case Descriptions
 
-The system behavior is defined by 9 core Use Cases:
+The system behavior is defined by core Use Cases across all roles and system components:
 
 | Use Case ID | Use Case Name | Primary Actor | Description |
 |---|---|---|---|
@@ -112,6 +116,11 @@ The system behavior is defined by 9 core Use Cases:
 | **UC-7** | Accept or Reject Booking | Worker User | Worker views pending booking requests and accepts or rejects them. |
 | **UC-8** | Submit Rating & Review | Household User | Household rates worker performance, behavior, and punctuality after completion. |
 | **UC-9** | Admin Dashboard Overview | Admin User | Admin monitors platform activity, including user lists, bookings, and reports. |
+| **UC-10** | Post Job / Gig Request | Household User | Household posts an open task/job specifying service type, budget, time, and Abbottabad locality. |
+| **UC-11** | Browse & Search Available Jobs | Worker User | Worker views a live feed of open household job postings matching their skills and area. |
+| **UC-12** | Apply for Job / Express Interest | Worker User | Worker applies to an open job post with proposed rate and contact notice. |
+| **UC-13** | View AI-Recommended Workers | Household User | Household receives algorithmic worker recommendations with Explainable AI badges (`Match %` and reasons). |
+| **UC-14** | Toggle Bilingual Mode & Visual Icons | Household / Worker | User switches between English and Urdu (`اردو`) with iconographic visual cues for low-literacy workers. |
 
 ---
 
@@ -144,6 +153,13 @@ Below is the list of functional requirements (FR) defined in the SRS:
 | **FR-21** | Admin User Management | The system shall allow admins to view household and worker users. | Medium |
 | **FR-22** | Admin Booking Overview | The system shall allow admins to view booking records and statuses. | Medium |
 | **FR-23** | Report Handling | The system should allow admins to view and handle reported issues. | Low |
+| **FR-24** | Household Job Posting | The system shall allow households to publish open gigs specifying category, Abbottabad locality, date/time, and budget. | High |
+| **FR-25** | Worker Job Feed | The system shall allow workers to discover and browse open household job posts matching their skills. | High |
+| **FR-26** | Worker Job Application | The system shall allow workers to apply for open gigs with one tap, notifying the household. | High |
+| **FR-27** | AI Content Recommender | The system shall compute a Content-Based match score using Cosine Similarity on skills/categories, Haversine geo-distance, and rating normalization. | High |
+| **FR-28** | Explainable AI Badges | The system shall display transparent match explanations (e.g. `94% AI Match`, `1.2 km away`, `Desi Cooking fit`) on recommended profiles. | High |
+| **FR-29** | Bilingual Interface Toggle | The system shall provide a global language switch between English and Urdu (`اردو`) preserving user preference. | High |
+| **FR-30** | Low-Literacy Visual Icons | The system shall provide distinct, high-affordance pictorial icons for all service tasks and booking statuses. | High |
 
 ---
 

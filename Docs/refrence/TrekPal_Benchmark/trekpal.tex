@@ -1,0 +1,4172 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=1in,headheight=15pt,headsep=18pt,footskip=30pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext}
+\usepackage[nopatch=footnote]{microtype}
+\usepackage{graphicx,float,caption}
+\usepackage{pdfpages}
+\captionsetup{hypcap=false,font=small,labelsep=space}
+\usepackage{longtable,array,etoolbox}
+\makeatletter
+\patchcmd{\LT@output}{\vss}{\vskip\z@\@plus1fil\@minus\normalbaselineskip}{}{}
+\patchcmd{\LT@output}{\vss}{\vskip\z@\@plus1fil\@minus\normalbaselineskip}{}{}
+\makeatother
+\usepackage{enumitem,setspace,needspace}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\usepackage[normalem]{ulem}
+\makeatletter
+\newcommand{\TocUnderlineEntry}{\@ifnextchar\numberline{\TocUnderlineNumbered}{\TocUnderlineUnnumbered}}
+\def\TocUnderlineNumbered\numberline#1#2\TocUnderlineEnd{\numberline{#1}\uline{#2}}
+\def\TocUnderlineUnnumbered#1\TocUnderlineEnd{\uline{#1}}
+\makeatother
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlength{\emergencystretch}{2em}
+\setstretch{1.15}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+% Align complete prose paragraphs with the text of the current numbered heading.
+\newlength{\ThesisParagraphIndent}
+\newcommand{\ThesisHeadingLabel}[1]{%
+  \settowidth{\ThesisParagraphIndent}{#1\hspace{0.6em}}%
+  \global\ThesisParagraphIndent=\ThesisParagraphIndent
+  #1}
+\newcommand{\ThesisParagraph}[1]{%
+  \par\begingroup
+  \setlength{\leftskip}{\ThesisParagraphIndent}%
+  \setlength{\parindent}{0pt}%
+  \noindent#1\par
+  \endgroup}
+\titleformat{\section}{\fontsize{14}{17}\selectfont\bfseries}{\ThesisHeadingLabel{\thesection.}}{0.6em}{}
+\titleformat{\subsection}{\fontsize{13}{16}\selectfont\bfseries}{\ThesisHeadingLabel{\thesubsection}}{0.6em}{}
+\titleformat{\subsubsection}{\fontsize{12}{14.4}\selectfont\bfseries}{\ThesisHeadingLabel{\thesubsubsection}}{0.6em}{}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{6pt}
+\titlespacing*{\subsubsection}{0pt}{12pt}{8pt}
+\renewcommand{\contentsname}{Table of Contents}
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+\renewcommand{\listtablename}{LIST OF TABLES}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{TrekPal}
+\fancyfoot[L]{\small Department of Computer Science, CUI, Abbottabad}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{frontmatter}{\fancyhf{}\fancyfoot[R]{\thepage}}
+\fancypagestyle{thesis}{\fancyhf{}\fancyhead[L]{TrekPal}\fancyfoot[L]{\small Department of Computer Science, CUI, Abbottabad}\fancyfoot[R]{\thepage}}
+\begin{document}
+\pagestyle{frontmatter}
+\pagenumbering{gobble}
+\thispagestyle{empty}
+
+
+\noindent\begin{minipage}[c]{0.24\textwidth}
+\centering\includegraphics[width=1.312in,keepaspectratio]{figures/image1.jpeg}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.72\textwidth}
+\raggedright\fontsize{14}{18.2}\selectfont\bfseries
+COMSATS University Islamabad\\
+Abbottabad, Pakistan
+\end{minipage}\par
+
+
+\vspace{5pt}
+
+{\centering\fontsize{18}{23.4}\selectfont \textbf{TrekPal}\par}
+
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{\textit{By}}\par}
+
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{Hasham Ali Khan\hspace*{1.75em}CIIT/FA22-BSE-137/ATD}\par}
+
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{Ali Usman Tajik\hspace*{2.25em}CIIT/FA22-BSE-134/ATD}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{\textit{Supervisor\newline{} }}\textbf{Maam Sana Malik}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{\textit{Bachelor of Science in Computer Science (2022-2026)}}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{The candidate confirms that the work submitted is their own and appropriate\newline{}  credit has been given where reference has been made to the work of others}.\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\clearpage
+
+\pagenumbering{roman}
+
+\noindent\begin{minipage}[c]{0.24\textwidth}
+\centering\includegraphics[width=1.312in,keepaspectratio]{figures/image1.jpeg}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.72\textwidth}
+\raggedright\fontsize{12}{15.6}\selectfont\bfseries
+COMSATS University, Islamabad Pakistan
+\end{minipage}\par
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{18}{23.4}\selectfont \textbf{TrekPal}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{A project presented to}\par}
+
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{COMSATS University, Islamabad}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{In partial fulfillment}\par}
+
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{of the requirement for the degree of}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{\textit{Bachelor of Science in Computer Science}}\par}
+
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{\textit{ (2022-2026)}}\par}
+
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{By}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{Hasham Ali Khan\hspace*{1.75em}CIIT/FA22-BSE-137/ATD}\par}
+
+
+{\centering\fontsize{14}{18.2}\selectfont \textbf{Ali Usman Tajik\hspace*{2.25em}CIIT/FA22-BSE-134/ATD}\par}
+
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\vspace{5pt}
+
+\clearpage
+
+{\centering\bfseries\underline{DECLARATION}\par}
+\vspace{8pt}
+
+We hereby declare that this software, neither whole nor as a part has been copied out from any source. It is further declared that we have developed this software and accompanied report entirely on the basis of our personal efforts. If any part of this project is proved to be copied out from any source or found to be reproduction of some other. We will stand by the consequences. No Portion of the work presented has been submitted of any application for any other degree or qualification of this or any other university or institute of learning.\par
+
+
+Hasham Ali Khan\hfill Ali Usman Tajik\par
+
+
+\begin{minipage}[t]{0.49\textwidth}\raggedright \includegraphics[width=1.437in,height=0.438in,keepaspectratio]{figures/image3.png}\end{minipage}\begin{minipage}[t]{0.49\textwidth}\raggedleft \includegraphics[width=0.774in,height=0.508in,keepaspectratio]{figures/image2.png}\end{minipage}\par
+
+
+---------------------------\hfill ---------------------------\par
+
+
+\clearpage
+\noindent\includegraphics[width=\textwidth,height=0.96\textheight,keepaspectratio]{figures/image2.jpeg}
+\clearpage
+
+
+\clearpage
+\noindent\includegraphics[width=\textwidth,height=0.96\textheight,keepaspectratio]{figures/image3.jpeg}
+\clearpage
+
+
+\clearpage
+
+{\centering\bfseries\underline{EXECUTIVE SUMMARY}\par}
+\vspace{8pt}
+
+TrekPal is a multi-platform travel management and marketplace system developed to address the inefficiencies of fragmented trip planning. In traditional travel workflows, users often rely on separate services for accommodation, transportation, and itinerary coordination, resulting in duplicated effort, limited pricing transparency, and weak trust in service providers.\par
+
+
+TrekPal solves this by unifying travelers, travel agencies, hotels, and platform administrators in a single digital ecosystem.\par
+
+
+The system introduces a bid-based trip planning model. Instead of only selecting fixed listings, travelers create structured trip requests with destination, dates, budget, and group size. Travel agencies respond with competitive bids that may include hotel, transport, and package components. This approach increases price competitiveness, supports customization, and improves decision quality for users. The platform also supports direct inventory browsing, booking management, and role-based interactions for operational control.\par
+
+
+TrekPal consists of four integrated components: (1) a Flutter traveler application, (2) a React-based agency portal, (3) a React-based hotel portal, and (4) a React-based admin portal, all connected to a centralized backend built with Node.js, Express, and TypeScript. The backend uses PostgreSQL (via Prisma) for relational data management, JWT/Supabase-based authentication, and Socket.IO for real-time features such as chat and live booking/bid updates.\par
+
+
+The project follows an Object-Oriented, modular architecture with iterative Agile development. Core modules include authentication and verification, trip request lifecycle, bidding, booking, inventory (hotels/rooms/vehicles), package offers, and administrative approvals. This modular design supports maintainability and future feature expansion.\par
+
+
+The outcome is a working end-to-end travel platform that improves transparency, coordination, and service quality in trip planning. TrekPal demonstrates how a unified, role-driven marketplace can modernize travel operations while providing a scalable foundation for future enhancements such as intelligent recommendations, automated offer ranking, stronger analytics, and broader third-party integrations.\par
+
+
+\clearpage
+
+{\centering\bfseries\underline{ACKNOWLEDGEMENT}\par}
+\vspace{8pt}
+
+All praise is to Almighty Allah who bestowed upon us a minute portion of His boundless knowledge by virtue of which we were able to accomplish this challenging task.\par
+
+
+We are greatly indebted to our project supervisor ``Maam Sana Malik'' Without their personal supervision, advice and valuable guidance, completion of this project would have been doubtful. We are deeply indebted to them for their encouragement and continual help during this work.\par
+
+
+And we are also thankful to our parents and family who have been a constant source of encouragement for us and brought us the values of honesty \& hard work.\par
+
+
+Hasham Ali Khan\hfill Ali Usman Tajik\par
+
+
+\begin{minipage}[t]{0.49\textwidth}\raggedright \includegraphics[width=1.452in,height=0.422in,keepaspectratio]{figures/image7.png}\end{minipage}\begin{minipage}[t]{0.49\textwidth}\raggedleft \includegraphics[width=0.796in,height=0.425in,keepaspectratio]{figures/image8.png}\end{minipage}\par
+
+
+---------------------------\hfill ---------------------------\par
+
+
+\clearpage
+
+{\centering\bfseries\underline{ABBREVIATIONS}\par}
+\vspace{8pt}
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.275067\linewidth-4\tabcolsep*2751/10000-3\arrayrulewidth*2751/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.724933\linewidth-4\tabcolsep*7249/10000-3\arrayrulewidth*7249/10000\relax}|}
+\hline
+\textbf{Abbreviation} & \textbf{Defination} \\ \hline
+
+\endfirsthead
+\hline
+\textbf{Abbreviation} & \textbf{Defination} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+API & Application Programming Interface \\ \hline
+
+DB & Database \\ \hline
+
+JWT & JSON Web Token \\ \hline
+
+KYC & Know Your Customer \\ \hline
+
+MVP & Minimum Viable Product \\ \hline
+
+OTA & Online Travel Agency \\ \hline
+
+REST & Representational State Transfer \\ \hline
+
+SDLC & Software Development Life Cycle \\ \hline
+
+UI & User Interface \\ \hline
+
+\end{longtable}
+}
+
+
+\clearpage
+
+{
+\setlength{\parskip}{0pt}\setstretch{1}
+\let\OriginalTocContentsLine\contentsline
+\renewcommand{\contentsline}[4]{\OriginalTocContentsLine{#1}{\TocUnderlineEntry#2\TocUnderlineEnd}{#3}{#4}}
+\tableofcontents
+}
+
+\clearpage
+
+{\setlength{\parskip}{0pt}\setstretch{1}\listoffigures}
+
+\clearpage
+
+{\setlength{\parskip}{0pt}\setstretch{1}\listoftables}
+
+\clearpage
+
+\pagenumbering{arabic}
+
+\pagestyle{thesis}
+
+\section{Introduction}
+
+\ThesisParagraph{Travel planning in many markets remains fragmented across disconnected service providers, platforms, and communication channels. Travelers often need to separately search for hotels, transportation, and package options, then manually compare prices and coordinate with agencies or vendors. This process is time-consuming, lacks transparency, and frequently leads to inconsistent user experiences. Existing direct-booking platforms improve accessibility, but they generally follow static listing models that provide limited support for personalized negotiation and integrated multi-service trip planning.}
+
+
+\ThesisParagraph{TrekPal is developed to address these limitations through a unified, multi-role travel marketplace. The platform connects travelers, travel agencies, hotels, and administrators in a single digital system where trip planning, bidding, booking, and coordination can be managed end-to-end. Its core differentiator is a structured trip-request and bid workflow: travelers define trip requirements (destination, dates, budget, and group size), and agencies respond with competitive offers that can combine accommodation, transport, and related services.}
+
+
+\ThesisParagraph{The system is implemented as a multi-platform architecture consisting of:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A Flutter-based traveler application for trip requests, bid comparison, booking actions, and communication.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A React-based agency portal for inventory management, package preparation, and bid submission.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A React-based hotel portal for room/service management and booking visibility.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A React-based admin portal for verification, moderation, and operational oversight.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A centralized backend API built with Node.js, Express, and TypeScript, supported by PostgreSQL (via Prisma), role-based authentication, and Socket.IO for real-time updates.
+\end{list}
+
+
+\subsection{Brief Introduction}
+
+\ThesisParagraph{TrekPal is a full-stack, multi-platform travel marketplace system that digitizes and unifies travel planning by connecting travelers, travel agencies, hotels, and administrators in one ecosystem. The project addresses fragmentation in traditional travel workflows by introducing a structured trip-request and bid-based model, where travelers define requirements and agencies respond with competitive customized offers.}
+
+
+\ThesisParagraph{The system outcome is a working end-to-end platform composed of a Flutter traveler application, React-based agency/hotel/admin portals, and a centralized backend developed with Node.js, Express, and TypeScript. The backend integrates PostgreSQL through Prisma, role-based authentication, and Socket.IO for real-time communication and updates.}
+
+
+\ThesisParagraph{Development followed an Agile, iterative process with modular Object-Oriented design principles. Core implemented modules include authentication and verification, trip request lifecycle, bidding, bookings, hotel/room and transport inventory, package offers, chat/group coordination, and admin approvals/monitoring.}
+
+
+\ThesisParagraph{This report presents the project from problem definition to implementation and evaluation. It explains how TrekPal improves transparency, customization, and operational efficiency in travel planning, while also providing a scalable architectural foundation for future enhancements such as intelligent recommendations, advanced analytics, and third-party service integrations.}
+
+
+\subsection{Relevance to Course Modules}
+
+\ThesisParagraph{The TrekPal project strongly reflects the practical application of major BSE course modules by integrating software engineering, backend systems, frontend development, databases, networking, and system design into one production-style platform.}
+
+
+\ThesisParagraph{Software Engineering principles are applied through requirement analysis, modular architecture, SDLC documentation, and iterative Agile development. The project was developed in feature increments across multiple portals and backend modules, with continuous integration of new requirements and fixes.}
+
+
+\ThesisParagraph{Object-Oriented Programming (OOP) is reflected in the entity-driven design of system components such as users, agencies, hotels, rooms, vehicles, trip requests, bids, and bookings. Encapsulation, abstraction, and modular class/service structures are used throughout backend and frontend layers for maintainability and reuse.}
+
+
+\ThesisParagraph{Database Systems concepts are used in schema design and relational modeling using PostgreSQL with Prisma ORM. The project applies foreign-key relationships, normalization logic, transactional data flows, and role-specific data access patterns for core modules such as bookings, packages, and approvals.}
+
+
+\ThesisParagraph{Web Engineering is demonstrated through React-based portals (admin, agency, hotel), component-based UI architecture, state management, API integration, and role-based route/feature control. The portals are designed for operational workflows rather than static pages, making this a strong applied web systems case.}
+
+
+\ThesisParagraph{Mobile Application Development is represented by the Flutter traveler app, which provides trip request creation, bid viewing, booking actions, and user-facing travel workflows. It demonstrates cross-platform UI development, provider-based state handling, and backend API consumption in a real use case.}
+
+
+\ThesisParagraph{Computer Networks is applied through RESTful API communication, client-server architecture, authentication token flow, and WebSocket-based real-time features using Socket.IO. This includes live chat and event-driven updates for time-sensitive actions like bids and bookings.}
+
+
+\ThesisParagraph{Human-Computer Interaction (HCI) concepts are reflected in role-specific interfaces, workflow clarity, and usability-focused separation of concerns. Each portal is tailored to its actor (traveler, agency, hotel,Vehicle, admin), improving task efficiency and reducing interaction complexity..}
+
+
+\subsection{Project Background}
+
+\ThesisParagraph{The travel and tourism domain has rapidly shifted toward digital platforms, but many practical workflows remain fragmented. Travelers frequently use separate channels for accommodation, transportation, trip coordination, and agency communication. This causes inefficiency, weak price transparency, and limited control over personalized trip planning. Most existing systems are listing-centric: users browse predefined options and book directly, with minimal structured negotiation between demand and supply sides.}
+
+
+\ThesisParagraph{TrekPal was initiated to address this gap by introducing a unified, role-based travel marketplace that combines planning, negotiation, and booking in one system. Instead of forcing travelers to manually coordinate multiple providers, TrekPal enables users to submit structured trip requests and receive competitive, customized bids from agencies. Agencies can combine hotels, transport, and package options into one offer, while the platform ensures verification and operational oversight through administrative controls.}
+
+
+\ThesisParagraph{\textbf{The project evolved from a traditional booking concept into a multi-platform ecosystem consisting of:}}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A traveler-facing mobile app for requests, bids, bookings, and communication.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] An agency portal for inventory, offers, bidding, and booking operations.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A hotel portal for room/service management and booking visibility.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] An admin portal for approvals, moderation, and system supervision.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] A centralized backend API that coordinates all modules with secure authentication, relational data management, and real-time updates.
+\end{list}
+
+
+\ThesisParagraph{\textbf{From a system perspective, TrekPal's background is rooted in solving three core practical needs:}}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Integration}: unify hotels, transport, bids, and bookings in one workflow.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Transparency}: enable structured comparison through competitive offers.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Trust and Control}: enforce verification and platform governance through role-based administration.
+\end{list}
+
+
+\subsection{Literature Review}
+
+\ThesisParagraph{In Pakistan, digital travel adoption has increased through social media, messaging apps, and online listing platforms, but end-to-end trip planning is still largely fragmented. Travelers commonly use different channels for hotels, transport, and package coordination, often relying on WhatsApp, Facebook pages, informal agents, and separate booking websites. This creates delays, inconsistent pricing, and limited service transparency, especially for domestic tourism routes such as Northern Areas, Murree/Galiyat, Swat, and coastal destinations.}
+
+
+\ThesisParagraph{Most currently used solutions in the local market follow a listing and inquiry model rather than a fully integrated transactional workflow. Users browse options, contact providers manually, negotiate separately, and finalize arrangements through calls/messages. Research and market observations in similar developing-platform contexts show that such workflows increase operational friction and reduce comparability between competing offers, particularly when users need bundled services (hotel + transport + itinerary support).}
+
+
+\ThesisParagraph{A key issue highlighted in the Pakistan context is trust and verification. Travelers often face uncertainty about provider legitimacy, service quality, and booking reliability. In informal or semi-digital arrangements, listing authenticity, cancellation handling, and post-booking accountability are not always clear. This aligns with broader literature on emerging digital marketplaces, where identity verification, moderation, and provider approval mechanisms significantly improve platform credibility and user confidence.}
+
+
+\ThesisParagraph{Another relevant local trend is the growth of mobile-first usage. A large segment of Pakistani users accesses services primarily through smartphones, making app usability, low-friction workflows, and real-time communication essential. Systems that support instant updates, chat-based coordination, and transparent status tracking are better aligned with local user behavior than static, desktop-oriented booking flows.}
+
+
+\subsection{Analysis from Literature Review}
+
+\ThesisParagraph{The literature and Pakistan-focused market context indicate that existing travel solutions are largely effective for listing visibility but weak in integrated, end-to-end trip coordination. Most workflows remain fragmented across separate providers and communication channels, with travelers manually handling comparison, negotiation, and confirmation. This directly validates TrekPal's problem framing and design direction.}
+
+
+\ThesisParagraph{In relation to the reviewed systems, TrekPal differs in the following important ways:}
+
+
+\ThesisParagraph{\textbf{From static listing to demand-driven planning}}
+
+
+\ThesisParagraph{Existing platforms are mostly supply-led (users browse what is listed). TrekPal uses a demand-led flow where travelers submit structured trip requests and agencies respond with targeted bids.}
+
+
+\ThesisParagraph{\textbf{From isolated services to bundled offers}}
+
+
+\ThesisParagraph{Conventional workflows often separate accommodation and transport decisions. TrekPal enables agencies to propose combined offers (hotel + transport + related services), reducing coordination burden for travelers.}
+
+
+\ThesisParagraph{\textbf{From informal negotiation to structured competition}}
+
+
+\ThesisParagraph{In local practice, price negotiation often occurs privately via calls/messages, making comparison difficult. TrekPal formalizes this into comparable bid submissions, improving transparency and decision quality.}
+
+
+\ThesisParagraph{\textbf{From weak trust signals to controlled verification}}
+
+
+\ThesisParagraph{Literature emphasizes trust as a major constraint in digital travel marketplaces. TrekPal incorporates role-based verification and admin approval workflows for agencies/hotels/vehicles, improving reliability and platform governance.}
+
+
+\ThesisParagraph{\textbf{From delayed communication to real-time interaction}}
+
+
+\ThesisParagraph{Local travel coordination relies heavily on messaging, but without structured system state. TrekPal integrates real-time chat and event updates (e.g., bid/booking state changes), aligning with mobile-first usage behavior.}
+
+
+\ThesisParagraph{\textbf{From disconnected operations to platform-level lifecycle management}}
+
+
+\ThesisParagraph{Existing user journeys often end at booking. TrekPal supports a broader lifecycle: request creation, bidding, offer acceptance, booking tracking, and post-booking interaction..}
+
+
+\subsection{Methodology and Software Lifecycle for This Project}
+
+\ThesisParagraph{The development of TrekPal follows an~\textbf{Agile Scrum-based software lifecycle}~combined with a~\textbf{modular, layered, and object-oriented system design}. This approach was selected because the project includes multiple independent yet connected products (traveler app, agency portal, hotel portal, admin portal, and backend services), each with evolving requirements and frequent cross-module integration.}
+
+
+\ThesisParagraph{The software lifecycle was executed in iterative phases rather than a strict linear model:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[1.] \textbf{Requirement Identification and Scope Definition}\newline{} Core actors (Traveler, Agency, Hotel, Admin) and major workflows (trip requests, bids, bookings, inventory management, approvals, and communication) were finalized from domain analysis.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[2.] \textbf{System Design and Architecture Planning}\newline{} A role-based architecture was designed with a centralized backend API and separate frontend clients. Domain entities (User, Agency, Hotel, Room, Vehicle, TripRequest, Bid, Package, Booking, Review, Chat/Group) were modeled and relational dependencies were defined in the database schema.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[3.] \textbf{Incremental Implementation (Sprint-Based)}\newline{} Development proceeded feature-by-feature in short iterations. Each sprint targeted a specific vertical slice (e.g., auth, trip requests, bidding, booking flow, admin approvals, room management), enabling early validation and controlled integration.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[4.] \textbf{Continuous Integration and Refactoring}\newline{} As modules matured, API contracts, validation rules, and role-guard logic were refined. Cross-portal consistency issues were resolved through iterative fixes and backend-centralized enforcement.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[5.] \textbf{Testing and Stabilization}\newline{} Manual and code-level verification was used throughout development to validate role-specific workflows, state transitions, and failure handling (e.g., unauthorized actions, booking constraints, missing profiles, and edge-case payloads).
+\end{list}
+
+
+\ThesisParagraph{From a design perspective, TrekPal applies:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Object-Oriented decomposition}~for domain modeling and service organization.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Layered backend structure}~(routes/controllers/services/repositories/data).
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Component-based frontend architecture}~for reusable UI and role-focused pages.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{API-first integration}~between mobile/web clients and backend.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Event-driven communication}~for real-time updates where required.
+\end{list}
+
+
+\ThesisParagraph{This combined methodology provided two key benefits:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Flexibility}, because features changed and expanded during implementation.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] \textbf{Maintainability}, because modules remained isolated enough for independent fixes and future extension.
+\end{list}
+
+
+\section{Problem Definition}
+
+\ThesisParagraph{This chapter defines the primary challenges addressed by the proposed travel management system.}
+
+
+\subsection{Problem Statement}
+
+\ThesisParagraph{In Pakistan's current travel ecosystem, planning and managing a trip is still fragmented across multiple disconnected channels. Travelers often use separate sources for hotels, transport, and agency coordination, including social media pages, messaging apps, informal agents, and listing websites. This creates inefficiency, inconsistent service quality, weak price comparability, and high coordination effort for end users.}
+
+
+\ThesisParagraph{Most commonly used digital travel options in this context are listing-driven. Users browse predefined options and then negotiate or confirm details outside the platform. Such systems do not provide a structured mechanism for travelers to express complete trip needs and receive comparable, competitive offers from multiple service providers. As a result, pricing remains static or opaque, customization is limited, and users have reduced control over end-to-end trip decisions.}
+
+
+\ThesisParagraph{A second critical issue is trust. In semi-digital and informal arrangements, verification of agencies, hotels, and transport providers is often weak. Travelers may face uncertainty regarding provider authenticity, booking reliability, cancellation handling, and service accountability. At the same time, service providers lack a standardized digital workflow to respond to demand, manage inventory, and coordinate bookings efficiently.}
+
+
+\ThesisParagraph{These gaps highlight the need for a centralized, role-driven travel management platform that supports integrated planning, structured bidding, secure booking workflows, and verification controls. The system must:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] Unify key travel services (trip requests, offers, hotels, transport, bookings, and communication).
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] Enable dynamic interaction through a bid-based marketplace instead of only static listings.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] Provide transparent, comparable offers aligned with traveler constraints.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] Improve trust through approval and moderation workflows.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] Support real-time coordination among travelers and service providers.
+\end{list}
+
+
+\subsection{Deliverables and Development Requirements}
+
+\ThesisParagraph{The TrekPal project delivers a production-style, multi-platform travel marketplace system composed of client applications, role-specific web portals, and a centralized backend infrastructure. The final deliverables are:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[1.] \textbf{Traveler Mobile Application (Flutter)}\newline{} A cross-platform mobile app for travelers that supports account access, profile/KYC flows, trip request creation, bid viewing and acceptance, booking visibility, hotel and transport discovery, group interaction, and review-related actions.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[2.] \textbf{Agency Web Portal (React)}\newline{} A web portal for travel agencies to manage business operations, including profile/business workflows, hotel and vehicle inventory handling, package/offer preparation, trip-request response, bid submission, and booking follow-up.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[3.] \textbf{Hotel Web Portal (React)}\newline{} A dedicated hotel interface for hotel-side operations such as profile access, room/service management, and booking activity visibility for the hotel account context.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[4.] \textbf{Vehicle Portal (React)}
+\end{list}
+
+
+\ThesisParagraph{A dedicated vehicle portal where vehicle providers can register their vehicle, add driver information, manage and view bookings}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[5.] \textbf{Admin Web Portal (React)}\newline{} A governance and control interface for platform administration, including approval/rejection workflows, user/entity management, moderation tasks, and operational monitoring/reporting views.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[6.] \textbf{Centralized Backend API (Node.js + Express + TypeScript)}\newline{} A role-aware backend service exposing RESTful endpoints and real-time channels, implementing authentication/authorization, validation, business logic, inventory relations, bidding lifecycle, booking lifecycle, and administrative controls.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[7.] \textbf{Relational Data Layer (PostgreSQL + Prisma ORM)}\newline{} Structured schema and persistence for entities such as users, agencies, hotels, rooms, vehicles, trip requests, bids, packages, bookings, chat/group data, and reviews.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[8.] \textbf{Real-Time Communication Layer (Socket.IO)}\newline{} Event-driven communication for selected live features such as updates and chat-related coordination between actors.
+\end{list}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.202550\linewidth-6\tabcolsep*2025/10000-4\arrayrulewidth*2025/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.289911\linewidth-6\tabcolsep*2899/10000-4\arrayrulewidth*2899/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.507539\linewidth-6\tabcolsep*5075/10000-4\arrayrulewidth*5075/10000\relax}|}
+\caption*{Table 2.1 Development Requirements}\\
+\addcontentsline{lot}{table}{Table 2.1 Development Requirements}\\[-\normalbaselineskip]
+\hline
+\textbf{Category} & \textbf{Requirement} & \textbf{Purpose in TrekPal} \\ \hline
+
+\endfirsthead
+\multicolumn{3}{c}{Table 2.1 Development Requirements (continued)}\\
+\hline
+\textbf{Category} & \textbf{Requirement} & \textbf{Purpose in TrekPal} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+Frontend (Mobile) & Flutter SDK + Dart & Build and run the traveler mobile application \\ \hline
+
+Frontend (Web) & Node.js + npm + React toolchain & Build and run agency, hotel, and admin portals \\ \hline
+
+Backend Runtime & Node.js + TypeScript + Express & Implement centralized API and business logic \\ \hline
+
+Database & PostgreSQL & Store relational data for users, trips, bids, bookings, inventory, and admin flows \\ \hline
+
+ORM / Data Access & Prisma ORM + migrations & Schema modeling, database access, and migration management \\ \hline
+
+Authentication & Supabase Auth + JWT role tokens & Secure login/session flow and role-based access context \\ \hline
+
+Real-Time Layer & Socket.IO (WebSocket support) & Live chat and event-based updates across actors \\ \hline
+
+API Interface & RESTful endpoints & Standard communication between clients and backend \\ \hline
+
+Security Middleware & Role guards, request validation, CORS & Protect endpoints and enforce authorized access \\ \hline
+
+Media / Files & Configured file/media storage handling & Support document/image upload and retrieval workflows \\ \hline
+
+Configuration & Environment variables (.env) & Manage secrets, API URLs, DB config, auth keys, and CORS origins \\ \hline
+
+\end{longtable}
+}
+
+
+\section{Requirement Analysis}
+
+\ThesisParagraph{This chapter focuses on identifying and understanding the functional and non-functional requirements of the Trekpal System. By thoroughly understanding these requirements, the system can be designed to offer an engaging and user-friendly experience.}
+
+
+\subsection{Use Case Diagram}
+
+\ThesisParagraph{The figure 3.1 Use Case Diagram provides a comprehensive overview of the app's functionality, illustrating the various interactions and relationships between its users and the system itself.}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.056in,height=0.79\textheight,keepaspectratio]{figures/image5.png}
+\caption*{Fig 3.1 Usecase Diagram}
+\addcontentsline{lof}{figure}{Fig 3.1 Usecase Diagram}
+\end{figure}
+
+
+\subsection{Detailed Use Case}
+
+\ThesisParagraph{A use case description provides a detailed account of how users interact with a system to achieve specific goals, detailing scenarios, steps, and conditions under which each interaction occurs. The following tables shows the functional requirements related to user registration and authentication for the TrekPal system.}
+
+
+\subsubsection{Traveler Use Cases}
+
+\ThesisParagraph{Traveler use cases are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR 01: }Register / Login}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.233908\linewidth-4\tabcolsep*2339/10000-3\arrayrulewidth*2339/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.766092\linewidth-4\tabcolsep*7661/10000-3\arrayrulewidth*7661/10000\relax}|}
+\caption*{Table 3.1 Register / Login}\\
+\addcontentsline{lot}{table}{Table 3.1 Register / Login}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.1 Register / Login (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-01 \\ \hline
+
+\textbf{Use Case Name} & Register / Login \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler creates an account or logs into the TrekPal mobile application. \\ \hline
+
+\textbf{Trigger} & Traveler selects Sign Up or Login. \\ \hline
+
+\textbf{Preconditions} & None for registration. Existing account required for login. \\ \hline
+
+\textbf{Postconditions} & Traveler account is created or authenticated successfully. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens authentication screen. 2. Traveler enters required credentials or registration data. 3. System validates input. 4. System creates account or authenticates traveler. 5. System grants access to the app. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Invalid input, system displays validation error. AF-2: Email already exists, system asks for a different email. AF-3: Invalid login credentials, system rejects login. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-02: Verification}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.242579\linewidth-4\tabcolsep*2426/10000-3\arrayrulewidth*2426/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.757421\linewidth-4\tabcolsep*7574/10000-3\arrayrulewidth*7574/10000\relax}|}
+\caption*{Table 3.2 Verification}\\
+\addcontentsline{lot}{table}{Table 3.2 Verification}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.2 Verification (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-02 \\ \hline
+
+\textbf{Use Case Name} & Complete Traveler Verification \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler submits verification/KYC information for account approval. \\ \hline
+
+\textbf{Trigger} & Traveler selects verification option from profile or app prompt. \\ \hline
+
+\textbf{Preconditions} & Traveler is registered and logged in. \\ \hline
+
+\textbf{Postconditions} & Verification request is submitted and marked for admin review. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens verification form. 2. Traveler enters required personal information and uploads documents. 3. System validates entries. 4. System stores verification request. 5. System marks status as pending. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Missing required fields, system asks traveler to complete them. AF-2: Invalid file or document format, system rejects upload. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-03: Hotel Search}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.238021\linewidth-4\tabcolsep*2380/10000-3\arrayrulewidth*2380/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.761979\linewidth-4\tabcolsep*7620/10000-3\arrayrulewidth*7620/10000\relax}|}
+\caption*{Table 3.3 Hotel Search}\\
+\addcontentsline{lot}{table}{Table 3.3 Hotel Search}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.3 Hotel Search (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-03 \\ \hline
+
+\textbf{Use Case Name} & Browse Hotels and Packages \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler browses available hotels and travel packages in the platform. \\ \hline
+
+\textbf{Trigger} & Traveler opens hotel or package listing screen. \\ \hline
+
+\textbf{Preconditions} & Traveler is logged in. \\ \hline
+
+\textbf{Postconditions} & Traveler views available listings and details. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens listing page. 2. System fetches hotels or packages. 3. Traveler searches or scrolls through listings. 4. Traveler opens a selected item for details. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: No listings available, system shows empty state. AF-2: Data fetch fails, system displays error message. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-04: Create Trip Request}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.245692\linewidth-4\tabcolsep*2457/10000-3\arrayrulewidth*2457/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.754308\linewidth-4\tabcolsep*7543/10000-3\arrayrulewidth*7543/10000\relax}|}
+\caption*{Table 3.4 Create Trip Request}\\
+\addcontentsline{lot}{table}{Table 3.4 Create Trip Request}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.4 Create Trip Request (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-04 \\ \hline
+
+\textbf{Use Case Name} & Create Trip Request \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler creates a trip request by defining destination, dates, budget, and travel preferences. \\ \hline
+
+\textbf{Trigger} & Traveler selects Create Trip Request. \\ \hline
+
+\textbf{Preconditions} & Traveler is logged in. \\ \hline
+
+\textbf{Postconditions} & A new trip request is created and becomes visible to agencies. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens trip request form. 2. Traveler enters trip details. 3. System validates the information. 4. System saves the request. 5. System publishes the request for agency bidding. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Missing required fields, system shows validation errors. AF-2: Submission fails, system asks traveler to try again. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-05: View and Accept Bids}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.244469\linewidth-4\tabcolsep*2445/10000-3\arrayrulewidth*2445/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.755531\linewidth-4\tabcolsep*7555/10000-3\arrayrulewidth*7555/10000\relax}|}
+\caption*{Table 3.5 View and Accept Bids}\\
+\addcontentsline{lot}{table}{Table 3.5 View and Accept Bids}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.5 View and Accept Bids (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-05 \\ \hline
+
+\textbf{Use Case Name} & View and Accept Bids \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler reviews bids submitted by agencies and accepts a suitable offer. \\ \hline
+
+\textbf{Trigger} & Traveler opens a trip request with received bids. \\ \hline
+
+\textbf{Preconditions} & Traveler has an active trip request and at least one bid exists. \\ \hline
+
+\textbf{Postconditions} & Selected bid is accepted and booking flow proceeds. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens trip request details. 2. System displays submitted bids. 3. Traveler compares offers. 4. Traveler selects one bid. 5. System records acceptance and updates bid status. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: No bids available, system shows waiting state. AF-2: Accepted bid becomes unavailable, system shows failure notice. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-06: View Bookings}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.256142\linewidth-4\tabcolsep*2561/10000-3\arrayrulewidth*2561/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.743858\linewidth-4\tabcolsep*7439/10000-3\arrayrulewidth*7439/10000\relax}|}
+\caption*{Table 3.6 6 View Bookings}\\
+\addcontentsline{lot}{table}{Table 3.6 6 View Bookings}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.6 6 View Bookings (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-06 \\ \hline
+
+\textbf{Use Case Name} & View Bookings \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler checks confirmed or previous bookings in the app. \\ \hline
+
+\textbf{Trigger} & Traveler opens the bookings section. \\ \hline
+
+\textbf{Preconditions} & Traveler is logged in. \\ \hline
+
+\textbf{Postconditions} & Traveler sees current or past booking records. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens bookings page. 2. System retrieves booking list. 3. Traveler views booking summary. 4. Traveler may open a booking for more details. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: No bookings exist, system shows empty state. AF-2: Booking data fails to load, system displays error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-07: Join Group Trip }}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.236020\linewidth-4\tabcolsep*2360/10000-3\arrayrulewidth*2360/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.763980\linewidth-4\tabcolsep*7640/10000-3\arrayrulewidth*7640/10000\relax}|}
+\caption*{Table 3.7 Join Group Trip}\\
+\addcontentsline{lot}{table}{Table 3.7 Join Group Trip}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.7 Join Group Trip (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-07 \\ \hline
+
+\textbf{Use Case Name} & Join Group Trip \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler joins a group trip and communicates with other members. \\ \hline
+
+\textbf{Trigger} & Traveler enters a group trip \\ \hline
+
+\textbf{Preconditions} & Traveler is part of an eligible trip/group. \\ \hline
+
+\textbf{Postconditions} & Traveler joins the group space and can exchange messages. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens group trip section. 2. System verifies group membership. 3. System opens group details. 4. Traveler sends and receives messages. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Traveler is not authorized for the group, system denies access. AF-2: Chat service unavailable, system shows error state. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-TR-08: Submit Review}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.244914\linewidth-4\tabcolsep*2449/10000-3\arrayrulewidth*2449/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.755086\linewidth-4\tabcolsep*7551/10000-3\arrayrulewidth*7551/10000\relax}|}
+\caption*{Table 3.8 Submit Review}\\
+\addcontentsline{lot}{table}{Table 3.8 Submit Review}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.8 Submit Review (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-TR-08 \\ \hline
+
+\textbf{Use Case Name} & Submit Review \\ \hline
+
+\textbf{Actor} & Traveler \\ \hline
+
+\textbf{Description} & The traveler submits a review for a completed booking, hotel, or related travel experience. \\ \hline
+
+\textbf{Trigger} & Traveler selects Write Review. \\ \hline
+
+\textbf{Preconditions} & Traveler has a completed eligible trip or booking. \\ \hline
+
+\textbf{Postconditions} & Review is saved and linked to the related entity. \\ \hline
+
+\textbf{Main Flow} & 1. Traveler opens review form. 2. Traveler enters rating and comments. 3. System validates review data. 4. System stores the review. 5. Review becomes visible in the platform. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Traveler is not eligible to review, system blocks submission. AF-2: Missing rating or content, system shows validation error. \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Travel Agency Use Cases}
+
+\ThesisParagraph{Travel Agency use cases are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-AG-01: Register Travel Agency}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.239022\linewidth-4\tabcolsep*2390/10000-3\arrayrulewidth*2390/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.760978\linewidth-4\tabcolsep*7610/10000-3\arrayrulewidth*7610/10000\relax}|}
+\caption*{Table 3.9 Register Travel Agency}\\
+\addcontentsline{lot}{table}{Table 3.9 Register Travel Agency}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.9 Register Travel Agency (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-AG-01 \\ \hline
+
+\textbf{Use Case Name} & Register Travel Agency \\ \hline
+
+\textbf{Actor} & Travel Agency \\ \hline
+
+\textbf{Description} & The agency creates a new business account in the agency portal. \\ \hline
+
+\textbf{Trigger} & Agency selects Register. \\ \hline
+
+\textbf{Preconditions} & None \\ \hline
+
+\textbf{Postconditions} & Agency account is created. \\ \hline
+
+\textbf{Main Flow} & 1. Agency opens registration form. 2. Agency enters business and account details. 3. System validates the data. 4. System creates the agency account. 5. Agency can proceed to verification steps. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Invalid or incomplete data, system shows errors. AF-2: Email already exists, system requests a different email. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-AG-02: Submit Verification Documents}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.243357\linewidth-4\tabcolsep*2434/10000-3\arrayrulewidth*2434/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.756643\linewidth-4\tabcolsep*7566/10000-3\arrayrulewidth*7566/10000\relax}|}
+\caption*{Table 3.10 Submit Verification Documents}\\
+\addcontentsline{lot}{table}{Table 3.10 Submit Verification Documents}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.10 Submit Verification Documents (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-AG-02 \\ \hline
+
+\textbf{Use Case Name} & Submit Verification Documents \\ \hline
+
+\textbf{Actor} & Travel Agency \\ \hline
+
+\textbf{Description} & The agency uploads required business verification documents for approval. \\ \hline
+
+\textbf{Trigger} & Agency opens verification submission page. \\ \hline
+
+\textbf{Preconditions} & Agency account exists and agency is logged in. \\ \hline
+
+\textbf{Postconditions} & Verification request is submitted for admin review. \\ \hline
+
+\textbf{Main Flow} & 1. Agency opens verification form. 2. Agency uploads documents and enters required details. 3. System validates submission. 4. System stores the request. 5. Status becomes pending approval. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Invalid file format or missing documents, system rejects submission. AF-2: Upload failure, system asks agency to retry. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-AG-03: Manage Hotels, Rooms, and Packages}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.256142\linewidth-4\tabcolsep*2561/10000-3\arrayrulewidth*2561/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.743858\linewidth-4\tabcolsep*7439/10000-3\arrayrulewidth*7439/10000\relax}|}
+\caption*{Table 3.11 Manage Hotels, Rooms, and Packages}\\
+\addcontentsline{lot}{table}{Table 3.11 Manage Hotels, Rooms, and Packages}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.11 Manage Hotels, Rooms, and Packages (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-AG-03 \\ \hline
+
+\textbf{Use Case Name} & Manage Hotels, Rooms, and Packages \\ \hline
+
+\textbf{Actor} & Travel Agency \\ \hline
+
+\textbf{Description} & The agency creates and updates inventory related to hotels and rooms, and configures tour packages. \\ \hline
+
+\textbf{Trigger} & Agency opens inventory or package management section. \\ \hline
+
+\textbf{Preconditions} & Agency is logged in and authorized. \\ \hline
+
+\textbf{Postconditions} & Inventory records are added, updated, or removed. \\ \hline
+
+\textbf{Main Flow} & 1. Agency selects hotels, rooms, or packages. 2. Agency adds or edits details (allocating rooms/vehicles). 3. System validates entries. 4. System stores changes. 5. Updated records appear in agency portal. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Required fields missing, system shows validation errors. AF-2: Unauthorized action, system blocks operation. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-AG-04: View Trip Requests}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.245581\linewidth-4\tabcolsep*2456/10000-3\arrayrulewidth*2456/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.754419\linewidth-4\tabcolsep*7544/10000-3\arrayrulewidth*7544/10000\relax}|}
+\caption*{Table 3.12 View Trip Requests}\\
+\addcontentsline{lot}{table}{Table 3.12 View Trip Requests}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.12 View Trip Requests (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-AG-04 \\ \hline
+
+\textbf{Use Case Name} & View Trip Requests \\ \hline
+
+\textbf{Actor} & Travel Agency \\ \hline
+
+\textbf{Description} & The agency views traveler trip requests available for bidding. \\ \hline
+
+\textbf{Trigger} & Agency opens trip request marketplace. \\ \hline
+
+\textbf{Preconditions} & Agency is logged in and has portal access. \\ \hline
+
+\textbf{Postconditions} & Agency can inspect requests and choose relevant ones. \\ \hline
+
+\textbf{Main Flow} & 1. Agency opens trip requests page. 2. System retrieves open requests. 3. Agency reviews request details. 4. Agency selects a request to respond to. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: No active trip requests, system shows empty state. AF-2: Data retrieval fails, system displays error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-AG-05: Manage Bookings}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.256142\linewidth-4\tabcolsep*2561/10000-3\arrayrulewidth*2561/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.743858\linewidth-4\tabcolsep*7439/10000-3\arrayrulewidth*7439/10000\relax}|}
+\caption*{Table 3.13 Manage Bookings}\\
+\addcontentsline{lot}{table}{Table 3.13 Manage Bookings}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.13 Manage Bookings (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-AG-05 \\ \hline
+
+\textbf{Use Case Name} & Manage Bookings \\ \hline
+
+\textbf{Actor} & Travel Agency \\ \hline
+
+\textbf{Description} & The agency views and manages accepted bookings related to submitted offers. \\ \hline
+
+\textbf{Trigger} & Agency opens bookings section. \\ \hline
+
+\textbf{Preconditions} & Agency is logged in and has booking records. \\ \hline
+
+\textbf{Postconditions} & Booking details or statuses are updated. \\ \hline
+
+\textbf{Main Flow} & 1. Agency opens bookings page. 2. System lists agency-related bookings. 3. Agency reviews booking details. 4. Agency updates status or follows up operationally. 5. System saves changes. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: No bookings available, system shows empty state. AF-2: Update request fails, system displays error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-AG-06: Create Tour Packages}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.244136\linewidth-4\tabcolsep*2441/10000-3\arrayrulewidth*2441/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.755864\linewidth-4\tabcolsep*7559/10000-3\arrayrulewidth*7559/10000\relax}|}
+\caption*{Table 3.14 Create Tour Packages}\\
+\addcontentsline{lot}{table}{Table 3.14 Create Tour Packages}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.14 Create Tour Packages (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-AG-06 \\ \hline
+
+\textbf{Use Case Name} & Create Tour Packages \\ \hline
+
+\textbf{Actor} & Travel Agency \\ \hline
+
+\textbf{Description} & The agency creates tour packages that can be listed for travelers. \\ \hline
+
+\textbf{Trigger} & Agency selects Create Package. \\ \hline
+
+\textbf{Preconditions} & Agency is logged in. \\ \hline
+
+\textbf{Postconditions} & New package is created and published in the system. \\ \hline
+
+\textbf{Main Flow} & 1. Agency opens package creation form. 2. Agency enters package information. 3. System validates the details. 4. System saves the package. 5. Package becomes available for traveler viewing. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Missing or invalid package details, system shows validation errors. AF-2: Save operation fails, system asks agency to retry. \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Admin Use Cases}
+
+\ThesisParagraph{Admin use cases are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-ADM-01: Approve/Reject Agency Registration}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.246470\linewidth-4\tabcolsep*2465/10000-3\arrayrulewidth*2465/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.753530\linewidth-4\tabcolsep*7535/10000-3\arrayrulewidth*7535/10000\relax}|}
+\caption*{Table 3.15 Approve/Reject Agency Registration}\\
+\addcontentsline{lot}{table}{Table 3.15 Approve/Reject Agency Registration}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.15 Approve/Reject Agency Registration (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-ADM-01 \\ \hline
+
+\textbf{Use Case Name} & Approve / Reject Travel Agency Registration \\ \hline
+
+\textbf{Actor} & Admin \\ \hline
+
+\textbf{Description} & The admin reviews agency registration requests and decides whether to approve or reject them. \\ \hline
+
+\textbf{Trigger} & Admin opens pending agency approvals. \\ \hline
+
+\textbf{Preconditions} & Admin is authenticated and agency requests exist. \\ \hline
+
+\textbf{Postconditions} & Agency status is updated to approved or rejected. \\ \hline
+
+\textbf{Main Flow} & 1. Admin opens agency approval list. 2. Admin reviews submitted details and documents. 3. Admin selects approve or reject. 4. System updates agency status. 5. Agency is informed of the result. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Agency record incomplete, admin delays decision. AF-2: Update operation fails, system shows error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-ADM-02: Approve/Reject Hotel}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.227904\linewidth-4\tabcolsep*2279/10000-3\arrayrulewidth*2279/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.772096\linewidth-4\tabcolsep*7721/10000-3\arrayrulewidth*7721/10000\relax}|}
+\caption*{Table 3.16 Approve/Reject Hotel}\\
+\addcontentsline{lot}{table}{Table 3.16 Approve/Reject Hotel}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.16 Approve/Reject Hotel (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-ADM-02 \\ \hline
+
+\textbf{Use Case Name} & Approve / Reject Hotels \\ \hline
+
+\textbf{Actor} & Admin \\ \hline
+
+\textbf{Description} & The admin reviews hotel records submitted to the platform and approves or rejects them. \\ \hline
+
+\textbf{Trigger} & Admin opens hotel review section. \\ \hline
+
+\textbf{Preconditions} & Admin is authenticated and hotel submissions exist. \\ \hline
+
+\textbf{Postconditions} & Hotel status is updated. \\ \hline
+
+\textbf{Main Flow} & 1. Admin views hotel submissions. 2. Admin reviews hotel information. 3. Admin approves or rejects the hotel. 4. System saves decision. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Submission data incomplete, admin postpones decision. AF-2: Save fails, system displays error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-ADM-03: Approve/Reject Vehicle}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.227904\linewidth-4\tabcolsep*2279/10000-3\arrayrulewidth*2279/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.772096\linewidth-4\tabcolsep*7721/10000-3\arrayrulewidth*7721/10000\relax}|}
+\caption*{Table 3.17 Approve/Reject Vehicle}\\
+\addcontentsline{lot}{table}{Table 3.17 Approve/Reject Vehicle}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.17 Approve/Reject Vehicle (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-ADM-03 \\ \hline
+
+\textbf{Use Case Name} & Approve / Reject Vehicles \\ \hline
+
+\textbf{Actor} & Admin \\ \hline
+
+\textbf{Description} & The admin reviews vehicle records submitted by agencies and decides approval status. \\ \hline
+
+\textbf{Trigger} & Admin opens vehicle review section. \\ \hline
+
+\textbf{Preconditions} & Admin is authenticated and vehicle submissions exist. \\ \hline
+
+\textbf{Postconditions} & Vehicle status is updated. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-ADM-04: Approve Traveler Verification}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.206115\linewidth-4\tabcolsep*2061/10000-3\arrayrulewidth*2061/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.793885\linewidth-4\tabcolsep*7939/10000-3\arrayrulewidth*7939/10000\relax}|}
+\caption*{Table 3.18 Approve Traveler Verification}\\
+\addcontentsline{lot}{table}{Table 3.18 Approve Traveler Verification}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.18 Approve Traveler Verification (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-ADM-04 \\ \hline
+
+\textbf{Use Case Name} & Approve Traveler Verification \\ \hline
+
+\textbf{Actor} & Admin \\ \hline
+
+\textbf{Description} & The admin reviews traveler KYC submissions and approves or rejects verification. \\ \hline
+
+\textbf{Trigger} & Admin opens traveler verification requests. \\ \hline
+
+\textbf{Preconditions} & Admin is authenticated and traveler verification records exist. \\ \hline
+
+\textbf{Postconditions} & Traveler verification status is updated. \\ \hline
+
+\textbf{Main Flow} & 1. Admin opens verification list. 2. Admin reviews submitted documents. 3. Admin approves or rejects the verification. 4. System saves the updated status. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Documents unclear or incomplete, admin rejects or delays review.~AF-2: Update request fails, system displays error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-ADM-05: View System Analytics}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.227904\linewidth-4\tabcolsep*2279/10000-3\arrayrulewidth*2279/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.772096\linewidth-4\tabcolsep*7721/10000-3\arrayrulewidth*7721/10000\relax}|}
+\caption*{Table 3.19 View System Analytics}\\
+\addcontentsline{lot}{table}{Table 3.19 View System Analytics}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.19 View System Analytics (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-ADM-05 \\ \hline
+
+\textbf{Use Case Name} & View System Analytics \\ \hline
+
+\textbf{Actor} & Admin \\ \hline
+
+\textbf{Description} & The admin views overall platform statistics and summary data. \\ \hline
+
+\textbf{Trigger} & Admin opens dashboard or reports section. \\ \hline
+
+\textbf{Preconditions} & Admin is authenticated. \\ \hline
+
+\textbf{Postconditions} & Admin can inspect system-level summary metrics. \\ \hline
+
+\textbf{Main Flow} & 1. Admin opens analytics dashboard. 2. System retrieves platform summary data. 3. Admin reviews counts, status summaries, or trends. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Analytics data unavailable, system shows loading/error state. AF-2: Partial data returned, system displays available metrics only \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Hotel Use Case}
+
+\ThesisParagraph{Hotel use cases are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-H-01: Register Hotel}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229572\linewidth-4\tabcolsep*2296/10000-3\arrayrulewidth*2296/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770428\linewidth-4\tabcolsep*7704/10000-3\arrayrulewidth*7704/10000\relax}|}
+\caption*{Table 3.20 Register Hotel}\\
+\addcontentsline{lot}{table}{Table 3.20 Register Hotel}\\[-\normalbaselineskip]
+\hline
+\endfirsthead
+\hline
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & \textbf{UC-H-01} \\ \hline
+
+\textbf{Use Case Name} & Register Hotel \\ \hline
+
+\textbf{Actor} & Hotel \\ \hline
+
+\textbf{Description} & The hotel creates an account in the hotel portal. \\ \hline
+
+\textbf{Trigger} & Hotel selects~Register. \\ \hline
+
+\textbf{Postconditions} & Hotel account is created and can log in. \\ \hline
+
+\textbf{Main Flow} & 1. Hotel opens registration form. 2. Hotel enters required business and contact details. 3. System validates the data. 4. System creates the hotel account. 5. Hotel is redirected to the portal flow. \\ \hline
+
+\textbf{Alternative Flows} & AF-1:~Invalid or incomplete data, system shows errors.~AF-2:~Email already exists, system requests a different email. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-H-02 : Manage Rooms and Services}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.230000\linewidth-4\tabcolsep*2300/10000-3\arrayrulewidth*2300/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770000\linewidth-4\tabcolsep*7700/10000-3\arrayrulewidth*7700/10000\relax}|}
+\caption*{Table 3.21 Manage Rooms and Services}\\
+\addcontentsline{lot}{table}{Table 3.21 Manage Rooms and Services}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.21 Manage Rooms and Services (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-H-02 \\ \hline
+
+\textbf{Use Case Name} & Manage Rooms and Services \\ \hline
+
+\textbf{Actor} & Hotel \\ \hline
+
+\textbf{Description} & The hotel manages room types and service offerings from the hotel portal. \\ \hline
+
+\textbf{Trigger} & Hotel opens rooms or services section. \\ \hline
+
+\textbf{Preconditions} & Hotel is logged in and hotel profile exists. \\ \hline
+
+\textbf{Postconditions} & Room or service records are added, updated, or deleted. \\ \hline
+
+\textbf{Main Flow} & 1. Hotel opens management page. 2. Hotel enters or edits room/service information. 3. System validates the data. 4. System saves changes. 5. Updated records appear in the hotel portal. \\ \hline
+
+\textbf{Alternative Flows} & AF-1:~Hotel profile missing, system blocks the action.~AF-2:~Invalid data, system shows validation errors.~AF-3:~Save request fails, system displays error message. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-H-03: View Booking Activity}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229037\linewidth-4\tabcolsep*2290/10000-3\arrayrulewidth*2290/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770963\linewidth-4\tabcolsep*7710/10000-3\arrayrulewidth*7710/10000\relax}|}
+\caption*{Table 3.22 View Booking Activity}\\
+\addcontentsline{lot}{table}{Table 3.22 View Booking Activity}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.22 View Booking Activity (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-H-03 \\ \hline
+
+\textbf{Use Case Name} & View Booking Request \\ \hline
+
+\textbf{Actor} & Hotel \\ \hline
+
+\textbf{Description} & The hotel views booking Request associated with its rooms or services. \\ \hline
+
+\textbf{Trigger} & Hotel opens booking request page. \\ \hline
+
+\textbf{Preconditions} & Hotel is logged in and linked to a valid hotel profile. \\ \hline
+
+\textbf{Postconditions} & Hotel can review booking-related records. \\ \hline
+
+\textbf{Main Flow} & 1. Hotel opens booking request section. 2. System retrieves hotel-related booking records. 3. Hotel views the booking list and details. \\ \hline
+
+\textbf{Alternative Flows} & AF-1:~No bookings exist, system shows empty state.~AF-2:~Hotel context missing or invalid, system shows access/load error. \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Vehicle Provider Use Cases}
+
+\ThesisParagraph{Vehicle Provider use cases are as follows:}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-VP-01: Register / Login Vehicle Provider}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229037\linewidth-4\tabcolsep*2290/10000-3\arrayrulewidth*2290/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770963\linewidth-4\tabcolsep*7710/10000-3\arrayrulewidth*7710/10000\relax}|}
+\caption*{Table 3.23 Register / Login Vehicle Provider}\\
+\addcontentsline{lot}{table}{Table 3.23 Register / Login Vehicle Provider}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.23 Register / Login Vehicle Provider (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-VP-01 \\ \hline
+
+\textbf{Use Case Name} & Register / Login Vehicle Provider \\ \hline
+
+\textbf{Actor} & Vehicle Provider \\ \hline
+
+\textbf{Description} & The vehicle provider creates a business account and logs into the TrekPal vehicle portal. \\ \hline
+
+\textbf{Trigger} & Provider selects Register or Login. \\ \hline
+
+\textbf{Postconditions} & Provider account is created (pending admin approval) or authenticated successfully. \\ \hline
+
+\textbf{Main Flow} & 1. Provider opens authentication page. 2. Provider enters business name, email, phone, and password. 3. System validates input. 4. System creates account in status PENDING. 5. System redirects to verification submission page. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Invalid input, system shows validation error. AF-2: Email already exists, system rejects registration. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-VP-02: Submit Verification Documents}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229037\linewidth-4\tabcolsep*2290/10000-3\arrayrulewidth*2290/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770963\linewidth-4\tabcolsep*7710/10000-3\arrayrulewidth*7710/10000\relax}|}
+\caption*{Table 3.24 Submit Verification Documents}\\
+\addcontentsline{lot}{table}{Table 3.24 Submit Verification Documents}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.24 Submit Verification Documents (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-VP-02 \\ \hline
+
+\textbf{Use Case Name} & Submit Verification Documents \\ \hline
+
+\textbf{Actor} & Vehicle Provider \\ \hline
+
+\textbf{Description} & The vehicle provider uploads required business documents (license, NTN, CNIC) for approval. \\ \hline
+
+\textbf{Trigger} & Provider selects Upload Documents. \\ \hline
+
+\textbf{Preconditions} & Provider is logged in. \\ \hline
+
+\textbf{Postconditions} & Documents are uploaded and status is updated to PENDING\_APPROVAL. \\ \hline
+
+\textbf{Main Flow} & 1. Provider selects documents to upload. 2. System uploads files to Supabase storage. 3. System associates URLs with provider record. 4. System updates status to PENDING\_APPROVAL. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: File format not supported. AF-2: Network upload error. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-VP-03: Manage Vehicles}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229037\linewidth-4\tabcolsep*2290/10000-3\arrayrulewidth*2290/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770963\linewidth-4\tabcolsep*7710/10000-3\arrayrulewidth*7710/10000\relax}|}
+\caption*{Table 3.25 Manage Vehicles}\\
+\addcontentsline{lot}{table}{Table 3.25 Manage Vehicles}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.25 Manage Vehicles (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-VP-03 \\ \hline
+
+\textbf{Use Case Name} & Manage Vehicles \\ \hline
+
+\textbf{Actor} & Vehicle Provider \\ \hline
+
+\textbf{Description} & The vehicle provider adds, updates, or removes vehicles in their fleet. \\ \hline
+
+\textbf{Trigger} & Provider accesses Transport Management section. \\ \hline
+
+\textbf{Preconditions} & Provider is authenticated and approved. \\ \hline
+
+\textbf{Postconditions} & Fleet inventory is updated in the database. \\ \hline
+
+\textbf{Main Flow} & 1. Provider selects Add/Edit Vehicle. 2. Provider enters vehicle details (make, model, year, capacity, number, price per day) and uploads images. 3. System associates vehicle with a driver. 4. System saves record in database. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: Driver already assigned to another vehicle. AF-2: Mandatory fields missing. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-VP-04: Manage Drivers}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229037\linewidth-4\tabcolsep*2290/10000-3\arrayrulewidth*2290/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770963\linewidth-4\tabcolsep*7710/10000-3\arrayrulewidth*7710/10000\relax}|}
+\caption*{Table 3.26 Manage Drivers}\\
+\addcontentsline{lot}{table}{Table 3.26 Manage Drivers}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.26 Manage Drivers (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-VP-04 \\ \hline
+
+\textbf{Use Case Name} & Manage Drivers \\ \hline
+
+\textbf{Actor} & Vehicle Provider \\ \hline
+
+\textbf{Description} & The vehicle provider creates and updates driver records. \\ \hline
+
+\textbf{Trigger} & Provider accesses Driver Management. \\ \hline
+
+\textbf{Preconditions} & Provider is authenticated and approved. \\ \hline
+
+\textbf{Postconditions} & Driver records are updated in the database. \\ \hline
+
+\textbf{Main Flow} & 1. Provider selects Add Driver. 2. Provider enters driver name, phone, and license number. 3. System creates driver record. \\ \hline
+
+\textbf{Alternative Flows} & AF-1: License number format invalid. AF-2: Duplicate driver details. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{UC-VP-05: Manage Bookings}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.229037\linewidth-4\tabcolsep*2290/10000-3\arrayrulewidth*2290/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.770963\linewidth-4\tabcolsep*7710/10000-3\arrayrulewidth*7710/10000\relax}|}
+\caption*{Table 3.27 View Bookings}\\
+\addcontentsline{lot}{table}{Table 3.27 View Bookings}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.27 View Bookings (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Use Case ID} & UC-VP-05 \\ \hline
+
+\textbf{Use Case Name} & Manage Bookings \\ \hline
+
+\textbf{Actor} & Vehicle Provider \\ \hline
+
+\textbf{Description} & The vehicle provider views bookings assigned to their vehicles. And manage it accordingly \\ \hline
+
+\textbf{Trigger} & Provider accesses Bookings tab. \\ \hline
+
+\textbf{Preconditions} & Provider is authenticated. \\ \hline
+
+\textbf{Postconditions} & Booking history and details are displayed. \\ \hline
+
+\textbf{Main Flow} & 1. Provider requests booking list. 2. System retrieves bookings where vehicle belongs to provider. 3. System displays details (start date, end date, customer name, price). \\ \hline
+
+\textbf{Alternative Flows} & AF-1: No bookings found. \\ \hline
+
+\end{longtable}
+}
+
+
+\subsection{Functional Requirements}
+
+\subsubsection{Traveler Functional Requirements}
+
+\ThesisParagraph{Traveler Functional Requirements are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-01: Traveler Registration and Login}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.216120\linewidth-4\tabcolsep*2161/10000-3\arrayrulewidth*2161/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.783880\linewidth-4\tabcolsep*7839/10000-3\arrayrulewidth*7839/10000\relax}|}
+\caption*{Table 3.28 Traveler Registration and Login}\\
+\addcontentsline{lot}{table}{Table 3.28 Traveler Registration and Login}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.28 Traveler Registration and Login (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-01 \\ \hline
+
+\textbf{Title} & Traveler Registration and Login \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to register and log in using supported authentication methods. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-01) \\ \hline
+
+\textbf{Rationale} & Required to access personalized travel planning and booking features. \\ \hline
+
+\textbf{Business Rules} & Email or phone must be unique. Valid credentials are required for login. \\ \hline
+
+\textbf{Dependencies} & Authentication service, traveler account data \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-02 Traveler Verification}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.217899\linewidth-4\tabcolsep*2179/10000-3\arrayrulewidth*2179/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.782101\linewidth-4\tabcolsep*7821/10000-3\arrayrulewidth*7821/10000\relax}|}
+\caption*{Table 3.29 Traveler Verification}\\
+\addcontentsline{lot}{table}{Table 3.29 Traveler Verification}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.29 Traveler Verification (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-02 \\ \hline
+
+\textbf{Title} & Traveler Verification \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to submit verification/KYC information and documents for approval. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-02) \\ \hline
+
+\textbf{Rationale} & Required to establish trust and enable verified platform participation. \\ \hline
+
+\textbf{Business Rules} & Required fields and valid documents must be submitted before review. \\ \hline
+
+\textbf{Dependencies} & Traveler profile, document upload handling, admin review workflow \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-03 Browse Hotels and Packages}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.219678\linewidth-4\tabcolsep*2197/10000-3\arrayrulewidth*2197/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.780322\linewidth-4\tabcolsep*7803/10000-3\arrayrulewidth*7803/10000\relax}|}
+\caption*{Table 3.30 Browse Hotels and Packages}\\
+\addcontentsline{lot}{table}{Table 3.30 Browse Hotels and Packages}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.30 Browse Hotels and Packages (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-03 \\ \hline
+
+\textbf{Title} & Browse Hotels and Packages \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to browse available hotels and travel packages. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-03) \\ \hline
+
+\textbf{Rationale} & Required for discovering travel options and marketplace offerings. \\ \hline
+
+\textbf{Business Rules} & Only approved and available listings shall be shown. \\ \hline
+
+\textbf{Dependencies} & Hotel data, package data \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-04 Create Trip Request}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.215453\linewidth-4\tabcolsep*2155/10000-3\arrayrulewidth*2155/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.784547\linewidth-4\tabcolsep*7845/10000-3\arrayrulewidth*7845/10000\relax}|}
+\caption*{Table 3.31 Create Trip Request}\\
+\addcontentsline{lot}{table}{Table 3.31 Create Trip Request}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.31 Create Trip Request (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-04 \\ \hline
+
+\textbf{Title} & Create Trip Request \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to create trip requests by entering destination, dates, budget, and related travel details. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-04) \\ \hline
+
+\textbf{Rationale} & Core marketplace feature for demand-driven trip planning. \\ \hline
+
+\textbf{Business Rules} & Required trip fields must be completed before submission. \\ \hline
+
+\textbf{Dependencies} & Traveler authentication, trip request module \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-05 View and Accept Bids}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.214230\linewidth-4\tabcolsep*2142/10000-3\arrayrulewidth*2142/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.785770\linewidth-4\tabcolsep*7858/10000-3\arrayrulewidth*7858/10000\relax}|}
+\caption*{Table 3.32 View and Accept Bids}\\
+\addcontentsline{lot}{table}{Table 3.32 View and Accept Bids}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.32 View and Accept Bids (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-05 \\ \hline
+
+\textbf{Title} & View and Accept Bids \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to view bids submitted by agencies and accept one of the available offers. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-05) \\ \hline
+
+\textbf{Rationale} & Enables structured comparison and selection of agency offers. \\ \hline
+
+\textbf{Business Rules} & Only bids linked to the traveler's request shall be visible. Only one final accepted bid should remain active for a request. \\ \hline
+
+\textbf{Dependencies} & Trip requests, bid management module \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-06 View Bookings}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.214452\linewidth-4\tabcolsep*2145/10000-3\arrayrulewidth*2145/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.785548\linewidth-4\tabcolsep*7855/10000-3\arrayrulewidth*7855/10000\relax}|}
+\caption*{Table 3.33 View Bookings}\\
+\addcontentsline{lot}{table}{Table 3.33 View Bookings}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.33 View Bookings (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-06 \\ \hline
+
+\textbf{Title} & View Bookings \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to view their booking records and booking details. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-06) \\ \hline
+
+\textbf{Rationale} & Required for booking tracking and trip visibility. \\ \hline
+
+\textbf{Business Rules} & Travelers may only access their own bookings. \\ \hline
+
+\textbf{Dependencies} & Booking module, traveler authentication \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-07 Group Trip Participation and Chat}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.219233\linewidth-4\tabcolsep*2192/10000-3\arrayrulewidth*2192/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.780767\linewidth-4\tabcolsep*7808/10000-3\arrayrulewidth*7808/10000\relax}|}
+\caption*{Table 3.34 Group Trip Participation and Chat}\\
+\addcontentsline{lot}{table}{Table 3.34 Group Trip Participation and Chat}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.34 Group Trip Participation and Chat (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-07 \\ \hline
+
+\textbf{Title} & Group Trip Participation and Chat \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to join group trips and communicate with group members through chat. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-07) \\ \hline
+
+\textbf{Rationale} & Supports collaboration and coordination in shared trip experiences. \\ \hline
+
+\textbf{Business Rules} & Only authorized group members may access the related chat. \\ \hline
+
+\textbf{Dependencies} & Group trip module, chat service, authentication \\ \hline
+
+\textbf{Priority} & Medium \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-TR-08 Submit Review}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.214452\linewidth-4\tabcolsep*2145/10000-3\arrayrulewidth*2145/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.785548\linewidth-4\tabcolsep*7855/10000-3\arrayrulewidth*7855/10000\relax}|}
+\caption*{Table 3.35 Submit Review}\\
+\addcontentsline{lot}{table}{Table 3.35 Submit Review}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.35 Submit Review (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-TR-08 \\ \hline
+
+\textbf{Title} & Submit Review \\ \hline
+
+\textbf{Requirement} & The system shall allow travelers to submit reviews for completed travel experiences. \\ \hline
+
+\textbf{Source} & Traveler Use Cases (UC-TR-08) \\ \hline
+
+\textbf{Rationale} & Supports feedback, transparency, and service quality evaluation. \\ \hline
+
+\textbf{Business Rules} & Reviews shall only be allowed for eligible completed bookings or related services. \\ \hline
+
+\textbf{Dependencies} & Booking data, review module \\ \hline
+
+\textbf{Priority} & Medium \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Travel Agency Functional Requirements}
+
+\ThesisParagraph{Traveler agency Functional Requirements are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-01 - Agency Registration}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.36 Agency Registration}\\
+\addcontentsline{lot}{table}{Table 3.36 Agency Registration}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.36 Agency Registration (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-01 \\ \hline
+
+\textbf{Title} & Travel Agency Registration \\ \hline
+
+\textbf{Requirement} & The system shall allow travel agencies to create an agency account in the portal. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-01) \\ \hline
+
+\textbf{Rationale} & Required for agency participation in the TrekPal marketplace. \\ \hline
+
+\textbf{Business Rules} & Agency email must be unique. Required registration data must be provided. \\ \hline
+
+\textbf{Dependencies} & Authentication service, agency profile module \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-02 - Agency Verification}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.37 Agency Verification}\\
+\addcontentsline{lot}{table}{Table 3.37 Agency Verification}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.37 Agency Verification (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-02 \\ \hline
+
+\textbf{Title} & Submit Agency Verification Documents \\ \hline
+
+\textbf{Requirement} & The system shall allow agencies to upload verification documents for administrative approval. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-02) \\ \hline
+
+\textbf{Rationale} & Required to improve trust and ensure business legitimacy. \\ \hline
+
+\textbf{Business Rules} & Verification cannot proceed without mandatory documents. \\ \hline
+
+\textbf{Dependencies} & Agency account, document upload handling, admin review workflow \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-03 - Select Hotels/Vehicles}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.221568\linewidth-4\tabcolsep*2216/10000-3\arrayrulewidth*2216/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.778432\linewidth-4\tabcolsep*7784/10000-3\arrayrulewidth*7784/10000\relax}|}
+\caption*{Table 3.38 Manage Hotels}\\
+\addcontentsline{lot}{table}{Table 3.38 Manage Hotels}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.38 Manage Hotels (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-03 \\ \hline
+
+\textbf{Title} & Manage Hotels, Rooms, transport and Packages, \\ \hline
+
+\textbf{Requirement} & The system shall allow agencies to create, update offers  and manage hotels, rooms, and transport for it. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-03) \\ \hline
+
+\textbf{Rationale} & Required to maintain operational inventory used in bids and packages. \\ \hline
+
+\textbf{Business Rules} & Submitted hotels may require approval before platform visibility. \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-04 - View Trip Requests}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.39 Manage Rooms \& Food Menus}\\
+\addcontentsline{lot}{table}{Table 3.39 Manage Rooms \& Food Menus}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.39 Manage Rooms \& Food Menus (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-04 \\ \hline
+
+\textbf{Title} & View Trip Requests \\ \hline
+
+\textbf{Requirement} & The system shall allow agencies to view traveler trip requests that are open for bidding. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-04) \\ \hline
+
+\textbf{Rationale} & Required to connect traveler demand with agency offers. \\ \hline
+
+\textbf{Business Rules} & Only eligible/open requests shall be shown. \\ \hline
+
+\textbf{Dependencies} & Trip request module, agency portal access \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-05 - Submit Bids}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.221568\linewidth-4\tabcolsep*2216/10000-3\arrayrulewidth*2216/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.778432\linewidth-4\tabcolsep*7784/10000-3\arrayrulewidth*7784/10000\relax}|}
+\caption*{Table 3.40 Manage Vehicles}\\
+\addcontentsline{lot}{table}{Table 3.40 Manage Vehicles}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.40 Manage Vehicles (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-05 \\ \hline
+
+\textbf{Title} & Submit Bids \\ \hline
+
+\textbf{Requirement} & The system shall allow agencies to submit bids in response to traveler trip requests. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-05) \\ \hline
+
+\textbf{Rationale} & Core feature for bid-based trip planning and competitive offers. \\ \hline
+
+\textbf{Business Rules} & Bids must be linked to an open request and include required offer details. \\ \hline
+
+\textbf{Dependencies} & Trip requests, agency account, bidding module \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-06 - Manage Bookings}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.41 Manage Vehicle Availability}\\
+\addcontentsline{lot}{table}{Table 3.41 Manage Vehicle Availability}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.41 Manage Vehicle Availability (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-06 \\ \hline
+
+\textbf{Title} & Manage Bookings \\ \hline
+
+\textbf{Requirement} & The system shall allow agencies to view and manage bookings resulting from accepted bids or packages. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-06) \\ \hline
+
+\textbf{Rationale} & Required for operational follow-up after offer acceptance. \\ \hline
+
+\textbf{Business Rules} & Agencies may only access bookings associated with their own offers or services. \\ \hline
+
+\textbf{Dependencies} & Booking module, agency portal \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-AG-07 - Create Tour Packages}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.42 View Trip Requests}\\
+\addcontentsline{lot}{table}{Table 3.42 View Trip Requests}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.42 View Trip Requests (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-AG-07 \\ \hline
+
+\textbf{Title} & Create Tour Packages \\ \hline
+
+\textbf{Requirement} & The system shall allow agencies to create and publish tour packages for travelers. \\ \hline
+
+\textbf{Source} & Travel Agency Use Cases (UC-AG-07) \\ \hline
+
+\textbf{Rationale} & Supports direct package promotion in addition to bid-based offers. \\ \hline
+
+\textbf{Business Rules} & Package details, pricing, and related content must be valid before publishing. \\ \hline
+
+\textbf{Dependencies} & Package module, agency authentication \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Hotel Functional Requirements}
+
+\ThesisParagraph{Hotel Functional Requirements are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-H-01 Hotel Registration}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.219789\linewidth-4\tabcolsep*2198/10000-3\arrayrulewidth*2198/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.780211\linewidth-4\tabcolsep*7802/10000-3\arrayrulewidth*7802/10000\relax}|}
+\caption*{Table 3.43 Hotel Registration}\\
+\addcontentsline{lot}{table}{Table 3.43 Hotel Registration}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.43 Hotel Registration (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-H-01 \\ \hline
+
+\textbf{Title} & Hotel Registration \\ \hline
+
+\textbf{Requirement} & The system shall allow hotels to create an account in the hotel portal. \\ \hline
+
+\textbf{Source} & Hotel Use Cases (UC-H-01) \\ \hline
+
+\textbf{Rationale} & Required for hotel-side participation and inventory management. \\ \hline
+
+\textbf{Business Rules} & Hotel account email must be unique. Required registration data must be provided. \\ \hline
+
+\textbf{Dependencies} & Authentication service, hotel profile module \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-H-02 Manage Rooms and Services}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.44 Manage Rooms and Services}\\
+\addcontentsline{lot}{table}{Table 3.44 Manage Rooms and Services}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.44 Manage Rooms and Services (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-H-02 \\ \hline
+
+\textbf{Title} & Manage Rooms and Services \\ \hline
+
+\textbf{Requirement} & The system shall allow hotels to create, update, and manage room types and service records. \\ \hline
+
+\textbf{Source} & Hotel Use Cases (UC-H-02) \\ \hline
+
+\textbf{Rationale} & Required to maintain hotel offerings within the platform. \\ \hline
+
+\textbf{Business Rules} & A valid hotel profile must exist before room/service management is allowed. \\ \hline
+
+\textbf{Dependencies} & Hotel profile, room module, service module \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-H-03 View Booking Activity}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.45 View Booking Activity}\\
+\addcontentsline{lot}{table}{Table 3.45 View Booking Activity}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.45 View Booking Activity (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-H-03 \\ \hline
+
+\textbf{Title} & View Booking Activity \\ \hline
+
+\textbf{Requirement} & The system shall allow hotels to view booking activity related to their hotel records. \\ \hline
+
+\textbf{Source} & Hotel Use Cases (UC-H-03) \\ \hline
+
+\textbf{Rationale} & Required for hotel-side operational visibility. \\ \hline
+
+\textbf{Business Rules} & Hotels may only access booking activity associated with their own hotel account. \\ \hline
+
+\textbf{Dependencies} & Booking module, hotel authentication \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Admin Functional Requirements}
+
+\ThesisParagraph{The Admin Functionalities are as follows}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-ADMIN-01 - Approve/Reject Agency Registration}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.46 Approve/Reject Agency Registration}\\
+\addcontentsline{lot}{table}{Table 3.46 Approve/Reject Agency Registration}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.46 Approve/Reject Agency Registration (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-ADM-01 \\ \hline
+
+\textbf{Title} & Approve or Reject Travel Agency Registration \\ \hline
+
+\textbf{Requirement} & The system shall allow administrators to review and approve or reject agency registration and verification requests. \\ \hline
+
+\textbf{Source} & Admin Use Cases (UC-ADM-01) \\ \hline
+
+\textbf{Rationale} & Required to enforce trust and platform governance. \\ \hline
+
+\textbf{Business Rules} & Approval decisions must update agency status accordingly. \\ \hline
+
+\textbf{Dependencies} & Agency verification workflow, admin portal \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-ADMIN-02 - Approve/Reject Hotels}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.47 Approve/Reject Hotels}\\
+\addcontentsline{lot}{table}{Table 3.47 Approve/Reject Hotels}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.47 Approve/Reject Hotels (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-ADM-02 \\ \hline
+
+\textbf{Title} & Approve or Reject Hotels \\ \hline
+
+\textbf{Requirement} & The system shall allow administrators to review and approve or reject hotel submissions. \\ \hline
+
+\textbf{Source} & Admin Use Cases (UC-ADM-02) \\ \hline
+
+\textbf{Rationale} & Required to control hotel quality and listing legitimacy. \\ \hline
+
+\textbf{Business Rules} & Only admin users may change hotel approval status. \\ \hline
+
+\textbf{Dependencies} & Hotel submission data, admin portal \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-ADMIN-03 - Approve/Reject Vehicles}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208227\linewidth-4\tabcolsep*2082/10000-3\arrayrulewidth*2082/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.791773\linewidth-4\tabcolsep*7918/10000-3\arrayrulewidth*7918/10000\relax}|}
+\caption*{Table 3.48 Approve/Reject Vehicles}\\
+\addcontentsline{lot}{table}{Table 3.48 Approve/Reject Vehicles}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.48 Approve/Reject Vehicles (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-ADM-03 \\ \hline
+
+\textbf{Title} & Approve or Reject Vehicles \\ \hline
+
+\textbf{Requirement} & The system shall allow administrators to review and approve or reject vehicle submissions by agencies. \\ \hline
+
+\textbf{Source} & Admin Use Cases (UC-ADM-03) \\ \hline
+
+\textbf{Rationale} & Required to ensure transport listings are controlled and verified. \\ \hline
+
+\textbf{Business Rules} & Only admin users may change vehicle approval status. \\ \hline
+
+\textbf{Dependencies} & Vehicle module, admin portal \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-ADMIN-04 - Approve Traveler Verification}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.192996\linewidth-4\tabcolsep*1930/10000-3\arrayrulewidth*1930/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.807004\linewidth-4\tabcolsep*8070/10000-3\arrayrulewidth*8070/10000\relax}|}
+\caption*{Table 3.49 Approve Traveler Verification}\\
+\addcontentsline{lot}{table}{Table 3.49 Approve Traveler Verification}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.49 Approve Traveler Verification (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-ADM-04 \\ \hline
+
+\textbf{Title} & Approve Traveler Verification \\ \hline
+
+\textbf{Requirement} & The system shall allow administrators to review and approve or reject traveler verification requests. \\ \hline
+
+\textbf{Source} & Admin Use Cases (UC-ADM-04) \\ \hline
+
+\textbf{Rationale} & Required to support verified traveler participation and trust. \\ \hline
+
+\textbf{Business Rules} & Traveler verification status must reflect the admin decision. \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-ADMIN-05 - Content Moderation}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.192996\linewidth-4\tabcolsep*1930/10000-3\arrayrulewidth*1930/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.807004\linewidth-4\tabcolsep*8070/10000-3\arrayrulewidth*8070/10000\relax}|}
+\caption*{Table 3.50 Content Moderation}\\
+\addcontentsline{lot}{table}{Table 3.50 Content Moderation}\\[-\normalbaselineskip]
+\hline
+Field & Description \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.50 Content Moderation (continued)}\\
+\hline
+Field & Description \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-ADM-05 \\ \hline
+
+\textbf{Title} & View System Analytics \\ \hline
+
+\textbf{Requirement} & The system shall allow administrators to view platform-level summary statistics and analytics. \\ \hline
+
+\textbf{Source} & Admin Use Cases (UC-ADM-05) \\ \hline
+
+\textbf{Rationale} & Required for monitoring overall platform activity and decision-making. \\ \hline
+
+\textbf{Business Rules} & Analytics visibility shall be limited to authenticated admin users. \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Vehicle Provider Functional Requirements}
+
+\ThesisParagraph{Vehicle Provider Functional Requirements are as follows:}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-VP-01: Vehicle Provider Registration and Login}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.189108\linewidth-4\tabcolsep*1891/10000-3\arrayrulewidth*1891/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.810892\linewidth-4\tabcolsep*8109/10000-3\arrayrulewidth*8109/10000\relax}|}
+\caption*{Table 3.51 Vehicle Provider Registration and Login}\\
+\addcontentsline{lot}{table}{Table 3.51 Vehicle Provider Registration and Login}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.51 Vehicle Provider Registration and Login (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-VP-01 \\ \hline
+
+\textbf{Title} & Vehicle Provider Registration and Login \\ \hline
+
+\textbf{Requirement} & The system shall allow vehicle providers to register and log in to the vehicle portal. \\ \hline
+
+\textbf{Source} & Vehicle Provider Use Cases (UC-VP-01) \\ \hline
+
+\textbf{Rationale} & Required for transport providers to access vehicle management tools. \\ \hline
+
+\textbf{Business Rules} & Unique email and phone number are required. Password must meet security requirements. \\ \hline
+
+\textbf{Dependencies} & Authentication service. \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-VP-02: Verification Document Submission}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.189108\linewidth-4\tabcolsep*1891/10000-3\arrayrulewidth*1891/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.810892\linewidth-4\tabcolsep*8109/10000-3\arrayrulewidth*8109/10000\relax}|}
+\caption*{Table 3.52 Verification Document Submission}\\
+\addcontentsline{lot}{table}{Table 3.52 Verification Document Submission}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.52 Verification Document Submission (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-VP-02 \\ \hline
+
+\textbf{Title} & Verification Document Submission \\ \hline
+
+\textbf{Requirement} & The system shall allow vehicle providers to upload business documents (license, NTN, CNIC) for admin review. \\ \hline
+
+\textbf{Source} & Vehicle Provider Use Cases (UC-VP-02) \\ \hline
+
+\textbf{Rationale} & Required for vetting and ensuring safety and trust in transport providers. \\ \hline
+
+\textbf{Business Rules} & Files must be PDF or image format and less than 5MB. \\ \hline
+
+\textbf{Dependencies} & Storage service. \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-VP-03: Manage Vehicles}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.189108\linewidth-4\tabcolsep*1891/10000-3\arrayrulewidth*1891/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.810892\linewidth-4\tabcolsep*8109/10000-3\arrayrulewidth*8109/10000\relax}|}
+\caption*{Table 3.53 Manage Vehicles}\\
+\addcontentsline{lot}{table}{Table 3.53 Manage Vehicles}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.53 Manage Vehicles (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-VP-03 \\ \hline
+
+\textbf{Title} & Manage Vehicles \\ \hline
+
+\textbf{Requirement} & The system shall allow vehicle providers to add, update, and delete vehicle fleet records. \\ \hline
+
+\textbf{Source} & Vehicle Provider Use Cases (UC-VP-03) \\ \hline
+
+\textbf{Rationale} & Required for maintaining active transport inventory. \\ \hline
+
+\textbf{Business Rules} & Vehicle must have a make, model, capacity, price, and registration number. \\ \hline
+
+\textbf{Dependencies} & Database service, driver records. \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-VP-04: Manage Drivers}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.189108\linewidth-4\tabcolsep*1891/10000-3\arrayrulewidth*1891/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.810892\linewidth-4\tabcolsep*8109/10000-3\arrayrulewidth*8109/10000\relax}|}
+\caption*{Table 3.54 Manage Drivers}\\
+\addcontentsline{lot}{table}{Table 3.54 Manage Drivers}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.54 Manage Drivers (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-VP-04 \\ \hline
+
+\textbf{Title} & Manage Drivers \\ \hline
+
+\textbf{Requirement} & The system shall allow vehicle providers to add, update, and delete driver profiles. \\ \hline
+
+\textbf{Source} & Vehicle Provider Use Cases (UC-VP-04) \\ \hline
+
+\textbf{Rationale} & Required to assign drivers to vehicles and bookings. \\ \hline
+
+\textbf{Business Rules} & Driver must have a valid license number and phone number. \\ \hline
+
+\textbf{Dependencies} & Database service. \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\Needspace{6\baselineskip}
+\ThesisParagraph{\textbf{FR-VP-05: View Bookings}}
+
+
+{
+\setstretch{1}
+\fontsize{12}{13.8}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.189108\linewidth-4\tabcolsep*1891/10000-3\arrayrulewidth*1891/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.810892\linewidth-4\tabcolsep*8109/10000-3\arrayrulewidth*8109/10000\relax}|}
+\caption*{Table 3.55 View Bookings}\\
+\addcontentsline{lot}{table}{Table 3.55 View Bookings}\\[-\normalbaselineskip]
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endfirsthead
+\multicolumn{2}{c}{Table 3.55 View Bookings (continued)}\\
+\hline
+\textbf{Field} & \textbf{Description} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Identifier} & FR-VP-05 \\ \hline
+
+\textbf{Title} & View Bookings \\ \hline
+
+\textbf{Requirement} & The system shall allow vehicle providers to view booking activity for their vehicles. \\ \hline
+
+\textbf{Source} & Vehicle Provider Use Cases (UC-VP-05) \\ \hline
+
+\textbf{Rationale} & Required for tracking active bookings and scheduling transport. \\ \hline
+
+\textbf{Business Rules} & Only bookings for the provider's own fleet are shown. \\ \hline
+
+\textbf{Dependencies} & Database service. \\ \hline
+
+\textbf{Priority} & High \\ \hline
+
+\end{longtable}
+}
+
+
+\subsection{Non-Functional Requirements}
+
+\ThesisParagraph{Non-functional requirements describe the quality attributes of the TrekPal system.}
+
+
+\subsubsection{Usability Requirements}
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-USE-01 - Simple \& Intuitive UI\newline{} The system shall provide a clean and easy-to-navigate interface on both mobile and web.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-USE-02 - Clear Feedback\textbf{\newline{} }Users shall receive meaningful success/error messages.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-USE-03 - Easy Onboarding\newline{} Registration and login shall be completed within a few simple steps.
+\end{list}
+
+
+\subsubsection{Reliability Requirements}
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-REL-01 - High Availability\newline{} The system shall maintain \textbf{99\% uptime}.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-REL-02 - Prevent Double Booking\textbf{\newline{} }The system shall ensure no hotel room or vehicle can be double-booked.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-REL-03 - Data Backup\newline{} Database backups shall occur at least once daily.
+\end{list}
+
+
+\subsubsection{Performance Requirements}
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-PERF-01 - Fast Response\textbf{\newline{} }Search results and main screens shall load within \textbf{2--3 seconds}.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[\textbullet] NFR-PERF-02 - Scalable User Load\textbf{\newline{} }The system shall support \textbf{large numbers of active users} without performance degradation.
+\end{list}
+
+
+\section{Design and Architecture}
+
+\ThesisParagraph{This chapter details the architecture and design of the TrekPal application. It includes system architecture, process flow, and various design models that guide the app's structure and functionality, ensuring seamless interaction between the client and server.}
+
+
+\subsection{System Architecture}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image6.png}
+\caption*{Fig 4.1 Architecture Diagram}
+\addcontentsline{lof}{figure}{Fig 4.1 Architecture Diagram}
+\end{figure}
+
+
+\subsection{Data Representation}
+
+\ThesisParagraph{This section presents the data representation of the proposed system through an Entity Relationship Diagram (ERD).}
+
+
+\ThesisParagraph{\textbf{ERD}}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image9.png}
+\caption*{Fig 4.2 Entity Relationship Diagram (ERD)}
+\addcontentsline{lof}{figure}{Fig 4.2 Entity Relationship Diagram (ERD)}
+\end{figure}
+
+
+\subsection{Process Flow/Representation}
+
+\ThesisParagraph{This section illustrates the overall process flow of the proposed system. It provides a graphical representation of the interactions between different system components and users, showing how data and operations progress throughout the application's workflow.}
+
+
+\ThesisParagraph{\textbf{Traveler Process Flow}}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=3.449in,height=0.79\textheight,keepaspectratio]{figures/crop-950-0.png}
+\caption*{Fig 4.3 Process Flow (Traveller)}
+\addcontentsline{lof}{figure}{Fig 4.3 Process Flow (Traveller)}
+\end{figure}
+
+
+\clearpage
+
+\ThesisParagraph{\textbf{Agency Process flow}}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=3.017in,height=0.79\textheight,keepaspectratio]{figures/image11.png}
+\caption*{Fig 4.4 Process Flow (Agency)}
+\addcontentsline{lof}{figure}{Fig 4.4 Process Flow (Agency)}
+\end{figure}
+
+
+\subsection{Design Models}
+
+\ThesisParagraph{The following section describes the various design models used in the Trekpal System, providing visual representations and explanations of how different components of the system interact and function together to achieve the desired user experience. These models serve as a blueprint for the app's architecture, data flow, and user interactions.}
+
+
+\subsubsection{Class Diagram}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image12.png}
+\caption*{Fig 4.5 Class Diagram}
+\addcontentsline{lof}{figure}{Fig 4.5 Class Diagram}
+\end{figure}
+
+
+\subsubsection{Sequence Diagram}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image13.png}
+\caption*{Fig 4.6 Sequence Diagram}
+\addcontentsline{lof}{figure}{Fig 4.6 Sequence Diagram}
+\end{figure}
+
+
+\subsubsection{State Transition}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=2.708in,height=0.79\textheight,keepaspectratio]{figures/crop-984-0.png}
+\caption*{Fig 4.7 State Transition Diagram (Traveler)}
+\addcontentsline{lof}{figure}{Fig 4.7 State Transition Diagram (Traveler)}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=3.299in,height=0.79\textheight,keepaspectratio]{figures/crop-992-0.png}
+\caption*{Fig 4.8 State Transition Diagram (Agency)}
+\addcontentsline{lof}{figure}{Fig 4.8 State Transition Diagram (Agency)}
+\end{figure}
+
+
+\section{Implementation}
+
+\ThesisParagraph{This chapter discusses the system implementation details of the TrekPal ecosystem. It focuses on the primary development tools, algorithm design for resource scheduling, external APIs integrated, and details of the user interface workflows across all five client portals and the centralized backend.}
+
+
+\subsection{Algorithm}
+
+\ThesisParagraph{TrekPal employs several critical algorithms and system workflows to coordinate real-time booking updates, resolve resource conflicts, protect transactional data integrity, and manage negotiation state transitions across various user roles.}
+
+
+\subsubsection{Room Availability Resolver}
+
+\ThesisParagraph{This algorithm verifies if a hotel room has free capacity for all nights in a selected trip date range. It checks individual date availability slots and returns false if any date is fully booked.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: roomId, startDate, endDate\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: available (Boolean)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set start = StartOfDay(startDate), end = StartOfDay(endDate)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Compute nights = Ceiling((end - start) / 1 Day)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If nights <= 0: Return False\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Query RoomAvailability database records where roomId == roomId and date is in [start, end-1]\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If length(records) < nights: Return False (availability slots not generated)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}For each record in records:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If record.available < 1:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Return False (room is fully occupied on at least one night)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return True\par
+}
+
+
+\subsubsection{Bidding Negotiation State Machine}
+
+\ThesisParagraph{TrekPal implements a structured negotiation state machine between travelers and travel agencies. Whenever a traveler or agency makes a counteroffer, the algorithm checks the current turn, inserts a new revision, and toggles the awaitingActionBy flag.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: bidId, actorRole (TRAVELER or AGENCY), counterPrice, counterDescription, counterOfferDetails\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: updatedBid (Object)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Query Bid record by bidId from database\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If bid.status != 'PENDING': Throw Error ('Only pending bids can be revised')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If actorRole == TRAVELER:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Verify bid.tripRequest.userId == actorId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If bid.awaitingActionBy != 'TRAVELER': Throw Error ('Not your turn to counteroffer')\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set nextAwaitingAction = 'AGENCY'\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Else if actorRole == AGENCY:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Verify bid.agencyId == actorId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If bid.awaitingActionBy != 'AGENCY': Throw Error ('Not your turn to counteroffer')\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set nextAwaitingAction = 'TRAVELER'\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Run database Transaction:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Create BidRevision record with counterPrice, counterDescription, and counterOfferDetails\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Update Bid record: set price = counterPrice, description = counterDescription, awaitingActionBy = nextAwaitingAction\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Emit real-time notification to the counter-party via Socket.IO\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return updated Bid object\par
+}
+
+
+\subsubsection{Package Offer Seat Allocation \& Transactional Booking Lock}
+
+\ThesisParagraph{To prevent race conditions during concurrent bookings of limited-seat tour packages, TrekPal executes a SQL row-level lock (FOR UPDATE) on the package table, counts confirmed seats, validates limits, and atomically creates a confirmed booking inside a single database transaction.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: bookingId, packageId\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: confirmedBooking (Object)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Start Database Transaction:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query Package record by packageId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Execute SQL raw lock: 'SELECT id FROM packages WHERE id = packageId FOR UPDATE'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Count bookings where packageId == packageId and status == 'CONFIRMED'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Retrieve package room allocations and compute packageCapacity (minimum of maxSeats and reservedRooms)\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If confirmedBookingsCount >= packageCapacity:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Throw Error ('This trip offer is sold out or has no reserved rooms left')\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query availability for package vehicleId and driverId in [package.startDate, package.endDate]\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If vehicle/driver conflicts exist:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Throw Error ('Transport resources are unavailable')\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Update Booking record for bookingId: set status = 'CONFIRMED'\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Commit Transaction\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Emit real-time booking update via Socket.IO\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return confirmed Booking object\par
+}
+
+
+\subsubsection{Dedicated vs. Transfer-Based Vehicle Allocation}
+
+\ThesisParagraph{This algorithm determines vehicle availability based on occupancy modes. A dedicated vehicle is occupied for the full trip duration, while a transfer vehicle is only occupied on pick-up and drop-off days, resolving scheduling conflicts accordingly.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: vehicleId, driverId, startDate, endDate, dedicatedVehicle (Boolean)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: occupiedDateRanges (Array of Date Ranges)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If dedicatedVehicle == True:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}occupiedDateRanges = [ [startDate, endDate] ] (occupies the full range)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Else (dedicatedVehicle == False - Transfer Mode):\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set departureEnd = startDate + 1 Day\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set returnStart = endDate - 1 Day\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}occupiedDateRanges = [ [startDate, departureEnd] ] (occupies departure day)\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If returnStart > startDate:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Append [returnStart, endDate] to occupiedDateRanges (occupies return day)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}For each range in occupiedDateRanges:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query Booking table where status == 'CONFIRMED' and vehicleId == vehicleId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If any confirmed booking overlaps range:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Throw Conflict Error ('Selected vehicle is already booked for these dates')\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query Booking table where status == 'CONFIRMED' and driverId == driverId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If any confirmed booking overlaps range:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Throw Conflict Error ('Assigned driver is already booked for these dates')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return occupiedDateRanges\par
+}
+
+
+\subsubsection{Transactional Bid Acceptance \& Multi-Bid Auto-Resolution}
+
+\ThesisParagraph{This algorithm atomicizes the process of a traveler accepting a custom bid. It locks hotel room availability, transitions the accepted bid to 'ACCEPTED', automatically rejects all other competing bids for the same trip, updates the trip request status, snapshot-allocates transportation assets, and creates a confirmed booking record all in a single database transaction.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: bidId, travelerId\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: resolvedBooking (Object)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Query Bid record by bidId from database\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If bid.status != 'PENDING': Throw Error ('Bid is no longer pending')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If bid.tripRequest.userId != travelerId: Throw Error ('Unauthorized')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If bid.tripRequest.status != 'PENDING': Throw Error ('Trip request is no longer accepting bids')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If bid.awaitingActionBy == 'AGENCY': Throw Error ('Cannot accept bid under agency review')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Start Database Transaction:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If tripRequest contains roomId, startDate, and endDate:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Verify and decrement availability for roomId in [startDate, endDate] by 1\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set accepted bid.status = 'ACCEPTED' and awaitingActionBy = 'NONE'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}For each competing bid where tripRequestId == bid.tripRequestId and bidId != acceptedBidId:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Set status = 'REJECTED' and awaitingActionBy = 'NONE'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Update TripRequest status to 'ACCEPTED'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Resolve transport asset prioritization: set resolvedVehicleId = bid.vehicleId or tripRequest.vehicleId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query driverId from vehicle table and assert vehicle/driver availability for resolvedVehicleId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Create Booking record with status = 'CONFIRMED', totalAmount = bid.price, and vehicle/driver details snapshot\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Commit Transaction\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Emit Socket.IO update notifications to traveler and winning agency\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return created Booking object\par
+}
+
+
+\subsubsection{Unified Hotel Occupancy \& Reservation Aggregator}
+
+\ThesisParagraph{This algorithm aggregates and formats booking data from two different tables (Direct Traveler Bookings and bulk Agency Package Allocations) into a unified chronological feed. This allows hotel operators to view their overall real-time room occupancy across both individual trips and tour packages.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: hotelId, filters (status, page, limit)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: paginatedMergedOccupancyList (Array of Objects)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Query database for Direct Bookings where (hotelId == hotelId or room.hotelId == hotelId) and matches status filter\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Query database for Package Room Allocations (packageRoomAllocation) where room.hotelId == hotelId\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set directItems = Array of Direct Bookings mapped to a common format (source = 'DIRECT\_BOOKING', status = booking.status)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set packageItems = Array of Package Room Allocations mapped to a common format:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set startDate = package.startDate, endDate = package.startDate + package.duration Days\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Format: source = 'PACKAGE\_RESERVATION', status = (package.isActive ? 'RESERVED' : 'HELD'), reservedRooms = allocation.reservedRooms\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Merge directItems and packageItems into a single list: mergedItems\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Sort mergedItems in descending order by createdAt timestamp\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If status filter is active, filter mergedItems by matching status value\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Paginate: slice mergedItems based on page and limit offsets\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return sliced list and total count\par
+}
+
+
+\subsubsection{Safe Tour Offer Modification \& Room Inventory Hold Manager}
+
+\ThesisParagraph{This algorithm secures updates to active packages. Before allowing changes to details such as room plans, dates, or status, it ensures that room allocations are not reduced below the count of already confirmed bookings. It then releases old room allocations and locks new allocations dynamically inside a transaction.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: packageId, agencyId, updatePayload (dates, duration, roomPlan, activeStatus)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: updatedPackage (Object)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Query existing Package record by packageId and agencyId\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If updatePayload specifies activeStatus == True:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Validate that hotel, startDate, and roomPlan are present\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Validate that hotels, rooms, and vehicles belong to approved marketplace\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Start Database Transaction:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Execute row lock: 'SELECT id FROM packages WHERE id = packageId FOR UPDATE'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Count bookings for this package where status is in ['PENDING', 'CONFIRMED']\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If confirmed bookings exist:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}If new roomPlan is empty or any room's count < confirmedCount:\par
+\noindent\hangindent=4.00em\hangafter=1\hspace*{3.00em}Throw Error ('Cannot reduce allocations below confirmed traveler count')\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Get current room allocations and release held rooms in old date window\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If package has active status and new roomPlan is specified:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Compute new reservation date window: [startDate, startDate + duration]\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Assert and deduct availability for new roomPlan in new window\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If active bookings exist:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Update all associated pending/confirmed Booking records to match new dates/hotel/transport\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Replace room allocation records in packageRoomAllocation table\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Update Package record with new payload details\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Commit Transaction\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Emit package update notifications via Socket.IO\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return updated Package object\par
+}
+
+
+\subsubsection{Automated Rolling 365-Day Room Inventory Grid Initialization}
+
+\ThesisParagraph{Whenever a hotel room is created or its quantity changes, this algorithm automates the generation of a one-year rolling inventory grid in the database. It uses database upserts to preserve custom capacity overrides while initializing new days.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: roomId, totalQuantity\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: None\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set today = StartOfDay(CurrentDate)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Create empty list: availabilities\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}For i = 0 to 364:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set date = today + i Days\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Append \{ roomId = roomId, date = date, available = totalQuantity \} to availabilities\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}For each slot in availabilities:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Execute Database Upsert:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Match by composite key: roomId and date\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}If exists: update capacity 'available' = totalQuantity\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}If not exists: create record with roomId, date, and totalQuantity\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return Success\par
+}
+
+
+\subsubsection{Dynamic Age Derivation \& Secure Profile Attachment Resolver}
+
+\ThesisParagraph{This algorithm processes user profile metadata for traveler group lists. It derives the traveler's exact age in years based on birth date boundaries and checks if profile avatars require secure signature parameters for storage access.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: userRecord (name, dateOfBirth, avatarPath)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: participantProfile (Object)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set initials = buildInitials(userRecord.name)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set age = Null\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If userRecord.dateOfBirth is not Null:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set now = CurrentDate()\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set age = now.year - dateOfBirth.year\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Set birthdayPassed = (now.month > dateOfBirth.month) OR \par
+\noindent\hangindent=7.25em\hangafter=1\hspace*{6.25em}(now.month == dateOfBirth.month AND now.day >= dateOfBirth.day)\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If birthdayPassed == False:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Set age = age - 1\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Set avatarUrl = Null\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If userRecord.avatarPath is not Null:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If IsHttpUrl(userRecord.avatarPath) == True:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}avatarUrl = userRecord.avatarPath\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Else:\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Try:\par
+\noindent\hangindent=4.00em\hangafter=1\hspace*{3.00em}avatarUrl = GenerateSignedTemporaryUrl(userRecord.avatarPath)\par
+\noindent\hangindent=3.00em\hangafter=1\hspace*{2.00em}Catch:\par
+\noindent\hangindent=4.00em\hangafter=1\hspace*{3.00em}avatarUrl = Null\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return \{ initials = initials, age = age, avatar = avatarUrl \}\par
+}
+
+
+\subsubsection{Authorized Room-Joining \& Real-Time Sync Engine}
+
+\ThesisParagraph{This algorithm establishes socket-level security for TrekPal's real-time messaging services. Before joining a client to a WebSocket room, it verifies their JWT signature and queries their booking or package status in the database to prevent unauthorized message intercepts.}
+
+
+{\setstretch{1}\fontsize{11}{13}\selectfont\raggedright\setlength{\parskip}{1pt}
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Input: clientSocket, connectionInfo (userId, role, roomId)\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Output: connectionResult (Object)\par
+\smallskip
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Verify JWT signature of traveler or agency auth token on socket connection\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If invalid: Terminate socket connection\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If role == TRAVELER:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query Booking record where userId == userId, package.tripGroup.id == roomId, and status == 'CONFIRMED'\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If no booking exists: Throw Error ('Unauthorized to join chat room')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}If role == AGENCY:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Query Package record where agency.authUid == socket.authUid and tripGroup.id == roomId\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}If no package exists: Throw Error ('Unauthorized to join chat room')\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Join clientSocket to Socket.IO room identifier: roomId\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Listen for 'SEND\_MESSAGE' event:\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Validate message content length\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Create ChatMessage record in database linked to tripGroup and sender\par
+\noindent\hangindent=2.00em\hangafter=1\hspace*{1.00em}Broadcast 'RECEIVE\_MESSAGE' payload to all participants in roomId\par
+\noindent\hangindent=1.00em\hangafter=1\hspace*{0.00em}Return success\par
+}
+
+
+\subsection{External APIs}
+
+\ThesisParagraph{The TrekPal backend and client portals integrate several external application programming interfaces (APIs) and tools to handle security, real-time messaging, and database operations. Table 5.1 details the key APIs used in this project.}
+
+
+{
+\setstretch{1}
+\fontsize{10}{11.5}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.249889\linewidth-8\tabcolsep*2499/10000-5\arrayrulewidth*2499/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250000\linewidth-8\tabcolsep*2500/10000-5\arrayrulewidth*2500/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250000\linewidth-8\tabcolsep*2500/10000-5\arrayrulewidth*2500/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250111\linewidth-8\tabcolsep*2501/10000-5\arrayrulewidth*2501/10000\relax}|}
+\caption*{Table 5.1 Details of APIs used in the project}\\
+\addcontentsline{lot}{table}{Table 5.1 Details of APIs used in the project}\\[-\normalbaselineskip]
+\hline
+\textbf{Name of API} & \textbf{Description of API} & \textbf{Purpose of usage} & \textbf{List down the function/class name in which it is used} \\ \hline
+
+\endfirsthead
+\multicolumn{4}{c}{Table 5.1 Details of APIs used in the project (continued)}\\
+\hline
+\textbf{Name of API} & \textbf{Description of API} & \textbf{Purpose of usage} & \textbf{List down the function/class name in which it is used} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{Prisma Client OsubaRM API} & An object-relational mapping interface for querying the PostgreSQL database on Supabase. & Allows backend services to interact with users, bookings, packages, and vehicles database tables without writing raw SQL queries. & UserService, BookingService, TransportService, HotelService \\ \hline
+
+\textbf{Socket.IO API} & A real-time bidirectional event-based communication library that operates over WebSockets. & Enables instantaneous group trip chat messages and live booking/bidding notification updates. & SocketServer, ChatController, GroupChatScreen \\ \hline
+
+\textbf{supabase Auth Client SDK} & Authentication service providing token verification and identity verification endpoints. & Provides secure social and email logins, password validation, and user profile sync. & AuthService, AuthController, LoginScreen \\ \hline
+
+\end{longtable}
+}
+
+
+\subsection{User Interface}
+
+\ThesisParagraph{The TrekPal user interface is developed to support streamlined operations across all five roles. The traveler app is built using Flutter for responsive mobile screens, while the admin, agency, hotel, and vehicle portals are built using React and styled with a harmonized, premium CSS theme. Below are details regarding the primary screens in each module:}
+
+
+\ThesisParagraph{\textbf{1. Traveler Mobile Application:} Features the home trip dashboard, where travelers browse active packages and create trip requests. The bidding screen displays live offers received from travel agencies, with clear pricing and itemized breakdown, allowing travelers to accept or initiate bids.}
+
+
+\begin{figure}[H]
+\centering
+
+\begin{minipage}[t]{0.47\textwidth}\centering
+\includegraphics[width=\linewidth,height=4.45in,keepaspectratio]{figures/image16.jpeg}
+\caption*{Fig 5.2 App Make Trip}
+\addcontentsline{lof}{figure}{Fig 5.2 App Make Trip}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\textwidth}\centering
+\includegraphics[width=\linewidth,height=4.45in,keepaspectratio]{figures/image15.jpeg}
+\caption*{Fig 5.1 App Join Trip}
+\addcontentsline{lof}{figure}{Fig 5.1 App Join Trip}
+\end{minipage}\hfill
+\end{figure}
+
+
+\ThesisParagraph{\textbf{2.} \textbf{Agency Web Portal:} Provides a bidding console showing travelers' open requests, package creator to publish predefined itineraries, and booking scheduler.}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image17.png}
+\caption*{Fig 5.3 Agency Dashboard}
+\addcontentsline{lof}{figure}{Fig 5.3 Agency Dashboard}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image18.png}
+\caption*{Fig 5.4 Agency Booking}
+\addcontentsline{lof}{figure}{Fig 5.4 Agency Booking}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image19.png}
+\caption*{Fig 5.5 Agency New Offer}
+\addcontentsline{lof}{figure}{Fig 5.5 Agency New Offer}
+\end{figure}
+
+
+\ThesisParagraph{\textbf{3.} \textbf{Hotel Web Portal}: Allows hotels to manage room types, amenities, and real-time room availability calendar.}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image20.png}
+\caption*{Fig 5.6 Hotel Dashboard}
+\addcontentsline{lof}{figure}{Fig 5.6 Hotel Dashboard}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image21.png}
+\caption*{Fig 5.7 Hotel Rooms}
+\addcontentsline{lof}{figure}{Fig 5.7 Hotel Rooms}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image22.png}
+\caption*{Fig 5.8 Hotel Booking}
+\addcontentsline{lof}{figure}{Fig 5.8 Hotel Booking}
+\end{figure}
+
+
+\ThesisParagraph{\textbf{4. Vehicle Portal:} Features transport fleet management interfaces where vehicle providers add vehicle models and update driver shifts.}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image23.png}
+\caption*{Fig 5.9 Vehicle Dashboard}
+\addcontentsline{lof}{figure}{Fig 5.9 Vehicle Dashboard}
+\end{figure}
+
+
+\ThesisParagraph{\textbf{.}}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image24.png}
+\caption*{Fig 5.10 Vehicle Fleet}
+\addcontentsline{lof}{figure}{Fig 5.10 Vehicle Fleet}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image25.png}
+\caption*{Fig 5.11 Vehicle Booking}
+\addcontentsline{lof}{figure}{Fig 5.11 Vehicle Booking}
+\end{figure}
+
+
+\clearpage
+
+\ThesisParagraph{\textbf{5. Admin Portal:} Provides an approvals panel for verifying new agency registrations, hotel profiles, vehicle fleets, and traveler KYC documents.}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image26.png}
+\caption*{Fig 5.12 Admin Dashboard}
+\addcontentsline{lof}{figure}{Fig 5.12 Admin Dashboard}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image27.png}
+\caption*{Fig 5.13 Admin Review Page}
+\addcontentsline{lof}{figure}{Fig 5.13 Admin Review Page}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6.260in,height=0.79\textheight,keepaspectratio]{figures/image28.png}
+\caption*{Fig 5.14 Admin Manage Agency}
+\addcontentsline{lof}{figure}{Fig 5.14 Admin Manage Agency}
+\end{figure}
+
+
+\section{Testing and Evaluation}
+
+\ThesisParagraph{This chapter details the testing and evaluation strategies used to ensure TrekPal meets all functional, reliability, and security requirements. Testing was carried out in two phases: manual testing (unit, system, functional, and integration tests) and automated API/UI validation.}
+
+
+\subsection{Manual Testing}
+
+\ThesisParagraph{Manual test scripts were executed across all portals to verify basic user actions, edge cases, and role restrictions. The test scenarios are documented in the tables below.}
+
+
+\subsubsection{System testing}
+
+\ThesisParagraph{Once the system has been successfully developed, system testing is conducted to verify that all modular portals and the backend API integrate correctly and work as a single unified ecosystem under standard production loads.}
+
+
+\subsubsection{Unit Testing}
+
+\ThesisParagraph{Unit testing was performed on single forms and inputs. Table 5.2 shows the testcase for validating traveler authentication, and Table 5.3 shows the validation of the trip request form.}
+
+
+{
+\setstretch{1}
+\fontsize{10}{11.5}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.063221\linewidth-10\tabcolsep*632/10000-6\arrayrulewidth*632/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.304902\linewidth-10\tabcolsep*3049/10000-6\arrayrulewidth*3049/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.256211\linewidth-10\tabcolsep*2562/10000-6\arrayrulewidth*2562/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.273514\linewidth-10\tabcolsep*2735/10000-6\arrayrulewidth*2735/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.102152\linewidth-10\tabcolsep*1022/10000-6\arrayrulewidth*1022/10000\relax}|}
+\caption*{Table 6.1 Login Unit Testcase}\\
+\addcontentsline{lot}{table}{Table 6.1 Login Unit Testcase}\\[-\normalbaselineskip]
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endfirsthead
+\multicolumn{5}{c}{Table 6.1 Login Unit Testcase (continued)}\\
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{1.} & Verify user login after clicking the 'Login' button on the login form with correct input data. & Email: \nolinkurl{traveler@trekpal.com}\newline{} Password: password123 & System authenticates user and loads traveler home dashboard. & Pass \\ \hline
+
+\textbf{2.} & Verify user login with incorrect password format or blank fields. & Email: \nolinkurl{traveler@trekpal.com}\newline{} Password: [Blank] & System blocks submission and displays 'Password is required' warning. & Pass \\ \hline
+
+\end{longtable}
+}
+
+
+{
+\setstretch{1}
+\fontsize{10}{11.5}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.063221\linewidth-10\tabcolsep*632/10000-6\arrayrulewidth*632/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.336624\linewidth-10\tabcolsep*3366/10000-6\arrayrulewidth*3366/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.200089\linewidth-10\tabcolsep*2001/10000-6\arrayrulewidth*2001/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.297915\linewidth-10\tabcolsep*2979/10000-6\arrayrulewidth*2979/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.102152\linewidth-10\tabcolsep*1022/10000-6\arrayrulewidth*1022/10000\relax}|}
+\caption*{Table 6.2 Create Trip Request Unit Testcase}\\
+\addcontentsline{lot}{table}{Table 6.2 Create Trip Request Unit Testcase}\\[-\normalbaselineskip]
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endfirsthead
+\multicolumn{5}{c}{Table 6.2 Create Trip Request Unit Testcase (continued)}\\
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{1.} & Verify traveler can submit a new trip request with valid parameters. & Destination: Naran\newline{} Budget: 50,000 PKR\newline{} Start Date: 2026-07-01 & System saves request in database and marks state as PENDING. & Pass \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Functional Testing}
+
+\ThesisParagraph{Functional testing was conducted to verify that navigation bars, routing, and dashboards match the user's role. Table 5.4 shows the functional roles test cases.}
+
+
+{
+\setstretch{1}
+\fontsize{10}{11.5}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.063332\linewidth-10\tabcolsep*633/10000-6\arrayrulewidth*633/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.339064\linewidth-10\tabcolsep*3391/10000-6\arrayrulewidth*3391/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.199534\linewidth-10\tabcolsep*1995/10000-6\arrayrulewidth*1995/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.295918\linewidth-10\tabcolsep*2959/10000-6\arrayrulewidth*2959/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.102152\linewidth-10\tabcolsep*1022/10000-6\arrayrulewidth*1022/10000\relax}|}
+\caption*{Table 6.3 Login Functional Testcase}\\
+\addcontentsline{lot}{table}{Table 6.3 Login Functional Testcase}\\[-\normalbaselineskip]
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endfirsthead
+\multicolumn{5}{c}{Table 6.3 Login Functional Testcase (continued)}\\
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{1.} & Login as Travel Agency. & Role: AGENCY\newline{} Dashboard: /dashboard & Main page for Travel Agency loads, showing the agency navigation menu. & Pass \\ \hline
+
+\textbf{2.} & Login as Vehicle Provider. & Role: VEHICLE\newline{} Dashboard: /dashboard & Main page for Vehicle Provider portal loads, displaying the fleet manager menu. & Pass \\ \hline
+
+\textbf{3.} & Login as Platform Administrator. & Role: ADMIN\newline{} Dashboard: /dashboard & Main page for Admin portal loads, displaying the approvals panel. & Pass \\ \hline
+
+\end{longtable}
+}
+
+
+\subsubsection{Integration Testing}
+
+\ThesisParagraph{Integration testing evaluated the synchronization between client portals and the backend database over real-time WebSockets. Table 5.5 details the integration test cases.}
+
+
+{
+\setstretch{1}
+\fontsize{10}{11.5}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.063221\linewidth-10\tabcolsep*632/10000-6\arrayrulewidth*632/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.256322\linewidth-10\tabcolsep*2563/10000-6\arrayrulewidth*2563/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.248891\linewidth-10\tabcolsep*2489/10000-6\arrayrulewidth*2489/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.330967\linewidth-10\tabcolsep*3310/10000-6\arrayrulewidth*3310/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.100599\linewidth-10\tabcolsep*1006/10000-6\arrayrulewidth*1006/10000\relax}|}
+\caption*{Table 6.4 Integration Testcase}\\
+\addcontentsline{lot}{table}{Table 6.4 Integration Testcase}\\[-\normalbaselineskip]
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endfirsthead
+\multicolumn{5}{c}{Table 6.4 Integration Testcase (continued)}\\
+\hline
+\textbf{No.} & \textbf{Test case/Test script} & \textbf{Attribute and value} & \textbf{Expected result} & \textbf{Result} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+\textbf{1.} & Submit Bid to Traveler Trip Request. & Agency submits a bid on an open traveler request via agency portal. & System creates bid record and notifies traveler app in real-time. & Pass \\ \hline
+
+\textbf{2.} & Accept Bid and Allocate Inventory. & Traveler clicks 'Accept Bid' on traveler mobile app. & System updates bid status, locks hotel room/vehicle availability, and creates booking. & Pass \\ \hline
+
+\textbf{3.} & Room Availability Check (Algorithm 5.1). & Verify room availability checks for a date range containing a fully occupied date. & System identifies the occupied date and returns false, blocking checkout. & Pass \\ \hline
+
+\textbf{4.} & Bidding Negotiation Turn Enforcement (Algorithm 5.2). & Traveler attempts to submit a counteroffer when the turn is currently awaiting action by the agency. & System blocks the action and throws a 'Not your turn to counteroffer' validation error. & Pass \\ \hline
+
+\textbf{5.} & Concurrent Seat Allocation Lock (Algorithm 5.3). & Simulate concurrent traveler bookings for a package with 1 seat remaining. & First transaction raw locks the package row; the second transaction fails with a sold-out error. & Pass \\ \hline
+
+\textbf{6.} & Dedicated vs Transfer Vehicle Conflict (Algorithm 5.4). & Verify that two Transfer-mode bookings on the same vehicle do not conflict if they do not share departure/return dates. & System successfully saves both bookings without transport conflict warnings. & Pass \\ \hline
+
+\textbf{7.} & Transactional Bid Acceptance \& Competing Bid Auto-Rejection (Algorithm 5.5). & Traveler accepts a bid on a request with three other pending bids. & Accepted bid becomes ACCEPTED, other bids status becomes REJECTED, booking is created. & Pass \\ \hline
+
+\textbf{8.} & Unified Occupancy Feed Resolution (Algorithm 5.6). & Query the hotel portal occupancy calendar for a room type booked via both direct traveler bookings and agency packages. & Calendar merges and displays both reservation types chronologically in a unified occupancy matrix. & Pass \\ \hline
+
+\textbf{9.} & Safe Tour Offer Modification Boundary (Algorithm 5.7). & Agency tries to reduce package room allocation below the count of confirmed package bookings. & System blocks the update and throws 'Room allocations cannot be reduced below confirmed traveler count'. & Pass \\ \hline
+
+\textbf{10.} & Automated 365-Day Inventory Upsert (Algorithm 5.8). & Initialize room availability or update room capacity for a room type. & System updates the 365-day inventory grid, keeping custom overrides for existing booking dates intact. & Pass \\ \hline
+
+\textbf{11.} & Dynamic Age Derivation \& Secure Avatar URL Resolution (Algorithm 5.9). & Fetch participant previews for a tour package where travelers have profiles containing DOBs and avatar paths. & Age is computed correctly, initials are generated, and a secure temporary signature token is appended to avatar URLs. & Pass \\ \hline
+
+\textbf{12.} & Real-time Chat Socket Authorization (Algorithm 5.10). & User attempts to connect to a WebSocket chat room for a package trip they are not registered to. & Authentication/relationship check fails and server disconnects the socket. & Pass \\ \hline
+
+\end{longtable}
+}
+
+
+\subsection{Automated Testing:}
+
+\ThesisParagraph{Automated tests were written to verify REST API payloads and database performance. Table 5.6 lists the automated testing tools used during development.}
+
+
+{
+\setstretch{1}
+\fontsize{10}{11.5}\selectfont
+\setlength{\tabcolsep}{4pt}
+\setlength{\extrarowheight}{2pt}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{10pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.250000\linewidth-8\tabcolsep*2500/10000-5\arrayrulewidth*2500/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250000\linewidth-8\tabcolsep*2500/10000-5\arrayrulewidth*2500/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250000\linewidth-8\tabcolsep*2500/10000-5\arrayrulewidth*2500/10000\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250000\linewidth-8\tabcolsep*2500/10000-5\arrayrulewidth*2500/10000\relax}|}
+\caption*{Table 6.5 Tools used}\\
+\addcontentsline{lot}{table}{Table 6.5 Tools used}\\[-\normalbaselineskip]
+\hline
+\textbf{Tool Name} & \textbf{Tool Description} & \textbf{Applied on [list of related test cases / FR / NFR]} & \textbf{Results} \\ \hline
+
+\endfirsthead
+\multicolumn{4}{c}{Table 6.5 Tools used (continued)}\\
+\hline
+\textbf{Tool Name} & \textbf{Tool Description} & \textbf{Applied on [list of related test cases / FR / NFR]} & \textbf{Results} \\ \hline
+
+\endhead
+\endfoot
+\endlastfoot
+Postman API Client & Automated REST client to verify response formats, parameters, and HTTP codes. & Backend routes (Auth, Users, Bookings, Bids, Chat) & All tested endpoints returned 200/201 HTTP codes and valid JSON objects. \\ \hline
+
+Vitest \& React Testing Library & Vite-native unit testing tool to test React component rendering and state updates. & Agency-portal, Admin-portal, Hotel-portal login forms and status dashboards & Verified proper component mounting, API callbacks, and redirection workflows. \\ \hline
+
+Flutter Integration Test Suite & Automated UI and widget testing tool for Dart and Flutter runtime environments. & Traveler app registration, profile inputs, and chat screens (FR-TR-01, FR-TR-07) & Ensured components render correctly on mobile emulators and user forms handle invalid data. \\ \hline
+
+\end{longtable}
+}
+
+
+\section{Conclusion and Future Work}
+
+\ThesisParagraph{This chapter summarizes the results achieved during the development of TrekPal, analyzes system limitations, and outlines recommendations for future development.}
+
+
+\subsection{Conclusion}
+
+\ThesisParagraph{TrekPal provides a robust, role-driven travel marketplace that addresses the inefficiencies of traditional travel planning. By consolidating travelers, agencies, hotels, and vehicle providers into a centralized Express backend, TrekPal eliminates the coordination effort required across fragmented channels. The implemented bid-and-request model provides transparency and competitive pricing, while admin approvals maintain system integrity. The resulting portals and Flutter app demonstrate a viable digital solution for emerging travel markets.}
+
+
+\subsection{Future Work}
+
+\ThesisParagraph{TrekPal can be extended in the future with the following features:}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[1.] AI-Driven Recommendation System: To recommend optimal bid offers to travelers based on price, safety ratings, and historical choices.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[2.] Integrated Payment Gateway: Incorporating Stripe, PayPal, or local mobile wallets (EasyPaisa/JazzCash) to support deposit capturing and automated vendor payments.
+\end{list}
+
+
+\begin{list}{}{\setlength{\leftmargin}{\dimexpr\ThesisParagraphIndent+1.5em\relax}\setlength{\labelsep}{0.5em}\setlength{\topsep}{2pt}\setlength{\parsep}{0pt}}
+\item[3.] OCR CNIC Reader: Implementing Optical Character Recognition to automatically verify CNIC documents during registration to speed up admin KYC approvals.
+\end{list}
+
+
+\ThesisParagraph{4. Complaint Ticketing System: Expanding the traveler app complaint preview to fully connect to the backend, notifying administrators of billing or provider disputes.}
+
+
+\section{References}
+
+\ThesisParagraph{1. Pressman, R. S., (2010), Software Engineering: A Practitioner's Approach, McGraw-Hill.}
+
+
+\ThesisParagraph{2. Prisma ORM Documentation, Prisma Migrate and Schema Reference, \url{https://www.prisma.io/docs,} Last accessed June 2026.}
+
+
+\ThesisParagraph{3. Flutter UI Framework Documentation, State Management and Cross-Platform Layouts, \url{https://docs.flutter.dev,} Last accessed June 2026.}
+
+
+\ThesisParagraph{4. Socket.IO API Guide, WebSockets Bidirectional Communication, \url{https://socket.io/docs/v4,} Last accessed June 2026.}
+
+
+\ThesisParagraph{5. Ali Behforooz \& Frederick J. Hudson, (1996), Software Engineering Fundamentals, Oxford University Press.}
+
+
+% Append the original reports in the requested order without thesis headers or footers.
+\clearpage
+\includepdf[pages=-,fitpaper=true,pagecommand={\thispagestyle{empty}}]{similarity report.pdf}
+\includepdf[pages=-,fitpaper=true,pagecommand={\thispagestyle{empty}}]{ai report (1).pdf}
+
+\end{document}

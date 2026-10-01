@@ -29,21 +29,21 @@ The 30% stage should produce:
 - Complete client-side screen-by-screen UI plan & mockups (Active 30% Focus)
 - Note: The React/Vite Admin Web Dashboard is postponed to the 60% stage.
 
-### 60% Stage - Main Implementation
+### 60% Stage - Main Implementation & Evaluation Committee Mandates
 
-The 60% stage should focus on building the working system:
+The 60% stage focuses on building the working system and fulfilling the 4 Evaluation Committee Mandates (dated 2026-09-29):
 
-- Mobile app implementation
-- Backend/database setup
-- Authentication
-- User roles
-- Worker profiles
-- Search and filtering
-- Booking flow
-- Reviews and ratings
-- Notifications
-- Admin-side verification flow if included
-- Testing document or progress report, depending on university requirements
+- **60% Committee Mandates:**
+  - **AI Recommendation Engine:** Content-Based Vector Similarity algorithm (Cosine Similarity on skills/categories, Haversine geo-distance, rating normalization) replacing basic static filters, with Explainable AI badges (`Match %` and reasons).
+  - **Bidirectional Job Marketplace:** Household "Post a Job / Request" workflow and Worker "Available Jobs / Browse & Apply" feed for direct gig acquisition.
+  - **Bilingual UI & Visual Affordance:** Global English/Urdu toggle (`EN | اردو`) with high-affordance pictorial icons for low-literacy domestic workers.
+  - **Synthetic Seed Dataset:** 50–100 realistic worker profiles and simulated job interactions for Abbottabad localities (Mandian, Jhangi Syedan, Supply Bazaar, Nawan Shehr).
+- **Core Engineering Deliverables:**
+  - Supabase PostgreSQL schema migrations and Row Level Security (RLS) policies.
+  - Supabase Auth integration (Email/Password and Phone OTP).
+  - Supabase Storage integration for CNIC documents, police clearances, and payment receipts.
+  - React + Vite Admin Dashboard in `WebApp/` for worker verification and dispute mediation.
+  - Comprehensive 60% Evaluation Thesis Report (Chapters 1 through 5) following COMSATS Abbottabad departmental guidelines.
 
 ### 100% Stage - Final Thesis and Complete Project
 

@@ -10,13 +10,17 @@ class AppScaffold extends StatelessWidget {
     this.subtitle,
     this.onBack,
     this.onLogout,
-    required this.child,
+    this.trailing,
+    this.leading,
+    this.child = const SizedBox.shrink(),
   });
 
   final String? title;
   final String? subtitle;
   final VoidCallback? onBack;
   final VoidCallback? onLogout;
+  final Widget? trailing;
+  final Widget? leading;
   final Widget child;
 
   @override
@@ -38,15 +42,22 @@ class AppScaffold extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (onBack != null) _BackHeader(onBack: onBack!),
+                    if (leading != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: leading!,
+                      )
+                    else if (onBack != null)
+                      _BackHeader(onBack: onBack!),
                     if (title != null) ...[
-                      SizedBox(height: onBack == null ? 0 : 20),
+                      SizedBox(height: (onBack == null && leading == null) ? 0 : 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(title!, style: theme.textTheme.headlineMedium),
                           ),
+                          ?trailing,
                           if (onLogout != null)
                             IconButton(
                               icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.brand),

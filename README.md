@@ -7,21 +7,24 @@ HomeEase is a centralized, secure mobile platform designed to bridge the trust a
 ## 🚀 Key Features & Functionalities
 
 ### 🏠 For Households (Employers)
-* **Hyper-Local Search**: Discover domestic workers nearby based on service categories and location.
-* **Smart Filtering**: Filter search results by pricing, experience, rating, and availability slots.
+* **AI-Based Worker Recommendations (60% Stage)**: Algorithmic matching using Content-Based Vector Similarity (Cosine similarity on skills, Haversine geo-distance, rating normalization) with Explainable AI match percentage badges (e.g., `94% AI Match • 1.2 km away • Desi Cooking`).
+* **Post a Job / Gig (Bidirectional Marketplace)**: Publish open tasks specifying required service, Abbottabad neighborhood, date, and budget.
+* **Hyper-Local Search**: Discover domestic workers nearby across Abbottabad localities.
 * **Instant Booking**: Send job requests with preferred dates, times, addresses, and task details.
 * **Service Agreements**: Review and agree to auto-generated service scopes and pricing terms.
 * **Manual Payment Logs**: Log manual cash or mobile wallet transfers (EasyPaisa/JazzCash) and upload receipts.
-* **Ratings & Feedback**: Submit star ratings and behavioral reviews (punctuality, behavior, and performance) to build accountability.
+* **Ratings & Feedback**: Submit star ratings and behavioral reviews (punctuality, behavior, and performance).
 
 ### 💼 For Domestic Workers (Service Providers)
+* **Bidirectional Job Search & Apply (60% Stage)**: Browse a live feed of open household gigs and apply with one tap.
+* **Bilingual & Visual Interface (60% Stage)**: Toggle between English and Urdu (`اردو`) with high-affordance pictorial icons tailored for low-literacy workers.
 * **Digital Profile Builder**: Create professional profiles detailing skills, charges, experience, and bios.
 * **Availability Scheduler**: Configure and update day-of-week slots for job matching.
 * **Job Request Manager**: View, accept, or reject incoming household booking requests.
 * **Verified Badges**: Gain trusted visibility by submitting identity verification documents for review.
 
 ### 🛡️ For Admins (Platform Quality Control)
-* **Worker Verification**: Review worker profiles and documents to approve or reject verified badges.
+* **Worker Verification**: Review worker profiles, CNIC scans, and police character certificates.
 * **User & Booking Audits**: Monitor platform activity, user accounts, and booking statistics.
 * **Dispute Resolution**: Investigate and resolve conflicts related to bookings or manual payments.
 

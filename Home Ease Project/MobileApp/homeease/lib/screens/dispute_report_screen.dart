@@ -66,7 +66,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                 const SectionLabel('Dispute Category'),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   dropdownColor: HomeEaseTheme.surface,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

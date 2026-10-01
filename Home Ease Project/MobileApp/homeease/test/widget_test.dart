@@ -29,7 +29,15 @@ void main() {
     await tester.pump(const Duration(milliseconds: 900));
     await tester.pumpAndSettle();
 
-    // Verify that we transitioned to the login screen automatically
+    // Verify that we transitioned to the onboarding screen
+    expect(find.text('Skip'), findsOneWidget);
+    expect(find.text('Hyper-Local Search'), findsOneWidget);
+
+    // Tap Skip to navigate to Sign In
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+
+    // Verify that we transitioned to the login screen
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Continue as'), findsOneWidget);
   });

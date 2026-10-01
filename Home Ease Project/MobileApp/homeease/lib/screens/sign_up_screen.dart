@@ -159,7 +159,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
-                          value: _selectedCategory,
+                          initialValue: _selectedCategory,
                           dropdownColor: HomeEaseTheme.surface,
                           decoration: const InputDecoration(
                             hintText: 'Select service type',

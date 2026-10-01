@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../data/dummy_auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
@@ -26,6 +26,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   String _selectedRole = 'Household'; // 'Household' or 'Worker'
+  bool _isLoading = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -34,6 +35,48 @@ class _SignInScreenState extends State<SignInScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleSignIn() async {
+    if (_isLoading) return;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email and password.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final user = await SupabaseAuthService().signIn(email, password, _selectedRole);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        if (user != null) {
+          if (_selectedRole == 'Household') {
+            widget.onSignIn();
+          } else {
+            widget.onWorkerSignIn();
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Invalid credentials for $_selectedRole. Try a demo account or sign up.',
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Authentication error: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -116,33 +159,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 const SizedBox(height: 18),
                 HomeEaseButton(
-                  label: 'Sign In',
+                  label: _isLoading ? 'Signing In...' : 'Sign In',
                   onPressed: () {
-                    final email = _emailController.text.trim();
-                    final password = _passwordController.text;
-                    if (email.isEmpty || password.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please enter your email and password.')),
-                      );
-                      return;
-                    }
-                    
-                    final user = DummyAuthService().signIn(email, password, _selectedRole);
-                    if (user != null) {
-                      if (_selectedRole == 'Household') {
-                        widget.onSignIn();
-                      } else {
-                        widget.onWorkerSignIn();
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Invalid credentials for $_selectedRole. Try a demo account or sign up.',
-                          ),
-                        ),
-                      );
-                    }
+                    _handleSignIn();
                   },
                 ),
               ],

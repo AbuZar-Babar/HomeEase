@@ -26,19 +26,25 @@ flowchart LR
     Household --> UC1["Register / Sign Up"]
     Household --> UC2["Log In"]
     Household --> UC5["Search Workers"]
+    Household --> UC17["View AI Recommendations"]
+    Household --> UC14["Post Job / Gig Request"]
     Household --> UC6["Send Booking Request"]
     Household --> UC11["View Service Agreement"]
     Household --> UC8["Submit Payment Receipt"]
     Household --> UC9["Submit Rating and Review"]
     Household --> UC10["Raise Dispute"]
+    Household --> UC18["Toggle Bilingual Mode"]
 
     Worker --> UC1
     Worker --> UC2
     Worker --> UC3["Create Worker Profile"]
+    Worker --> UC15["Browse Available Jobs"]
+    Worker --> UC16["Apply for Job"]
     Worker --> UC7["Accept or Reject Booking"]
     Worker --> UC11
     Worker --> UC12["Confirm Payment Received"]
     Worker --> UC10
+    Worker --> UC18["Toggle Bilingual & Visual Icons"]
 
     Admin --> UC2
     Admin --> UC4["Verify Worker Profile"]
@@ -49,7 +55,12 @@ flowchart LR
     UC2 --> Auth
     UC3 --> DB
     UC5 --> DB
-    UC5 --> Notify
+    UC17 --> DB
+    UC14 --> DB
+    UC14 --> Notify
+    UC15 --> DB
+    UC16 --> DB
+    UC16 --> Notify
     UC7 --> DB
     UC8 --> DB
     UC8 --> Notify
@@ -214,6 +225,30 @@ erDiagram
         text status
         timestamp created_at
     }
+    JOB_POSTS {
+        uuid id PK
+        uuid household_id FK
+        uuid service_category_id FK
+        text title
+        text description
+        text city
+        text area
+        decimal latitude
+        decimal longitude
+        decimal budget
+        date required_date
+        text status
+        timestamp created_at
+    }
+    JOB_APPLICATIONS {
+        uuid id PK
+        uuid job_post_id FK
+        uuid worker_id FK
+        decimal proposed_rate
+        text notes
+        text status
+        timestamp applied_at
+    }
 
     USERS ||--o| HOUSEHOLD_PROFILES : has
     USERS ||--o| WORKER_PROFILES : has
@@ -227,6 +262,10 @@ erDiagram
     BOOKINGS ||--o{ PAYMENT_RECORDS : has
     BOOKINGS ||--o| REVIEWS : receives
     BOOKINGS ||--o{ DISPUTES : has
+    HOUSEHOLD_PROFILES ||--o{ JOB_POSTS : publishes
+    SERVICE_CATEGORIES ||--o{ JOB_POSTS : categorized_under
+    JOB_POSTS ||--o{ JOB_APPLICATIONS : receives
+    WORKER_PROFILES ||--o{ JOB_APPLICATIONS : submits
     BOOKINGS ||--o{ ISSUE_REPORTS : related_to
     HOUSEHOLD_PROFILES ||--o{ PAYMENT_RECORDS : pays
     WORKER_PROFILES ||--o{ PAYMENT_RECORDS : receives

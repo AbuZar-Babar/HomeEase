@@ -237,22 +237,60 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                 return;
               }
 
+              final sMin = _selectedStartTime!.hour * 60 + _selectedStartTime!.minute;
+              final eMin = _selectedEndTime!.hour * 60 + _selectedEndTime!.minute;
+              if (sMin >= eMin) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Start time must be strictly before end time.')),
+                );
+                return;
+              }
+
+              final durationHours = (eMin - sMin) / 60.0;
+              final rateVal = worker.hourlyRate > 0
+                  ? worker.hourlyRate
+                  : (double.tryParse(worker.rate.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 1500.0);
+              final dynamicTotal = durationHours * rateVal;
+
               widget.onSubmit({
                 'date': _selectedDate,
                 'startTime': _selectedStartTime,
                 'endTime': _selectedEndTime,
                 'address': _addressController.text.trim(),
                 'notes': _notesController.text.trim(),
+                'agreedAmount': dynamicTotal,
               });
             },
           ),
           const SizedBox(height: 12),
-          Text(
-            'Total estimate: ${worker.rate}',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: HomeEaseTheme.brandSoft,
-              fontWeight: FontWeight.w700,
-            ),
+          Builder(
+            builder: (context) {
+              if (_selectedStartTime != null && _selectedEndTime != null) {
+                final sMin = _selectedStartTime!.hour * 60 + _selectedStartTime!.minute;
+                final eMin = _selectedEndTime!.hour * 60 + _selectedEndTime!.minute;
+                if (eMin > sMin) {
+                  final duration = (eMin - sMin) / 60.0;
+                  final rateVal = worker.hourlyRate > 0
+                      ? worker.hourlyRate
+                      : (double.tryParse(worker.rate.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 1500.0);
+                  final total = duration * rateVal;
+                  return Text(
+                    'Total estimate: PKR ${total.toInt()} (${duration.toStringAsFixed(1)} hrs @ PKR ${rateVal.toInt()}/hr)',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: HomeEaseTheme.brandSoft,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                }
+              }
+              return Text(
+                'Total estimate: ${worker.rate}',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: HomeEaseTheme.brandSoft,
+                  fontWeight: FontWeight.w700,
+                ),
+              );
+            },
           ),
         ],
       ),
