@@ -292,6 +292,30 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.015),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: KeyedSubtree(
+        key: ValueKey(_stage),
+        child: _buildStageContent(context),
+      ),
+    );
+  }
+
+  Widget _buildStageContent(BuildContext context) {
     switch (_stage) {
       case AppStage.splash:
         return SplashScreen(onAnimationComplete: () {

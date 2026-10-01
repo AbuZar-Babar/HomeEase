@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../services/localization_service.dart';
 import '../theme/home_ease_theme.dart';
+import 'animated_scale_button.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
@@ -341,11 +343,8 @@ class _BackHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            onBack();
-          },
+        AnimatedScaleTap(
+          onTap: onBack,
           child: Container(
             width: 42,
             height: 42,
@@ -353,13 +352,7 @@ class _BackHeader extends StatelessWidget {
               color: HomeEaseTheme.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: HomeEaseTheme.outline),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: HomeEaseTheme.cardShadow,
             ),
             child: const Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -371,12 +364,15 @@ class _BackHeader extends StatelessWidget {
         const Spacer(),
         ?trailing,
         if (onLogout != null)
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted),
-            onPressed: onLogout,
+          AnimatedScaleTap(
+            onTap: onLogout,
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.logout_rounded, color: HomeEaseTheme.muted),
+            ),
           ),
       ],
-    );
+    ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.05, end: 0, curve: Curves.easeOutCubic);
   }
 }
 
@@ -471,16 +467,19 @@ class HomeEaseBottomNav extends StatelessWidget {
               final isSelected = index == currentIndex;
 
               return Expanded(
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    onTap(index);
-                  },
+                child: AnimatedScaleTap(
+                  scaleFactor: 0.92,
+                  onTap: () => onTap(index),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOutCubic,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSelected ? 16 : 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? HomeEaseTheme.accentLight
@@ -508,21 +507,27 @@ class HomeEaseBottomNav extends StatelessWidget {
                                     color: HomeEaseTheme.statusConflict,
                                     shape: BoxShape.circle,
                                   ),
+                                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                                  begin: const Offset(0.8, 0.8),
+                                  end: const Offset(1.2, 1.2),
+                                  duration: 800.ms,
                                 ),
                               ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 3),
-                      Text(
-                        item.label,
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                           color: isSelected
                               ? HomeEaseTheme.brand
                               : HomeEaseTheme.muted,
+                          fontFamily: 'Roboto',
                         ),
+                        child: Text(item.label),
                       ),
                     ],
                   ),

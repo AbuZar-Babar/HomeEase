@@ -8,6 +8,8 @@ import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/animated_scale_button.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class WorkerDashboardScreen extends StatefulWidget {
   const WorkerDashboardScreen({
@@ -501,45 +503,58 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: SizedBox(
-                                      height: 48,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          HapticFeedback.lightImpact();
-                                          _acceptBooking(booking);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: HomeEaseTheme.statusVerified,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    child: AnimatedScaleTap(
+                                      onTap: () => _acceptBooking(booking),
+                                      child: Container(
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: HomeEaseTheme.statusVerified,
+                                          borderRadius: BorderRadius.circular(14),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: HomeEaseTheme.statusVerified.withValues(alpha: 0.3),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
                                         ),
-                                        icon: const Icon(Icons.check_rounded, size: 20),
-                                        label: Text(
-                                          isUrdu ? 'قبول کریں' : 'Accept',
-                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                        alignment: Alignment.center,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.check_rounded, color: Colors.white, size: 20),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              isUrdu ? 'قبول کریں' : 'Accept',
+                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
-                                    child: SizedBox(
-                                      height: 48,
-                                      child: OutlinedButton.icon(
-                                        onPressed: () {
-                                          HapticFeedback.lightImpact();
-                                          _rejectBooking(booking);
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: HomeEaseTheme.statusConflict,
-                                          side: const BorderSide(color: HomeEaseTheme.statusConflict, width: 1.5),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    child: AnimatedScaleTap(
+                                      onTap: () => _rejectBooking(booking),
+                                      child: Container(
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: HomeEaseTheme.white,
+                                          borderRadius: BorderRadius.circular(14),
+                                          border: Border.all(color: HomeEaseTheme.statusConflict, width: 1.5),
                                         ),
-                                        icon: const Icon(Icons.close_rounded, size: 20),
-                                        label: Text(
-                                          isUrdu ? 'مسترد کریں' : 'Decline',
-                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                        alignment: Alignment.center,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.close_rounded, color: HomeEaseTheme.statusConflict, size: 20),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              isUrdu ? 'مسترد کریں' : 'Decline',
+                                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: HomeEaseTheme.statusConflict),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -549,7 +564,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                             ],
                           ),
                         ),
-                      ),
+                      ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.05, end: 0),
                     ),
                 ],
               ),

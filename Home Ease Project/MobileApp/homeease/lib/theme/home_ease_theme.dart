@@ -32,6 +32,59 @@ class HomeEaseTheme {
   static const Color statusCancelled = Color(0xFF64748B); // Slate 500
   static const Color statusInfo = Color(0xFF0284C7); // Sky 600
 
+  // Animation & Motion Constants
+  static const Duration animFast = Duration(milliseconds: 150);
+  static const Duration animNormal = Duration(milliseconds: 250);
+  static const Duration animSlow = Duration(milliseconds: 400);
+
+  static const Curve curveDefault = Curves.easeOutCubic;
+  static const Curve curveSpring = Curves.easeOutBack;
+  static const Curve curveEase = Curves.easeInOut;
+
+  // Box Shadows & Glows
+  static List<BoxShadow> get cardShadow => [
+    BoxShadow(
+      color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: const Color(0xFF0F172A).withValues(alpha: 0.02),
+      blurRadius: 4,
+      offset: const Offset(0, 1),
+    ),
+  ];
+
+  static List<BoxShadow> get elevatedShadow => [
+    BoxShadow(
+      color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
+    BoxShadow(
+      color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+      blurRadius: 8,
+      offset: const Offset(0, 2),
+    ),
+  ];
+
+  static List<BoxShadow> get mintGlow => [
+    BoxShadow(
+      color: brandSoft.withValues(alpha: 0.35),
+      blurRadius: 14,
+      spreadRadius: 1,
+      offset: const Offset(0, 3),
+    ),
+  ];
+
+  static List<BoxShadow> get brandGlow => [
+    BoxShadow(
+      color: brand.withValues(alpha: 0.28),
+      blurRadius: 16,
+      offset: const Offset(0, 6),
+    ),
+  ];
+
   static ThemeData get theme {
     final base = ThemeData(
       useMaterial3: true,

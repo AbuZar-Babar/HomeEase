@@ -7,6 +7,8 @@ import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/shimmer_loading.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class BookingsHistoryScreen extends StatefulWidget {
   const BookingsHistoryScreen({
@@ -245,7 +247,15 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (displayBookings.isEmpty)
+          if (_isLoading && _liveBookings.isEmpty)
+            Column(
+              children: const [
+                ShimmerJobCard(),
+                ShimmerJobCard(),
+                ShimmerJobCard(),
+              ],
+            )
+          else if (displayBookings.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40),
@@ -281,7 +291,9 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
               ),
             )
           else
-            ...displayBookings.map((booking) {
+            ...displayBookings.asMap().entries.map((entry) {
+              final index = entry.key;
+              final booking = entry.value;
               final worker = _getWorker(booking.workerId);
               final dateStr =
                   '${booking.bookingDate.day}/${booking.bookingDate.month}/${booking.bookingDate.year}';
@@ -507,7 +519,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                     ],
                   ),
                 ),
-              );
+              ).animate().fadeIn(duration: 250.ms, delay: (index * 40).ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic);
             }),
         ],
       ),

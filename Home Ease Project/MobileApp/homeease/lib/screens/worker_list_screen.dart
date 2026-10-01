@@ -7,6 +7,8 @@ import '../services/worker_repository.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/animated_scale_button.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class WorkerListScreen extends StatefulWidget {
   const WorkerListScreen({
@@ -67,7 +69,9 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
             : 'Verified Abbottabad domestic service professionals',
         onBack: widget.onBack,
         child: Column(
-          children: _displayWorkers.map((worker) {
+          children: _displayWorkers.asMap().entries.map((entry) {
+            final index = entry.key;
+            final worker = entry.value;
             final rec = AIRecommendationEngine.scoreWorker(
               worker: worker,
               targetCategory: worker.role,
@@ -77,9 +81,9 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 14),
-              child: InkWell(
+              child: AnimatedScaleTap(
                 onTap: () => widget.onSelectWorker(worker),
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(24),
                 child: HomeEaseCard(
                   color: HomeEaseTheme.white,
                   child: Column(
@@ -104,18 +108,17 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.shade50,
+                                        color: HomeEaseTheme.statusVerified.withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.green.shade300),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.auto_awesome, size: 10, color: Colors.green),
+                                          const Icon(Icons.auto_awesome, size: 10, color: HomeEaseTheme.statusVerified),
                                           const SizedBox(width: 3),
                                           Text(
                                             '$matchPercent% Match',
-                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green),
+                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: HomeEaseTheme.statusVerified),
                                           ),
                                         ],
                                       ),
@@ -149,14 +152,14 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.verified_user_rounded, size: 11, color: Colors.green),
+                                      const Icon(Icons.verified_user_rounded, size: 11, color: HomeEaseTheme.statusVerified),
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
                                           rec.matchReasons.join(' • '),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.w500),
+                                          style: const TextStyle(fontSize: 10, color: HomeEaseTheme.statusVerified, fontWeight: FontWeight.w500),
                                         ),
                                       ),
                                     ],
@@ -196,7 +199,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                   ),
                 ),
               ),
-            );
+            ).animate().fadeIn(duration: 250.ms, delay: (index * 40).ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic);
           }).toList(),
         ),
       ),

@@ -9,6 +9,7 @@ import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/animated_scale_button.dart';
 
 class PostJobScreen extends StatefulWidget {
   const PostJobScreen({
@@ -319,21 +320,30 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 spacing: 8,
                 children: _presetBudgets.map((b) {
                   final isSelected = _budgetController.text == b.toInt().toString();
-                  return ActionChip(
-                    label: Text('Rs. ${b.toInt()}'),
-                    backgroundColor: isSelected ? HomeEaseTheme.accentLight : HomeEaseTheme.card,
-                    side: BorderSide(color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline),
-                    labelStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.textSecondary,
-                    ),
-                    onPressed: () {
-                      HapticFeedback.selectionClick();
+                  return AnimatedScaleTap(
+                    scaleFactor: 0.94,
+                    onTap: () {
                       setState(() {
                         _budgetController.text = b.toInt().toString();
                       });
                     },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? HomeEaseTheme.accentLight : HomeEaseTheme.card,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline),
+                        boxShadow: isSelected ? HomeEaseTheme.mintGlow : [],
+                      ),
+                      child: Text(
+                        'Rs. ${b.toInt()}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.textSecondary,
+                        ),
+                      ),
+                    ),
                   );
                 }).toList(),
               ),

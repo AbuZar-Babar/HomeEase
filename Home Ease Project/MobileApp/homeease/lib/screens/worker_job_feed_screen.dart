@@ -5,6 +5,9 @@ import '../services/job_repository.dart';
 import '../services/localization_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/animated_scale_button.dart';
+import '../widgets/shimmer_loading.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class WorkerJobFeedScreen extends StatefulWidget {
   const WorkerJobFeedScreen({
@@ -387,7 +390,15 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
             const SizedBox(height: 14),
 
             // Job List Feed
-            if (filteredJobs.isEmpty)
+            if (_isLoading && _liveJobs.isEmpty)
+              Column(
+                children: const [
+                  ShimmerJobCard(),
+                  ShimmerJobCard(),
+                  ShimmerJobCard(),
+                ],
+              )
+            else if (filteredJobs.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 36),
@@ -422,7 +433,9 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                 ),
               )
             else
-              ...filteredJobs.map((job) {
+              ...filteredJobs.asMap().entries.map((entry) {
+                final index = entry.key;
+                final job = entry.value;
                 final isApplied = _appliedJobIds.contains(job.id) ||
                     _appliedJobIds.any((id) => IdMapping.matchesJob(id, job.id));
                 final icon = LocalizationService.getCategoryIcon(job.serviceCategory);
@@ -434,13 +447,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: HomeEaseTheme.outline),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    boxShadow: HomeEaseTheme.cardShadow,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -586,26 +593,30 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                                   children: [
                                     Expanded(
                                       flex: 3,
-                                      child: SizedBox(
-                                        height: 44,
-                                        child: ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: HomeEaseTheme.brand,
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(14),
-                                            ),
-                                            elevation: 0,
-                                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: AnimatedScaleTap(
+                                        onTap: _isApplying ? null : () => _applyOneTap(job),
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            color: HomeEaseTheme.brand,
+                                            borderRadius: BorderRadius.circular(14),
+                                            boxShadow: HomeEaseTheme.brandGlow,
                                           ),
-                                          onPressed: _isApplying ? null : () => _applyOneTap(job),
-                                          icon: const Icon(Icons.bolt_rounded, size: 18),
-                                          label: Text(
-                                            isUrdu ? '1-ٹیپ اپلائی' : '1-Tap Apply',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          alignment: Alignment.center,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                isUrdu ? '1-ٹیپ اپلائی' : '1-Tap Apply',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -613,23 +624,22 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       flex: 2,
-                                      child: SizedBox(
-                                        height: 44,
-                                        child: OutlinedButton(
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: HomeEaseTheme.brand,
-                                            side: const BorderSide(color: HomeEaseTheme.brand),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(14),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      child: AnimatedScaleTap(
+                                        onTap: _isApplying ? null : () => _showApplyDialog(job),
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            color: HomeEaseTheme.white,
+                                            borderRadius: BorderRadius.circular(14),
+                                            border: Border.all(color: HomeEaseTheme.brand),
                                           ),
-                                          onPressed: () => _showApplyDialog(job),
+                                          alignment: Alignment.center,
                                           child: Text(
-                                            isUrdu ? 'کسٹم آفر' : 'Custom Bid',
+                                            isUrdu ? 'اپنی قیمت' : 'Custom Bid',
                                             style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
+                                              color: HomeEaseTheme.brand,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
@@ -641,7 +651,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                       ],
                     ),
                   ),
-                );
+                ).animate().fadeIn(duration: 250.ms, delay: (index * 40).ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic);
               }),
           ],
         ),

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
-
+import '../widgets/animated_scale_button.dart';
 
 class RatingReviewScreen extends StatefulWidget {
   const RatingReviewScreen({
@@ -51,18 +50,17 @@ class _RatingReviewScreenState extends State<RatingReviewScreen> {
           children: List.generate(5, (index) {
             final starValue = index + 1;
             final isSelected = starValue <= value;
-            return IconButton(
-              icon: Icon(
-                isSelected ? Icons.star_rounded : Icons.star_border_rounded,
-                color: Colors.amber,
-                size: 28,
+            return AnimatedScaleTap(
+              scaleFactor: 0.85,
+              onTap: () => onChanged(starValue),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Icon(
+                  isSelected ? Icons.star_rounded : Icons.star_border_rounded,
+                  color: isSelected ? Colors.amber : HomeEaseTheme.cardDark,
+                  size: 32,
+                ),
               ),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                onChanged(starValue);
-              },
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
             );
           }),
         ),

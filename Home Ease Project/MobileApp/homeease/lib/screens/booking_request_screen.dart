@@ -7,6 +7,8 @@ import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/animated_scale_button.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class BookingRequestScreen extends StatefulWidget {
   const BookingRequestScreen({
@@ -365,7 +367,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                 const SizedBox(height: 14),
 
                 // Date picker trigger button
-                GestureDetector(
+                AnimatedScaleTap(
                   onTap: _pickDate,
                   child: Container(
                     constraints: const BoxConstraints(minHeight: 48),
@@ -396,7 +398,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: GestureDetector(
+                      child: AnimatedScaleTap(
                         onTap: () => _pickTime(true),
                         child: Container(
                           constraints: const BoxConstraints(minHeight: 48),
@@ -425,7 +427,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: GestureDetector(
+                      child: AnimatedScaleTap(
                         onTap: () => _pickTime(false),
                         child: Container(
                           constraints: const BoxConstraints(minHeight: 48),
@@ -478,7 +480,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                         ),
                       ],
                     ),
-                  )
+                  ).animate().fadeIn(duration: 150.ms)
                 else if (_hasConflict == true)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -506,7 +508,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                         ),
                       ],
                     ),
-                  )
+                  ).animate().fadeIn(duration: 200.ms).shake(duration: 300.ms, hz: 4)
                 else if (_hasConflict == false && durationHours != null && durationHours > 0)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -533,7 +535,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                         ),
                       ],
                     ),
-                  ),
+                  ).animate().fadeIn(duration: 200.ms).scale(begin: const Offset(0.96, 0.96), curve: Curves.easeOutBack),
 
                 const SizedBox(height: 16),
                 TextField(

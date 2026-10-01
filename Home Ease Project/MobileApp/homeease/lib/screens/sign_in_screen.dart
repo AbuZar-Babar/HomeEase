@@ -5,6 +5,7 @@ import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/animated_scale_button.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({
@@ -291,15 +292,23 @@ class _RoleButton extends StatelessWidget {
     final background = isSelected ? HomeEaseTheme.brand : HomeEaseTheme.surface;
     final foreground = isSelected ? HomeEaseTheme.white : HomeEaseTheme.brand;
 
-    return InkWell(
+    return AnimatedScaleTap(
       onTap: onTap,
+      scaleFactor: 0.94,
       borderRadius: BorderRadius.circular(20),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
         height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected ? HomeEaseTheme.brandGlow : HomeEaseTheme.cardShadow,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -9,6 +9,7 @@ import '../services/worker_repository.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/animated_scale_button.dart';
 
 class HomeSearchScreen extends StatefulWidget {
   const HomeSearchScreen({
@@ -547,7 +548,7 @@ class _AIWorkerCard extends StatelessWidget {
     final matchPercent = (rec.score * 100).toInt();
     final hourlyRate = worker.hourlyRate > 0 ? worker.hourlyRate.toInt() : 500;
 
-    return InkWell(
+    return AnimatedScaleTap(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
@@ -557,13 +558,7 @@ class _AIWorkerCard extends StatelessWidget {
           color: HomeEaseTheme.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: HomeEaseTheme.outline),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: HomeEaseTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -674,7 +669,7 @@ class _WorkerListTile extends StatelessWidget {
     final matchPercent = (rec.score * 100).toInt();
     final hourlyRate = worker.hourlyRate > 0 ? worker.hourlyRate.toInt() : 500;
 
-    return InkWell(
+    return AnimatedScaleTap(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: HomeEaseCard(
@@ -752,19 +747,16 @@ class _WorkerListTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: onTap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: HomeEaseTheme.brand,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-                minimumSize: const Size(60, 36),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: HomeEaseTheme.brand,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: HomeEaseTheme.brandGlow,
               ),
               child: Text(
                 isUrdu ? 'بک کریں' : 'Book',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ],
