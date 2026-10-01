@@ -16,13 +16,25 @@ class PostJobScreen extends StatefulWidget {
     required this.onJobPosted,
     this.onBack,
     this.existingJobs = const [],
+    this.applications = const [],
+    this.onAcceptApplication,
     this.bottomNavigationBar,
+    this.onToggleLanguage,
+    this.onOpenNotifications,
+    this.unreadNotificationsCount,
+    this.onLogout,
   });
 
   final ValueChanged<JobPost> onJobPosted;
   final VoidCallback? onBack;
   final List<JobPost> existingJobs;
+  final List<JobApplication> applications;
+  final ValueChanged<JobApplication>? onAcceptApplication;
   final Widget? bottomNavigationBar;
+  final VoidCallback? onToggleLanguage;
+  final VoidCallback? onOpenNotifications;
+  final int? unreadNotificationsCount;
+  final VoidCallback? onLogout;
 
   @override
   State<PostJobScreen> createState() => _PostJobScreenState();
@@ -137,6 +149,10 @@ class _PostJobScreenState extends State<PostJobScreen> {
             : 'Publish task details for local Abbottabad workers to apply',
         onBack: widget.onBack,
         roleBadge: widget.onBack == null ? 'Household' : null,
+        onToggleLanguage: widget.onToggleLanguage,
+        onOpenNotifications: widget.onOpenNotifications,
+        unreadNotificationsCount: widget.unreadNotificationsCount,
+        onLogout: widget.onLogout,
         bottomNavigationBar: widget.bottomNavigationBar,
         child: Form(
           key: _formKey,
@@ -345,51 +361,143 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 onPressed: _isSubmitting ? () {} : _submit,
               ),
 
-              // Existing Gigs List
+              // Existing Gigs List & Applications Received
               if (widget.existingJobs.isNotEmpty) ...[
                 const SizedBox(height: 28),
-                SectionLabel(isUrdu ? 'آپ کی شائع کردہ جابز' : 'Your Posted Gigs'),
+                SectionLabel(isUrdu ? 'آپ کی شائع کردہ جابز اور موصولہ درخواستیں' : 'Your Posted Gigs & Applications'),
                 const SizedBox(height: 10),
-                ...widget.existingJobs.take(3).map((job) {
+                ...widget.existingJobs.take(5).map((job) {
+                  final jobApps = widget.applications.where((a) => a.jobPostId == job.id).toList();
+
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: 12),
                     child: HomeEaseCard(
                       color: HomeEaseTheme.white,
                       padding: const EdgeInsets.all(14),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            LocalizationService.getCategoryIcon(job.serviceCategory),
-                            color: HomeEaseTheme.brand,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  job.title,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          Row(
+                            children: [
+                              Icon(
+                                LocalizationService.getCategoryIcon(job.serviceCategory),
+                                color: HomeEaseTheme.brand,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      job.title,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${job.area} • PKR ${job.budget.toStringAsFixed(0)}',
+                                      style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 2),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: HomeEaseTheme.accentLight,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  job.status.toUpperCase(),
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (jobApps.isNotEmpty) ...[
+                            const Divider(height: 20, color: HomeEaseTheme.outline),
+                            Row(
+                              children: [
+                                const Icon(Icons.people_outline_rounded, size: 16, color: HomeEaseTheme.brand),
+                                const SizedBox(width: 6),
                                 Text(
-                                  '${job.area} • PKR ${job.budget.toStringAsFixed(0)}',
-                                  style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                                  isUrdu
+                                      ? 'موصولہ تجاویز (${jobApps.length}):'
+                                      : 'Proposals Received (${jobApps.length}):',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
                                 ),
                               ],
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: HomeEaseTheme.accentLight,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              job.status.toUpperCase(),
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
-                            ),
-                          ),
+                            const SizedBox(height: 8),
+                            ...jobApps.map((app) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: HomeEaseTheme.card,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: HomeEaseTheme.outline),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const WorkerAvatar(circular: true, size: 36),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            app.workerName,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                          ),
+                                          Text(
+                                            'Bid: PKR ${app.proposedRate.toStringAsFixed(0)}',
+                                            style: const TextStyle(fontSize: 11, color: HomeEaseTheme.brand, fontWeight: FontWeight.bold),
+                                          ),
+                                          if (app.notes.isNotEmpty)
+                                            Text(
+                                              '"${app.notes}"',
+                                              style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: HomeEaseTheme.textSecondary),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (widget.onAcceptApplication != null && app.status.toLowerCase() == 'pending')
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          HapticFeedback.lightImpact();
+                                          widget.onAcceptApplication!(app);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: HomeEaseTheme.statusVerified,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                          minimumSize: const Size(60, 32),
+                                          elevation: 0,
+                                        ),
+                                        child: Text(
+                                          isUrdu ? 'قبول کریں' : 'Accept',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                        ),
+                                      )
+                                    else
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: HomeEaseTheme.accentLight,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          app.status.toUpperCase(),
+                                          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
                         ],
                       ),
                     ),

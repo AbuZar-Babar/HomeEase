@@ -81,7 +81,7 @@ class _RatingReviewScreenState extends State<RatingReviewScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HomeEaseCard(
-            color: HomeEaseTheme.cardDark,
+            color: HomeEaseTheme.white,
             child: Row(
               children: [
                 const WorkerAvatar(circular: true, size: 54),

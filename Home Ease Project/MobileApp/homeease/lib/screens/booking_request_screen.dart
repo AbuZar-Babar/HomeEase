@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/worker_profile.dart';
 import '../services/booking_repository.dart';
+import '../services/localization_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
@@ -13,11 +14,21 @@ class BookingRequestScreen extends StatefulWidget {
     required this.worker,
     required this.onBack,
     required this.onSubmit,
+    this.roleBadge,
+    this.onToggleLanguage,
+    this.onOpenNotifications,
+    this.unreadNotificationsCount,
+    this.onLogout,
   });
 
   final WorkerProfile worker;
   final VoidCallback onBack;
   final ValueChanged<Booking> onSubmit;
+  final String? roleBadge;
+  final VoidCallback? onToggleLanguage;
+  final VoidCallback? onOpenNotifications;
+  final int? unreadNotificationsCount;
+  final VoidCallback? onLogout;
 
   @override
   State<BookingRequestScreen> createState() => _BookingRequestScreenState();
@@ -155,12 +166,19 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
   Future<void> _submitBooking() async {
     if (_isSubmitting) return;
 
+    final isUrdu = LocalizationService.isUrdu;
     if (_selectedDate == null ||
         _selectedStartTime == null ||
         _selectedEndTime == null ||
         _addressController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select date, time slots, and fill in the address.')),
+        SnackBar(
+          content: Text(
+            isUrdu
+                ? 'براہ کرم تاریخ، اوقات اور پتہ درج کریں۔'
+                : 'Please select date, time slots, and fill in the address.',
+          ),
+        ),
       );
       return;
     }
@@ -169,7 +187,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
     final eMin = _selectedEndTime!.hour * 60 + _selectedEndTime!.minute;
     if (sMin >= eMin) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Start time must be strictly before end time.')),
+        SnackBar(
+          content: Text(
+            isUrdu
+                ? 'شروع کا وقت ختم ہونے سے پہلے ہونا چاہیے۔'
+                : 'Start time must be strictly before end time.',
+          ),
+        ),
       );
       return;
     }
@@ -208,7 +232,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Booking request submitted successfully.')),
+        SnackBar(
+          content: Text(
+            isUrdu
+                ? 'بکنگ کی درخواست کامیابی سے جمع ہو گئی۔'
+                : 'Booking request submitted successfully.',
+          ),
+        ),
       );
 
       widget.onSubmit(created);
@@ -243,15 +273,16 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isUrdu = LocalizationService.isUrdu;
     final worker = widget.worker;
     final dateText = _selectedDate == null
-        ? 'Select service date'
+        ? (isUrdu ? 'سروس کی تاریخ منتخب کریں' : 'Select service date')
         : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}';
     final startTimeText = _selectedStartTime == null
-        ? 'Start time'
+        ? (isUrdu ? 'شروع کا وقت' : 'Start time')
         : _selectedStartTime!.format(context);
     final endTimeText = _selectedEndTime == null
-        ? 'End time'
+        ? (isUrdu ? 'ختم ہونے کا وقت' : 'End time')
         : _selectedEndTime!.format(context);
 
     final dynamicAmount = _calculateDynamicAmount();
@@ -264,9 +295,16 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
     final hourlyRate = _getHourlyRate().toInt();
 
     return AppScaffold(
-      title: 'Request Booking',
-      subtitle: 'Specify appointment details and avoid overlaps.',
+      title: isUrdu ? 'بکنگ کی درخواست' : 'Request Booking',
+      subtitle: isUrdu
+          ? 'ملاقات کی تفصیلات درج کریں اور وقت کا تصادم نہ ہو۔'
+          : 'Specify appointment details and avoid overlaps.',
       onBack: widget.onBack,
+      roleBadge: widget.roleBadge,
+      onToggleLanguage: widget.onToggleLanguage,
+      onOpenNotifications: widget.onOpenNotifications,
+      unreadNotificationsCount: widget.unreadNotificationsCount,
+      onLogout: widget.onLogout,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -299,7 +337,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '• Rs. $hourlyRate/hr',
+                            isUrdu ? '• Rs. $hourlyRate فی گھنٹہ' : '• Rs. $hourlyRate/hr',
                             style: const TextStyle(
                               color: HomeEaseTheme.textSecondary,
                               fontSize: 12,
@@ -323,14 +361,15 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionLabel('Schedule & Time Slots'),
+                SectionLabel(isUrdu ? 'شیڈول اور اوقات' : 'Schedule & Time Slots'),
                 const SizedBox(height: 14),
 
                 // Date picker trigger button
                 GestureDetector(
                   onTap: _pickDate,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: HomeEaseTheme.card,
                       borderRadius: BorderRadius.circular(16),
@@ -360,7 +399,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                       child: GestureDetector(
                         onTap: () => _pickTime(true),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           decoration: BoxDecoration(
                             color: HomeEaseTheme.card,
                             borderRadius: BorderRadius.circular(16),
@@ -388,7 +428,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                       child: GestureDetector(
                         onTap: () => _pickTime(false),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           decoration: BoxDecoration(
                             color: HomeEaseTheme.card,
                             borderRadius: BorderRadius.circular(16),
@@ -423,17 +464,17 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                       color: HomeEaseTheme.card,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           width: 14,
                           height: 14,
                           child: CircularProgressIndicator(strokeWidth: 2, color: HomeEaseTheme.brand),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text(
-                          'Checking slot availability...',
-                          style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                          isUrdu ? 'دستیابی چیک کی جا رہی ہے...' : 'Checking slot availability...',
+                          style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
                         ),
                       ],
                     ),
@@ -452,7 +493,10 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            _conflictMessage ?? 'Time slot overlaps with an existing booking.',
+                            _conflictMessage ??
+                                (isUrdu
+                                    ? 'یہ وقت پہلے سے کسی بکنگ کے ساتھ تصادم کر رہا ہے۔'
+                                    : 'Time slot overlaps with an existing booking.'),
                             style: const TextStyle(
                               fontSize: 12,
                               color: HomeEaseTheme.statusConflict,
@@ -477,7 +521,9 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Slot available: ${durationHours.toStringAsFixed(1)} hrs ($startTimeText - $endTimeText)',
+                            isUrdu
+                                ? 'وقت دستیاب ہے: ${durationHours.toStringAsFixed(1)} گھنٹے ($startTimeText - $endTimeText)'
+                                : 'Slot available: ${durationHours.toStringAsFixed(1)} hrs ($startTimeText - $endTimeText)',
                             style: const TextStyle(
                               fontSize: 12,
                               color: HomeEaseTheme.statusVerified,
@@ -492,17 +538,21 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _addressController,
-                  decoration: const InputDecoration(
-                    hintText: 'Service Address (e.g. House 4, Lane 2, Mandian, Abbottabad)',
-                    prefixIcon: Icon(Icons.location_on_outlined, color: HomeEaseTheme.brand),
+                  decoration: InputDecoration(
+                    hintText: isUrdu
+                        ? 'سروس کا پتہ (مثلاً مکان 4، گلی 2، منڈیان، ایبٹ آباد)'
+                        : 'Service Address (e.g. House 4, Lane 2, Mandian, Abbottabad)',
+                    prefixIcon: const Icon(Icons.location_on_outlined, color: HomeEaseTheme.brand),
                   ),
                 ),
                 const SizedBox(height: 14),
                 TextField(
                   controller: _notesController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    hintText: 'Notes for worker (special instructions or access details)',
+                  decoration: InputDecoration(
+                    hintText: isUrdu
+                        ? 'ورکر کے لیے ہدایات یا رسائی کی تفصیلات'
+                        : 'Notes for worker (special instructions or access details)',
                   ),
                 ),
               ],
@@ -526,9 +576,9 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Total Estimated Amount',
-                        style: TextStyle(fontSize: 11, color: HomeEaseTheme.brand, fontWeight: FontWeight.w600),
+                      Text(
+                        isUrdu ? 'کل متوقع رقم' : 'Total Estimated Amount',
+                        style: const TextStyle(fontSize: 11, color: HomeEaseTheme.brand, fontWeight: FontWeight.w600),
                       ),
                       Text(
                         'PKR ${dynamicAmount.toInt()}',
@@ -537,7 +587,9 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     ],
                   ),
                   Text(
-                    '${durationHours.toStringAsFixed(1)} hrs @ Rs. $hourlyRate/hr',
+                    isUrdu
+                        ? '${durationHours.toStringAsFixed(1)} گھنٹے @ Rs. $hourlyRate/hr'
+                        : '${durationHours.toStringAsFixed(1)} hrs @ Rs. $hourlyRate/hr',
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
                   ),
                 ],
@@ -546,7 +598,9 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
 
           // Submit CTA
           HomeEaseButton(
-            label: _isSubmitting ? 'Validating slot...' : 'Submit Booking Request',
+            label: _isSubmitting
+                ? (isUrdu ? 'تصدیق ہو رہی ہے...' : 'Validating slot...')
+                : (isUrdu ? 'بکنگ کی درخواست جمع کروائیں' : 'Submit Booking Request'),
             icon: Icons.check_circle_rounded,
             onPressed: () {
               if (!_isSubmitting) {

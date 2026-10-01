@@ -42,80 +42,83 @@ class AppScaffold extends StatelessWidget {
     final hasTopBar = (onBack == null && leading == null) &&
         (roleBadge != null || onOpenNotifications != null || onToggleLanguage != null);
 
-    return Scaffold(
-      bottomNavigationBar: bottomNavigationBar,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: padding ?? const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: constraints.maxWidth > 540 ? 480 : constraints.maxWidth,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (leading != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: leading!,
-                      )
-                    else if (onBack != null)
-                      _BackHeader(
-                        onBack: onBack!,
-                        trailing: trailing,
-                        onLogout: onLogout,
-                      )
-                    else if (hasTopBar)
-                      _TopAppBar(
-                        roleBadge: roleBadge,
-                        unreadCount: unreadNotificationsCount ?? 0,
-                        onOpenNotifications: onOpenNotifications,
-                        onToggleLanguage: onToggleLanguage,
-                        trailing: trailing,
-                        onLogout: onLogout,
-                      ),
+    return Directionality(
+      textDirection: LocalizationService.direction,
+      child: Scaffold(
+        bottomNavigationBar: bottomNavigationBar,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              padding: padding ?? const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth > 540 ? 480 : constraints.maxWidth,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (leading != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: leading!,
+                        )
+                      else if (onBack != null)
+                        _BackHeader(
+                          onBack: onBack!,
+                          trailing: trailing,
+                          onLogout: onLogout,
+                        )
+                      else if (hasTopBar)
+                        _TopAppBar(
+                          roleBadge: roleBadge,
+                          unreadCount: unreadNotificationsCount ?? 0,
+                          onOpenNotifications: onOpenNotifications,
+                          onToggleLanguage: onToggleLanguage,
+                          trailing: trailing,
+                          onLogout: onLogout,
+                        ),
 
-                    if (title != null) ...[
-                      SizedBox(height: (onBack == null && leading == null && !hasTopBar) ? 0 : 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title!,
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                color: HomeEaseTheme.textPrimary,
-                                fontWeight: FontWeight.w800,
+                      if (title != null) ...[
+                        SizedBox(height: (onBack == null && leading == null && !hasTopBar) ? 0 : 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title!,
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  color: HomeEaseTheme.textPrimary,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
-                          ),
-                          if (onBack == null && !hasTopBar) ...[
-                            ?trailing,
-                            if (onLogout != null)
-                              IconButton(
-                                icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.brand),
-                                onPressed: onLogout,
-                              ),
+                            if (onBack == null && !hasTopBar) ...[
+                              ?trailing,
+                              if (onLogout != null)
+                                IconButton(
+                                  icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.brand),
+                                  onPressed: onLogout,
+                                ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ],
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        subtitle!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: HomeEaseTheme.textSecondary,
-                          height: 1.4,
                         ),
-                      ),
+                      ],
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          subtitle!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: HomeEaseTheme.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 18),
+                      child,
                     ],
-                    const SizedBox(height: 18),
-                    child,
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -150,157 +153,173 @@ class _TopAppBar extends StatelessWidget {
       child: Row(
         children: [
           // Brand Logo & Role Badge
+          Flexible(
+            fit: FlexFit.loose,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: HomeEaseTheme.brand,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: HomeEaseTheme.brand.withValues(alpha: 0.25),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'H',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'HomeEase',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: HomeEaseTheme.brand,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      if (roleBadge != null)
+                        Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: HomeEaseTheme.accentLight,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            roleBadge!,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: HomeEaseTheme.brand,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          const Spacer(),
+
+          // Actions row
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: HomeEaseTheme.brand,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: HomeEaseTheme.brand.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'H',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'HomeEase',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: HomeEaseTheme.brand,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  if (roleBadge != null)
-                    Container(
-                      margin: const EdgeInsets.only(top: 2),
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: HomeEaseTheme.accentLight,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        roleBadge!,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: HomeEaseTheme.brand,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
-          const Spacer(),
-
-          // Compact Language Switcher
-          if (onToggleLanguage != null)
-            InkWell(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                onToggleLanguage!();
-              },
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: HomeEaseTheme.card,
+              // Compact Language Switcher
+              if (onToggleLanguage != null)
+                InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    onToggleLanguage!();
+                  },
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: HomeEaseTheme.outline),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.translate_rounded, size: 15, color: HomeEaseTheme.brand),
-                    const SizedBox(width: 4),
-                    Text(
-                      LocalizationService.isUrdu ? 'English' : 'اردو',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                        color: HomeEaseTheme.brand,
-                      ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: HomeEaseTheme.card,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: HomeEaseTheme.outline),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Notification Bell with Unread Badge
-          if (onOpenNotifications != null) ...[
-            const SizedBox(width: 8),
-            InkWell(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                onOpenNotifications!();
-              },
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: HomeEaseTheme.card,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: HomeEaseTheme.outline),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 20),
-                    if (unreadCount > 0)
-                      Positioned(
-                        right: 7,
-                        top: 7,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: HomeEaseTheme.statusConflict,
-                            shape: BoxShape.circle,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.translate_rounded, size: 14, color: HomeEaseTheme.brand),
+                        const SizedBox(width: 4),
+                        Text(
+                          LocalizationService.isUrdu ? 'English' : 'اردو',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: HomeEaseTheme.brand,
                           ),
                         ),
-                      ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
 
-          ?trailing,
+              // Notification Bell with Unread Badge
+              if (onOpenNotifications != null) ...[
+                const SizedBox(width: 6),
+                InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    onOpenNotifications!();
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: HomeEaseTheme.card,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: HomeEaseTheme.outline),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 19),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: HomeEaseTheme.statusConflict,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
 
-          if (onLogout != null) ...[
-            const SizedBox(width: 6),
-            IconButton(
-              icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 20),
-              tooltip: 'Logout',
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                onLogout!();
-              },
-            ),
-          ],
+              ?trailing,
+
+              if (onLogout != null) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 19),
+                  tooltip: 'Logout',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    onLogout!();
+                  },
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );
@@ -468,12 +487,30 @@ class HomeEaseBottomNav extends StatelessWidget {
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(
-                          isSelected ? item.activeIcon : item.icon,
-                          color: isSelected
-                              ? HomeEaseTheme.brand
-                              : HomeEaseTheme.muted,
-                          size: 22,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Icon(
+                              isSelected ? item.activeIcon : item.icon,
+                              color: isSelected
+                                  ? HomeEaseTheme.brand
+                                  : HomeEaseTheme.muted,
+                              size: 22,
+                            ),
+                            if (unreadCount > 0 && ((!isWorker && index == 2) || (isWorker && index == 0)))
+                              Positioned(
+                                top: -2,
+                                right: -4,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: HomeEaseTheme.statusConflict,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 3),

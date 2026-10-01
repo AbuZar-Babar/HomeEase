@@ -14,6 +14,10 @@ class WorkerJobFeedScreen extends StatefulWidget {
     required this.onApply,
     this.onBack,
     this.bottomNavigationBar,
+    this.onToggleLanguage,
+    this.onOpenNotifications,
+    this.unreadNotificationsCount,
+    this.onLogout,
   });
 
   final List<JobPost> jobPosts;
@@ -21,6 +25,10 @@ class WorkerJobFeedScreen extends StatefulWidget {
   final ValueChanged<JobApplication> onApply;
   final VoidCallback? onBack;
   final Widget? bottomNavigationBar;
+  final VoidCallback? onToggleLanguage;
+  final VoidCallback? onOpenNotifications;
+  final int? unreadNotificationsCount;
+  final VoidCallback? onLogout;
 
   @override
   State<WorkerJobFeedScreen> createState() => _WorkerJobFeedScreenState();
@@ -312,6 +320,10 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
             : 'Explore open gig requests posted by local households in Abbottabad',
         onBack: widget.onBack,
         roleBadge: widget.onBack == null ? 'Worker' : null,
+        onToggleLanguage: widget.onToggleLanguage,
+        onOpenNotifications: widget.onOpenNotifications,
+        unreadNotificationsCount: widget.unreadNotificationsCount,
+        onLogout: widget.onLogout,
         bottomNavigationBar: widget.bottomNavigationBar,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,

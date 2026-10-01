@@ -89,7 +89,7 @@ class _SignInScreenState extends State<SignInScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HomeEaseCard(
-            color: HomeEaseTheme.cardDark,
+            color: HomeEaseTheme.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -199,12 +199,14 @@ class _SignInScreenState extends State<SignInScreen> {
                         icon: const Icon(Icons.home_rounded, size: 16),
                         label: const Text('Household', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: HomeEaseTheme.cardDark,
+                          backgroundColor: HomeEaseTheme.accentLight,
                           foregroundColor: HomeEaseTheme.brand,
                           elevation: 0,
+                          minimumSize: const Size(0, 48),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: HomeEaseTheme.outline),
                           ),
                         ),
                         onPressed: () {
@@ -226,12 +228,14 @@ class _SignInScreenState extends State<SignInScreen> {
                         icon: const Icon(Icons.cleaning_services_rounded, size: 16),
                         label: const Text('Worker', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: HomeEaseTheme.cardDark,
+                          backgroundColor: HomeEaseTheme.accentLight,
                           foregroundColor: HomeEaseTheme.brand,
                           elevation: 0,
+                          minimumSize: const Size(0, 48),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: HomeEaseTheme.outline),
                           ),
                         ),
                         onPressed: () {

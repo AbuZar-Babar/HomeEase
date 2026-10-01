@@ -111,7 +111,7 @@ class HomeEaseCard extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isWhite ? HomeEaseTheme.outline : Colors.transparent,
+          color: HomeEaseTheme.outline,
           width: 1,
         ),
         boxShadow: isWhite

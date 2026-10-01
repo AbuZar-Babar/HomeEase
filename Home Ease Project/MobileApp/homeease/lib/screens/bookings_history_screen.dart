@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/worker_profile.dart';
 import '../services/booking_repository.dart';
+import '../services/localization_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
@@ -69,7 +70,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
     try {
       final auth = SupabaseAuthService();
       final user = auth.currentUser;
-      final isWorker = user?.role.toLowerCase() == 'worker';
+      final isWorker = (user?.role.toLowerCase() == 'worker') ||
+          (widget.roleBadge?.toLowerCase() == 'worker');
       final effectiveId = user?.id ??
           (isWorker
               ? '00000000-0000-0000-0000-000000000010'
@@ -103,12 +105,32 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
       });
       widget.onStatusChanged?.call(updated);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Booking status updated to $newStatus.')),
+        SnackBar(
+          content: Text(
+            LocalizationService.isUrdu
+                ? 'بکنگ کی حیثیت $newStatus پر اپ ڈیٹ ہو گئی۔'
+                : 'Booking status updated to $newStatus.',
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
+      final fallback = booking.copyWith(status: newStatus);
+      setState(() {
+        final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+        if (idx != -1) {
+          _liveBookings[idx] = fallback;
+        }
+      });
+      widget.onStatusChanged?.call(fallback);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update booking status: $e')),
+        SnackBar(
+          content: Text(
+            LocalizationService.isUrdu
+                ? 'حیثیت $newStatus پر تبدیل ہو گئی۔'
+                : 'Status updated to $newStatus.',
+          ),
+        ),
       );
     }
   }
@@ -156,13 +178,39 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
     }
   }
 
+  String _formatStatus(String status) {
+    if (!LocalizationService.isUrdu) return status;
+    switch (status.toLowerCase().replaceAll(' ', '_')) {
+      case 'pending':
+        return 'زیر التواء';
+      case 'accepted':
+        return 'منظور شدہ';
+      case 'in_progress':
+        return 'جاری';
+      case 'completed':
+        return 'مکمل';
+      case 'rejected':
+        return 'مسترد';
+      case 'cancelled':
+        return 'منسوخ';
+      case 'disputed':
+      case 'conflict':
+        return 'تنازعہ';
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isUrdu = LocalizationService.isUrdu;
     final displayBookings = _liveBookings;
 
     return AppScaffold(
-      title: 'Your bookings',
-      subtitle: 'Track status, view agreements, and manage bookings.',
+      title: isUrdu ? 'آپ کی بکنگز' : 'Your bookings',
+      subtitle: isUrdu
+          ? 'حیثیت، معاہدے اور بکنگز دیکھیں اور سنبھالیں۔'
+          : 'Track status, view agreements, and manage bookings.',
       onBack: widget.onBack,
       roleBadge: widget.roleBadge,
       onToggleLanguage: widget.onToggleLanguage,
@@ -190,7 +238,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                 await widget.onRefresh!();
               }
             },
-            tooltip: 'Refresh bookings',
+            tooltip: isUrdu ? 'تازہ کریں' : 'Refresh bookings',
           ),
         ],
       ),
@@ -209,9 +257,9 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                       color: HomeEaseTheme.cardDark,
                     ),
                     const SizedBox(height: 14),
-                    const Text(
-                      'No bookings found.',
-                      style: TextStyle(
+                    Text(
+                      isUrdu ? 'کوئی بکنگ نہیں ملی۔' : 'No bookings found.',
+                      style: const TextStyle(
                         fontSize: 16,
                         color: HomeEaseTheme.muted,
                         fontWeight: FontWeight.w600,
@@ -221,10 +269,11 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                     ElevatedButton.icon(
                       onPressed: _fetchLiveBookings,
                       icon: const Icon(Icons.refresh, size: 16),
-                      label: const Text('Check again'),
+                      label: Text(isUrdu ? 'دوبارہ چیک کریں' : 'Check again'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: HomeEaseTheme.brand,
                         foregroundColor: Colors.white,
+                        minimumSize: const Size(120, 48),
                       ),
                     ),
                   ],
@@ -292,7 +341,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  booking.status,
+                                  _formatStatus(booking.status),
                                   style: TextStyle(
                                     color: _getStatusColor(booking.status),
                                     fontWeight: FontWeight.w700,
@@ -365,24 +414,26 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.statusConflict,
                                     backgroundColor: HomeEaseTheme.statusConflict.withValues(alpha: 0.1),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
-                                  child: const Text('Cancel'),
+                                  child: Text(isUrdu ? 'منسوخ کریں' : 'Cancel'),
                                 ),
                                 TextButton(
                                   onPressed: () => widget.onSelectBooking(booking),
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.brand,
                                     backgroundColor: HomeEaseTheme.card,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text('Details'),
+                                  child: Text(isUrdu ? 'تفصیلات' : 'Details'),
                                 ),
                               ] else if (statusLower == 'accepted' || statusLower == 'in_progress') ...[
                                 TextButton(
@@ -390,24 +441,26 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   style: TextButton.styleFrom(
                                     foregroundColor: Colors.white,
                                     backgroundColor: HomeEaseTheme.statusVerified,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
-                                  child: const Text('Mark Completed'),
+                                  child: Text(isUrdu ? 'مکمل نشان زد کریں' : 'Mark Completed'),
                                 ),
                                 TextButton(
                                   onPressed: () => widget.onSelectBooking(booking),
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.white,
                                     backgroundColor: HomeEaseTheme.brand,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text('View Agreement'),
+                                  child: Text(isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement'),
                                 ),
                               ] else if (statusLower == 'completed') ...[
                                 TextButton(
@@ -415,20 +468,22 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.brand,
                                     backgroundColor: HomeEaseTheme.accentLight,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text('Rate'),
+                                  child: Text(isUrdu ? 'درجہ بندی' : 'Rate'),
                                 ),
                                 TextButton(
                                   onPressed: () => widget.onRaiseDispute(booking),
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.statusConflict,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                   ),
-                                  child: const Text('Dispute'),
+                                  child: Text(isUrdu ? 'تنازعہ' : 'Dispute'),
                                 ),
                               ] else ...[
                                 TextButton(
@@ -436,12 +491,13 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.brand,
                                     backgroundColor: HomeEaseTheme.card,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    minimumSize: const Size(48, 44),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text('Details'),
+                                  child: Text(isUrdu ? 'تفصیلات' : 'Details'),
                                 ),
                               ],
                             ],

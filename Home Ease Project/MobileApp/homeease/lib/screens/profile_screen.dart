@@ -16,6 +16,8 @@ class ProfileScreen extends StatelessWidget {
     this.totalBookings = 0,
     this.totalPostedGigs = 0,
     this.bottomNavigationBar,
+    this.onOpenNotifications,
+    this.unreadNotificationsCount,
   });
 
   final String userRole;
@@ -24,6 +26,8 @@ class ProfileScreen extends StatelessWidget {
   final int totalBookings;
   final int totalPostedGigs;
   final Widget? bottomNavigationBar;
+  final VoidCallback? onOpenNotifications;
+  final int? unreadNotificationsCount;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +45,13 @@ class ProfileScreen extends StatelessWidget {
           ? 'اکاؤنٹ کی تفصیلات اور سیٹنگز'
           : 'Account settings, addresses, and platform preferences',
         roleBadge: userRole,
+        onToggleLanguage: () {
+          LocalizationService.toggleLanguage();
+          onLanguageChanged();
+        },
+        onOpenNotifications: onOpenNotifications,
+        unreadNotificationsCount: unreadNotificationsCount,
+        onLogout: onLogout,
         bottomNavigationBar: bottomNavigationBar,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

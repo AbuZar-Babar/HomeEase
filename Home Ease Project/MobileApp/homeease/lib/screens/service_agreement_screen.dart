@@ -66,7 +66,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HomeEaseCard(
-            color: HomeEaseTheme.cardDark,
+            color: HomeEaseTheme.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

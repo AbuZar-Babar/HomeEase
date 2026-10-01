@@ -470,20 +470,31 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Text('Time: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}',
-                                style: const TextStyle(fontSize: 13, color: HomeEaseTheme.textPrimary)),
-                              const SizedBox(height: 2),
-                              Text('Location: ${booking.address}',
-                                style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary)),
+                               const SizedBox(height: 8),
+                              Text(
+                                isUrdu
+                                    ? 'وقت: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}'
+                                    : 'Time: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}',
+                                style: const TextStyle(fontSize: 13, color: HomeEaseTheme.textPrimary),
+                              ),
                               const SizedBox(height: 2),
                               Text(
-                                'Agreed Amount: PKR ${booking.agreedAmount.toStringAsFixed(0)}',
+                                isUrdu ? 'مقام: ${booking.address}' : 'Location: ${booking.address}',
+                                style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                isUrdu
+                                    ? 'طے شدہ رقم: PKR ${booking.agreedAmount.toStringAsFixed(0)}'
+                                    : 'Agreed Amount: PKR ${booking.agreedAmount.toStringAsFixed(0)}',
                                 style: const TextStyle(fontWeight: FontWeight.bold, color: HomeEaseTheme.brand, fontSize: 13),
                               ),
                               if (booking.notes.isNotEmpty) ...[
                                 const SizedBox(height: 6),
-                                Text('Notes: "${booking.notes}"', style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: HomeEaseTheme.textSecondary)),
+                                Text(
+                                  isUrdu ? 'ہدایات: "${booking.notes}"' : 'Notes: "${booking.notes}"',
+                                  style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: HomeEaseTheme.textSecondary),
+                                ),
                               ],
                               const SizedBox(height: 16),
                               // High Affordance Accept / Decline Buttons (48dp height minimum)
@@ -594,7 +605,9 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                         ),
                                         Text(
-                                          'Time: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}',
+                                          isUrdu
+                                              ? 'وقت: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}'
+                                              : 'Time: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}',
                                           style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
                                         ),
                                         Text(
@@ -621,7 +634,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                 children: [
                                   Expanded(
                                     child: SizedBox(
-                                      height: 44,
+                                      height: 48,
                                       child: ElevatedButton.icon(
                                         onPressed: () {
                                           HapticFeedback.lightImpact();
@@ -644,7 +657,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: SizedBox(
-                                      height: 44,
+                                      height: 48,
                                       child: OutlinedButton(
                                         onPressed: () => widget.onSelectBooking(booking),
                                         style: OutlinedButton.styleFrom(
