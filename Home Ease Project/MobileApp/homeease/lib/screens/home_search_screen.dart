@@ -632,7 +632,7 @@ class _AIWorkerCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      '✨ $matchPercent% Match • ${rec.distanceKm.toStringAsFixed(1)} km away',
+                      '$matchPercent% Match • ${rec.distanceKm.toStringAsFixed(1)} km away',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

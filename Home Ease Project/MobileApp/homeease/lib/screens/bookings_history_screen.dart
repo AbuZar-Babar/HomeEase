@@ -51,6 +51,9 @@ class BookingsHistoryScreen extends StatefulWidget {
 class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
   late List<Booking> _liveBookings;
   bool _isLoading = false;
+  String _selectedFilter = 'All';
+
+  final List<String> _filters = ['All', 'Active', 'Upcoming', 'Completed', 'Disputed'];
 
   @override
   void initState() {
@@ -65,6 +68,23 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
     if (widget.bookings != oldWidget.bookings) {
       _liveBookings = List.from(widget.bookings);
     }
+  }
+
+  List<Booking> get _filteredBookings {
+    if (_selectedFilter == 'All') return _liveBookings;
+    return _liveBookings.where((b) {
+      final s = b.status.toLowerCase().replaceAll(' ', '_');
+      if (_selectedFilter == 'Active') {
+        return s == 'accepted' || s == 'in_progress';
+      } else if (_selectedFilter == 'Upcoming') {
+        return s == 'pending';
+      } else if (_selectedFilter == 'Completed') {
+        return s == 'completed';
+      } else if (_selectedFilter == 'Disputed') {
+        return s == 'disputed' || s == 'conflict';
+      }
+      return true;
+    }).toList();
   }
 
   Future<void> _fetchLiveBookings() async {
@@ -206,7 +226,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final isUrdu = LocalizationService.isUrdu;
-    final displayBookings = _liveBookings;
+    final displayBookings = _filteredBookings;
 
     return AppScaffold(
       title: isUrdu ? 'آپ کی بکنگز' : 'Your bookings',
@@ -247,6 +267,40 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Filter Tabs Segment
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _filters.map((filter) {
+                final isSelected = _selectedFilter == filter;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8, bottom: 12),
+                  child: FilterChip(
+                    selected: isSelected,
+                    label: Text(
+                      filter,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        color: isSelected ? Colors.white : HomeEaseTheme.textPrimary,
+                      ),
+                    ),
+                    backgroundColor: HomeEaseTheme.surface,
+                    selectedColor: HomeEaseTheme.brand,
+                    checkmarkColor: Colors.white,
+                    side: BorderSide(
+                      color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline,
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    onSelected: (bool val) {
+                      setState(() => _selectedFilter = filter);
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 4),
           if (_isLoading && _liveBookings.isEmpty)
             Column(
               children: const [
@@ -404,6 +458,41 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                           ),
                         ],
                       ),
+                      if (statusLower == 'accepted' || statusLower == 'in_progress') ...[
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: HomeEaseTheme.brand.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: HomeEaseTheme.brand.withValues(alpha: 0.18)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.security_rounded, size: 16, color: HomeEaseTheme.brand),
+                              const SizedBox(width: 8),
+                              Text(
+                                isUrdu ? 'سروس شروع OTP: ' : 'Start OTP: ',
+                                style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary, fontWeight: FontWeight.w600),
+                              ),
+                              const Text(
+                                '8492',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 2,
+                                  color: HomeEaseTheme.brand,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                isUrdu ? 'آمد پر شیئر کریں' : 'Share on arrival',
+                                style: const TextStyle(fontSize: 10, color: HomeEaseTheme.statusVerified, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 14),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

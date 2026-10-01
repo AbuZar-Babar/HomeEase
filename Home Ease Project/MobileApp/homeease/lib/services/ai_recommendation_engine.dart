@@ -86,7 +86,7 @@ class AIRecommendationEngine {
       }
 
       if (worker.rating >= 4.7) {
-        reasons.add('${worker.rating}★ top-rated reputation');
+        reasons.add('${worker.rating} top-rated reputation');
       } else if (worker.verificationStatus == 'Verified') {
         reasons.add('Identity verified');
       }

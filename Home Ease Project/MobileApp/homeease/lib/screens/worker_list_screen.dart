@@ -144,9 +144,19 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  '${worker.location} • ★ ${worker.rating} (${worker.reviewsCount} reviews) • ${rec.distanceKm.toStringAsFixed(1)} km',
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                Row(
+                                  children: [
+                                    Text(
+                                      '${worker.location} • ',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                    const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '${worker.rating} (${worker.reviewsCount}) • ${rec.distanceKm.toStringAsFixed(1)} km',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
                                 ),
                                 if (rec.matchReasons.isNotEmpty) ...[
                                   const SizedBox(height: 4),
