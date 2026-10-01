@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../data/sample_data.dart';
 import '../models/worker_profile.dart';
+import '../services/job_repository.dart';
 import '../services/localization_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
-import '../data/sample_data.dart';
 
 class PostJobScreen extends StatefulWidget {
   const PostJobScreen({
@@ -29,6 +30,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
   String _selectedCategory = 'Cook';
   String _selectedArea = 'Mandian';
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
+  bool _isSubmitting = false;
 
   final List<String> _categories = ['Cook', 'Cleaner', 'Nanny', 'Caregiver', 'Maid'];
   final List<String> _areas = ['Mandian', 'Jhangi Syedan', 'Supply Bazaar', 'Nawan Shehr', 'PMA Kakul Road'];
@@ -66,30 +68,49 @@ class _PostJobScreenState extends State<PostJobScreen> {
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
     if (_formKey.currentState?.validate() ?? false) {
-      final budgetVal = double.tryParse(_budgetController.text.trim()) ?? 2500.0;
-      final coords = SampleData.localityCoordinates[_selectedArea] ?? {'lat': 34.1983, 'lon': 73.2425};
-      final user = SupabaseAuthService().currentUser;
+      setState(() => _isSubmitting = true);
+      try {
+        final budgetVal = double.tryParse(_budgetController.text.trim()) ?? 2500.0;
+        final coords = SampleData.localityCoordinates[_selectedArea] ?? {'lat': 34.1983, 'lon': 73.2425};
+        final user = SupabaseAuthService().currentUser;
+        final authClient = SupabaseAuthService().client;
+        final authId = authClient?.auth.currentUser?.id;
+        final effectiveHouseholdId = user?.id ?? authId ?? '00000000-0000-0000-0000-000000000001';
 
-      final newPost = JobPost(
-        id: 'job_${DateTime.now().millisecondsSinceEpoch}',
-        householdId: user?.id ?? '00000000-0000-0000-0000-000000000001',
-        householdName: user?.fullName ?? 'Household Employer',
-        title: _titleController.text.trim(),
-        serviceCategory: _selectedCategory,
-        description: _descriptionController.text.trim(),
-        city: 'Abbottabad',
-        area: _selectedArea,
-        latitude: coords['lat']!,
-        longitude: coords['lon']!,
-        budget: budgetVal,
-        requiredDate: _selectedDate,
-        status: 'open',
-        createdAt: DateTime.now(),
-      );
+        final newPost = JobPost(
+          id: 'job_${DateTime.now().millisecondsSinceEpoch}',
+          householdId: effectiveHouseholdId,
+          householdName: user?.fullName ?? 'Household Employer',
+          title: _titleController.text.trim(),
+          serviceCategory: _selectedCategory,
+          description: _descriptionController.text.trim(),
+          city: 'Abbottabad',
+          area: _selectedArea,
+          latitude: coords['lat']!,
+          longitude: coords['lon']!,
+          budget: budgetVal,
+          requiredDate: _selectedDate,
+          status: 'open',
+          createdAt: DateTime.now(),
+        );
 
-      widget.onJobPosted(newPost);
+        final created = await JobRepository().createJob(newPost);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(LocalizationService.tr('postSuccess'))),
+        );
+        widget.onJobPosted(created);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating job: $e')),
+        );
+      } finally {
+        if (mounted) setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -283,7 +304,8 @@ class _PostJobScreenState extends State<PostJobScreen> {
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) return 'Please specify a budget';
-                    if (double.tryParse(val.trim()) == null) return 'Enter a valid number';
+                    final parsed = double.tryParse(val.trim());
+                    if (parsed == null || parsed <= 0) return 'Enter a valid positive number';
                     return null;
                   },
                 ),
@@ -324,11 +346,17 @@ class _PostJobScreenState extends State<PostJobScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       elevation: 2,
                     ),
-                    onPressed: _submit,
-                    child: Text(
-                      LocalizationService.tr('submitPost'),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    onPressed: _isSubmitting ? null : _submit,
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                          )
+                        : Text(
+                            LocalizationService.tr('submitPost'),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
               ],

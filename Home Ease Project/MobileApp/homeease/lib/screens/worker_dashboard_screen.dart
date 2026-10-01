@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
+import '../services/booking_repository.dart';
 import '../services/localization_service.dart';
+import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
@@ -15,6 +17,7 @@ class WorkerDashboardScreen extends StatefulWidget {
     this.workerName,
     required this.onAcceptBooking,
     required this.onRejectBooking,
+    this.onCompleteBooking,
     required this.onManageAvailability,
     required this.onOpenNotifications,
     required this.unreadNotificationsCount,
@@ -22,6 +25,7 @@ class WorkerDashboardScreen extends StatefulWidget {
     required this.onLogout,
     this.onBrowseAvailableJobs,
     this.onLanguageChanged,
+    this.onRefresh,
   });
 
   final List<Booking> bookings;
@@ -29,6 +33,7 @@ class WorkerDashboardScreen extends StatefulWidget {
   final String? workerName;
   final ValueChanged<Booking> onAcceptBooking;
   final ValueChanged<Booking> onRejectBooking;
+  final ValueChanged<Booking>? onCompleteBooking;
   final VoidCallback onManageAvailability;
   final VoidCallback onOpenNotifications;
   final int unreadNotificationsCount;
@@ -36,17 +41,145 @@ class WorkerDashboardScreen extends StatefulWidget {
   final VoidCallback onLogout;
   final VoidCallback? onBrowseAvailableJobs;
   final VoidCallback? onLanguageChanged;
+  final Future<void> Function()? onRefresh;
 
   @override
   State<WorkerDashboardScreen> createState() => _WorkerDashboardScreenState();
 }
 
 class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
+  late List<Booking> _liveBookings;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _liveBookings = List.from(widget.bookings);
+    _fetchLiveWorkerBookings();
+  }
+
+  @override
+  void didUpdateWidget(WorkerDashboardScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.bookings != oldWidget.bookings) {
+      _liveBookings = List.from(widget.bookings);
+    }
+  }
+
+  Future<void> _fetchLiveWorkerBookings() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = SupabaseAuthService().currentUser;
+      final workerId = user?.id ?? '00000000-0000-0000-0000-000000000010';
+      final fresh = await BookingRepository().fetchBookingsForWorker(workerId);
+      if (mounted && (user != null || fresh.isNotEmpty)) {
+        setState(() {
+          _liveBookings = fresh;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching worker bookings in dashboard: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _acceptBooking(Booking booking) async {
+    try {
+      final updated = await BookingRepository().updateBookingStatus(booking.id, 'Accepted');
+      if (!mounted) return;
+      setState(() {
+        final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+        if (idx != -1) {
+          _liveBookings[idx] = updated;
+        }
+      });
+      widget.onAcceptBooking(updated);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LocalizationService.isUrdu
+                ? 'کام قبول کر لیا گیا! سروس کا معاہدہ تیار ہے۔'
+                : 'Job accepted! Service agreement generated.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error accepting job: $e')),
+      );
+    }
+  }
+
+  Future<void> _rejectBooking(Booking booking) async {
+    try {
+      final updated = await BookingRepository().updateBookingStatus(booking.id, 'Rejected');
+      if (!mounted) return;
+      setState(() {
+        final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+        if (idx != -1) {
+          _liveBookings[idx] = updated;
+        }
+      });
+      widget.onRejectBooking(updated);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LocalizationService.isUrdu
+                ? 'درخواست مسترد کر دی گئی۔'
+                : 'Job request declined.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error declining job: $e')),
+      );
+    }
+  }
+
+  Future<void> _completeBooking(Booking booking) async {
+    try {
+      final updated = await BookingRepository().updateBookingStatus(booking.id, 'Completed');
+      if (!mounted) return;
+      setState(() {
+        final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+        if (idx != -1) {
+          _liveBookings[idx] = updated;
+        }
+      });
+      widget.onCompleteBooking?.call(updated);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LocalizationService.isUrdu
+                ? 'ملازمت کو مکمل قرار دے دیا گیا۔'
+                : 'Job marked as Completed!',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error completing job: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isUrdu = LocalizationService.isUrdu;
-    final pendingRequests = widget.bookings.where((b) => b.status == 'Pending').toList();
-    final acceptedJobs = widget.bookings.where((b) => b.status == 'Accepted').toList();
+    final candidateBookings = _liveBookings;
+    final pendingRequests = candidateBookings.where((b) {
+      final s = b.status.toLowerCase().replaceAll(' ', '_');
+      return s == 'pending';
+    }).toList();
+    final acceptedJobs = candidateBookings.where((b) {
+      final s = b.status.toLowerCase().replaceAll(' ', '_');
+      return s == 'accepted' || s == 'in_progress';
+    }).toList();
 
     final welcomeSubtitle = widget.workerName != null
         ? (isUrdu ? 'خوش آمدید، ${widget.workerName}' : 'Welcome back, ${widget.workerName}')
@@ -58,37 +191,65 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
         title: LocalizationService.tr('workerDashboard'),
         subtitle: welcomeSubtitle,
         onLogout: widget.onLogout,
-        trailing: InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            LocalizationService.toggleLanguage();
-            setState(() {});
-            widget.onLanguageChanged?.call();
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: HomeEaseTheme.card,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: HomeEaseTheme.brandSoft.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.translate_rounded, size: 16, color: HomeEaseTheme.brand),
-                const SizedBox(width: 4),
-                Text(
-                  isUrdu ? 'English' : 'اردو',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: HomeEaseTheme.brand,
-                  ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.only(right: 6),
+                child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: HomeEaseTheme.brand),
                 ),
-              ],
+              ),
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: HomeEaseTheme.brand, size: 20),
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () async {
+                await _fetchLiveWorkerBookings();
+                if (widget.onRefresh != null) {
+                  await widget.onRefresh!();
+                }
+              },
+              tooltip: 'Refresh',
             ),
-          ),
+            const SizedBox(width: 8),
+            InkWell(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                LocalizationService.toggleLanguage();
+                setState(() {});
+                widget.onLanguageChanged?.call();
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: HomeEaseTheme.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: HomeEaseTheme.brandSoft.withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.translate_rounded, size: 16, color: HomeEaseTheme.brand),
+                    const SizedBox(width: 4),
+                    Text(
+                      isUrdu ? 'English' : 'اردو',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: HomeEaseTheme.brand,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,6 +504,8 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
               ],
             ),
             const SizedBox(height: 18),
+
+            // Incoming Requests Card
             HomeEaseCard(
               color: HomeEaseTheme.white,
               child: Column(
@@ -393,6 +556,10 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                               const SizedBox(height: 6),
                               Text('Time: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}'),
                               Text('Location: ${booking.address}'),
+                              Text(
+                                'Agreed Amount: PKR ${booking.agreedAmount.toStringAsFixed(0)}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                              ),
                               if (booking.notes.isNotEmpty) ...[
                                 const SizedBox(height: 6),
                                 Text('Notes: "${booking.notes}"', style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
@@ -404,7 +571,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                     child: FilledButton(
                                       onPressed: () {
                                         HapticFeedback.lightImpact();
-                                        widget.onAcceptBooking(booking);
+                                        _acceptBooking(booking);
                                       },
                                       style: FilledButton.styleFrom(backgroundColor: Colors.green),
                                       child: Text(isUrdu ? 'قبول کریں' : 'Accept'),
@@ -415,7 +582,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                     child: FilledButton(
                                       onPressed: () {
                                         HapticFeedback.lightImpact();
-                                        widget.onRejectBooking(booking);
+                                        _rejectBooking(booking);
                                       },
                                       style: FilledButton.styleFrom(backgroundColor: Colors.red),
                                       child: Text(isUrdu ? 'مسترد کریں' : 'Decline'),
@@ -432,6 +599,8 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Active Jobs & Payments Card
             HomeEaseCard(
               color: HomeEaseTheme.white,
               child: Column(
@@ -450,35 +619,91 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                   else
                     ...acceptedJobs.map(
                       (booking) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
-                          onTap: () => widget.onSelectBooking(booking),
-                          borderRadius: BorderRadius.circular(16),
-                          child: HomeEaseCard(
-                            color: HomeEaseTheme.surface,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  LocalizationService.getCategoryIcon(booking.serviceCategoryId),
-                                  color: LocalizationService.getCategoryColor(booking.serviceCategoryId),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${isUrdu ? LocalizationService.tr(booking.serviceCategoryId.toLowerCase()) : booking.serviceCategoryId} - ${booking.bookingDate.day}/${booking.bookingDate.month}/${booking.bookingDate.year}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                      ),
-                                      Text('Time: ${booking.startTime.format(context)}', style: const TextStyle(fontSize: 11)),
-                                    ],
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: HomeEaseCard(
+                          color: HomeEaseTheme.surface,
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    LocalizationService.getCategoryIcon(booking.serviceCategoryId),
+                                    color: LocalizationService.getCategoryColor(booking.serviceCategoryId),
                                   ),
-                                ),
-                                const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: HomeEaseTheme.brand),
-                              ],
-                            ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${isUrdu ? LocalizationService.tr(booking.serviceCategoryId.toLowerCase()) : booking.serviceCategoryId} - ${booking.bookingDate.day}/${booking.bookingDate.month}/${booking.bookingDate.year}',
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        ),
+                                        Text(
+                                          'Time: ${booking.startTime.format(context)} - ${booking.endTime.format(context)}',
+                                          style: const TextStyle(fontSize: 11),
+                                        ),
+                                        Text(
+                                          booking.address,
+                                          style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    'PKR ${booking.agreedAmount.toStringAsFixed(0)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: HomeEaseTheme.brand,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: FilledButton.icon(
+                                      onPressed: () {
+                                        HapticFeedback.lightImpact();
+                                        _completeBooking(booking);
+                                      },
+                                      icon: const Icon(Icons.check_circle_rounded, size: 16),
+                                      label: Text(
+                                        isUrdu ? 'مکمل کریں' : 'Mark Completed',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                      ),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () => widget.onSelectBooking(booking),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: HomeEaseTheme.brand,
+                                        side: const BorderSide(color: HomeEaseTheme.brand),
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      ),
+                                      child: Text(
+                                        isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),

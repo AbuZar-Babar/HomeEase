@@ -23,7 +23,6 @@ import '../screens/worker_dashboard_screen.dart';
 import '../screens/worker_detail_screen.dart';
 import '../screens/worker_job_feed_screen.dart';
 import '../screens/worker_list_screen.dart';
-import '../services/localization_service.dart';
 
 class HomeEaseFlow extends StatefulWidget {
   const HomeEaseFlow({super.key});
@@ -191,16 +190,21 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   Future<void> _loadLiveBookings() async {
     try {
       final user = SupabaseAuthService().currentUser;
-      final effectiveId = user?.id ?? '00000000-0000-0000-0000-000000000001';
-      final isWorker = user?.role.toLowerCase() == 'worker';
+      final isWorker = (user?.role.toLowerCase() == 'worker') || (_currentUserRole == 'Worker');
+      final effectiveId = user?.id ??
+          (isWorker
+              ? '00000000-0000-0000-0000-000000000010'
+              : '00000000-0000-0000-0000-000000000001');
       final bookings = isWorker
           ? await BookingRepository().fetchBookingsForWorker(effectiveId)
           : await BookingRepository().fetchBookingsForHousehold(effectiveId);
 
-      if (mounted && bookings.isNotEmpty) {
+      if (mounted) {
         setState(() {
-          _bookings.clear();
-          _bookings.addAll(bookings);
+          if (user != null || bookings.isNotEmpty) {
+            _bookings.clear();
+            _bookings.addAll(bookings);
+          }
         });
       }
     } catch (e) {
@@ -215,6 +219,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         setState(() {
           _currentUserRole = user.role;
         });
+        await _loadLiveBookings();
       }
     } catch (e) {
       debugPrint('Error restoring session: $e');
@@ -230,8 +235,14 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           if (auth.isAuthenticated) {
             final user = auth.currentUser;
             if (user != null && user.role.toLowerCase() == 'worker') {
+              setState(() {
+                _currentUserRole = 'Worker';
+              });
               _goTo(AppStage.workerDashboard);
             } else {
+              setState(() {
+                _currentUserRole = 'Household';
+              });
               _goTo(AppStage.homeSearch);
             }
           } else {
@@ -248,12 +259,14 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             setState(() {
               _currentUserRole = 'Household';
             });
+            _loadLiveBookings();
             _goTo(AppStage.homeSearch);
           },
           onWorkerSignIn: () {
             setState(() {
               _currentUserRole = 'Worker';
             });
+            _loadLiveBookings();
             _goTo(AppStage.workerDashboard);
           },
           onCreateAccount: (role) {
@@ -281,6 +294,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               setState(() {
                 _currentUserRole = role;
               });
+              _loadLiveBookings();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Account created as $role successfully.')),
@@ -343,81 +357,60 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return BookingRequestScreen(
           worker: _selectedWorker,
           onBack: () => _goTo(AppStage.workerDetail),
-          onSubmit: (bookingData) async {
-            final auth = SupabaseAuthService();
-            final householdId = auth.currentUser?.id ?? '00000000-0000-0000-0000-000000000001';
-            final newBooking = Booking(
-              id: 'booking_${DateTime.now().millisecondsSinceEpoch}',
-              householdId: householdId,
-              workerId: _selectedWorker.id,
-              serviceCategoryId: _selectedWorker.role,
-              bookingDate: bookingData['date'],
-              startTime: bookingData['startTime'],
-              endTime: bookingData['endTime'],
-              address: bookingData['address'],
-              notes: bookingData['notes'],
-              agreedAmount: (bookingData['agreedAmount'] as num?)?.toDouble() ?? 2500.0,
-              status: 'Pending',
-              createdAt: DateTime.now(),
-            );
+          onSubmit: (createdBooking) {
+            setState(() {
+              _bookings.insert(0, createdBooking);
 
-            try {
-              final created = await BookingRepository().createBooking(newBooking);
-              if (!mounted) return;
-              setState(() {
-                _bookings.insert(0, created);
-
-                // Add notification
-                _notifications.add(
-                  NotificationModel(
-                    id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
-                    userId: householdId,
-                    title: 'Booking Request Sent',
-                    message: 'Booking request sent to ${_selectedWorker.name}. Waiting for acceptance.',
-                    type: 'Booking',
-                    isRead: false,
-                    createdAt: DateTime.now(),
-                  ),
-                );
-              });
-
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Booking request submitted successfully.')),
-                );
-                _goTo(AppStage.homeSearch);
-              }
-            } on BookingConflictException catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: Colors.red.shade700,
-                    content: Row(
-                      children: [
-                        const Icon(Icons.warning_amber_rounded, color: Colors.white),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(e.message)),
-                      ],
-                    ),
-                    duration: const Duration(seconds: 4),
-                  ),
-                );
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Booking error: $e')),
-                );
-              }
-            }
+              // Add notification
+              _notifications.add(
+                NotificationModel(
+                  id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+                  userId: createdBooking.householdId,
+                  title: 'Booking Request Sent',
+                  message: 'Booking request sent to ${_selectedWorker.name}. Waiting for acceptance.',
+                  type: 'Booking',
+                  isRead: false,
+                  createdAt: DateTime.now(),
+                ),
+              );
+            });
+            _goTo(AppStage.bookingsHistory);
           },
         );
         
       case AppStage.bookingsHistory:
+        final user = SupabaseAuthService().currentUser;
+        final isWorker = (_currentUserRole.toLowerCase() == 'worker') || (user?.role.toLowerCase() == 'worker');
+        final currentId = user?.id ??
+            (isWorker
+                ? '00000000-0000-0000-0000-000000000010'
+                : '00000000-0000-0000-0000-000000000001');
+        final relevantBookings = _bookings.where((b) {
+          return isWorker
+              ? IdMapping.matchesWorker(b.workerId, currentId)
+              : IdMapping.matchesHousehold(b.householdId, currentId);
+        }).toList();
         return BookingsHistoryScreen(
-          bookings: _bookings,
+          bookings: relevantBookings,
           workers: _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers,
-          onBack: () => _goTo(AppStage.homeSearch),
+          onBack: () {
+            if (_currentUserRole.toLowerCase() == 'worker') {
+              _goTo(AppStage.workerDashboard);
+            } else {
+              _goTo(AppStage.homeSearch);
+            }
+          },
+          onRefresh: _loadLiveBookings,
+          onStatusChanged: (updated) {
+            setState(() {
+              final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, updated.id));
+              if (index != -1) {
+                _bookings[index] = updated;
+              } else {
+                _bookings.insert(0, updated);
+              }
+            });
+          },
           onSelectBooking: (booking) {
             setState(() {
               _selectedBooking = booking;
@@ -439,9 +432,10 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         );
         
       case AppStage.serviceAgreement:
-        final worker = SampleData.workers.firstWhere(
-          (w) => w.id == _selectedBooking.workerId,
-          orElse: () => SampleData.workers.first,
+        final allWorkers = _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers;
+        final worker = allWorkers.firstWhere(
+          (w) => IdMapping.matchesWorker(w.id, _selectedBooking.workerId),
+          orElse: () => allWorkers.first,
         );
         return ServiceAgreementScreen(
           booking: _selectedBooking,
@@ -454,100 +448,110 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               _goTo(AppStage.workerDashboard);
             }
           },
-          onSubmitReceipt: (txId, receiptPath) {
-            // Update booking status for local demo
-            setState(() {
-              final index = _bookings.indexWhere((b) => b.id == _selectedBooking.id);
-              if (index != -1) {
-                // Update booking status in the list
-                final updated = Booking(
-                  id: _selectedBooking.id,
-                  householdId: _selectedBooking.householdId,
-                  workerId: _selectedBooking.workerId,
-                  serviceCategoryId: _selectedBooking.serviceCategoryId,
-                  bookingDate: _selectedBooking.bookingDate,
-                  startTime: _selectedBooking.startTime,
-                  endTime: _selectedBooking.endTime,
-                  address: _selectedBooking.address,
-                  notes: _selectedBooking.notes,
-                  agreedAmount: _selectedBooking.agreedAmount,
-                  status: 'Completed', // auto-complete for local rapid flow
-                  createdAt: _selectedBooking.createdAt,
-                );
-                _bookings[index] = updated;
-                _selectedBooking = updated;
+          onSubmitReceipt: (txId, receiptPath) async {
+            try {
+              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Completed');
+              if (!mounted) return;
+              setState(() {
+                final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                if (index != -1) {
+                  _bookings[index] = updated;
+                  _selectedBooking = updated;
+                }
+              });
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  if (index != -1) {
+                    final updated = _selectedBooking.copyWith(status: 'Completed');
+                    _bookings[index] = updated;
+                    _selectedBooking = updated;
+                  }
+                });
               }
-
-              _notifications.add(
-                NotificationModel(
-                  id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
-                  userId: 'h_1',
-                  title: 'Payment Submitted',
-                  message: 'Your payment reference $txId has been uploaded and auto-completed.',
-                  type: 'Payment',
-                  isRead: false,
-                  createdAt: DateTime.now(),
-                ),
+            }
+            if (mounted) {
+              setState(() {
+                _notifications.add(
+                  NotificationModel(
+                    id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+                    userId: 'h_1',
+                    title: 'Payment Submitted',
+                    message: 'Your payment reference $txId has been uploaded and auto-completed.',
+                    type: 'Payment',
+                    isRead: false,
+                    createdAt: DateTime.now(),
+                  ),
+                );
+              });
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Payment receipt submitted and confirmed!')),
+                );
+                _goTo(AppStage.bookingsHistory);
+              }
+            }
+          },
+          onConfirmPayment: () async {
+            try {
+              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Completed');
+              if (!mounted) return;
+              setState(() {
+                final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                if (index != -1) {
+                  _bookings[index] = updated;
+                  _selectedBooking = updated;
+                }
+              });
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  if (index != -1) {
+                    final updated = _selectedBooking.copyWith(status: 'Completed');
+                    _bookings[index] = updated;
+                    _selectedBooking = updated;
+                  }
+                });
+              }
+            }
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Payment confirmed! Job completed.')),
               );
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment receipt submitted and confirmed!')),
-            );
-            _goTo(AppStage.bookingsHistory);
+              _goTo(AppStage.workerDashboard);
+            }
           },
-          onConfirmPayment: () {
-            setState(() {
-              final index = _bookings.indexWhere((b) => b.id == _selectedBooking.id);
-              if (index != -1) {
-                final updated = Booking(
-                  id: _selectedBooking.id,
-                  householdId: _selectedBooking.householdId,
-                  workerId: _selectedBooking.workerId,
-                  serviceCategoryId: _selectedBooking.serviceCategoryId,
-                  bookingDate: _selectedBooking.bookingDate,
-                  startTime: _selectedBooking.startTime,
-                  endTime: _selectedBooking.endTime,
-                  address: _selectedBooking.address,
-                  notes: _selectedBooking.notes,
-                  agreedAmount: _selectedBooking.agreedAmount,
-                  status: 'Completed',
-                  createdAt: _selectedBooking.createdAt,
-                );
-                _bookings[index] = updated;
-                _selectedBooking = updated;
+          onRejectPayment: () async {
+            try {
+              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Disputed');
+              if (!mounted) return;
+              setState(() {
+                final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                if (index != -1) {
+                  _bookings[index] = updated;
+                  _selectedBooking = updated;
+                }
+              });
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  if (index != -1) {
+                    final updated = _selectedBooking.copyWith(status: 'Disputed');
+                    _bookings[index] = updated;
+                    _selectedBooking = updated;
+                  }
+                });
               }
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment confirmed! Job completed.')),
-            );
-            _goTo(AppStage.workerDashboard);
-          },
-          onRejectPayment: () {
-            setState(() {
-              final index = _bookings.indexWhere((b) => b.id == _selectedBooking.id);
-              if (index != -1) {
-                final updated = Booking(
-                  id: _selectedBooking.id,
-                  householdId: _selectedBooking.householdId,
-                  workerId: _selectedBooking.workerId,
-                  serviceCategoryId: _selectedBooking.serviceCategoryId,
-                  bookingDate: _selectedBooking.bookingDate,
-                  startTime: _selectedBooking.startTime,
-                  endTime: _selectedBooking.endTime,
-                  address: _selectedBooking.address,
-                  notes: _selectedBooking.notes,
-                  agreedAmount: _selectedBooking.agreedAmount,
-                  status: 'Disputed',
-                  createdAt: _selectedBooking.createdAt,
-                );
-                _bookings[index] = updated;
-                _selectedBooking = updated;
-              }
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Receipt rejected. Dispute opened.')),
-            );
-            _goTo(AppStage.workerDashboard);
+            }
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Receipt rejected. Dispute opened.')),
+              );
+              _goTo(AppStage.workerDashboard);
+            }
           },
           onRaiseDispute: () {
             _goTo(AppStage.disputeReport);
@@ -558,7 +562,32 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return DisputeReportScreen(
           booking: _selectedBooking,
           onBack: () => _goTo(AppStage.bookingsHistory),
-          onSubmit: (category, desc, proof) {
+          onSubmit: (category, desc, proof) async {
+            try {
+              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Disputed');
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  if (index != -1) {
+                    _bookings[index] = updated;
+                    _selectedBooking = updated;
+                  }
+                });
+              }
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  if (index != -1) {
+                    final updated = _selectedBooking.copyWith(status: 'Disputed');
+                    _bookings[index] = updated;
+                    _selectedBooking = updated;
+                  }
+                });
+              }
+            }
+
+            if (!mounted) return;
             setState(() {
               // Add dispute
               _disputes.add(
@@ -577,26 +606,6 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
                 ),
               );
 
-              // Update booking status
-              final index = _bookings.indexWhere((b) => b.id == _selectedBooking.id);
-              if (index != -1) {
-                final updated = Booking(
-                  id: _selectedBooking.id,
-                  householdId: _selectedBooking.householdId,
-                  workerId: _selectedBooking.workerId,
-                  serviceCategoryId: _selectedBooking.serviceCategoryId,
-                  bookingDate: _selectedBooking.bookingDate,
-                  startTime: _selectedBooking.startTime,
-                  endTime: _selectedBooking.endTime,
-                  address: _selectedBooking.address,
-                  notes: _selectedBooking.notes,
-                  agreedAmount: _selectedBooking.agreedAmount,
-                  status: 'Disputed',
-                  createdAt: _selectedBooking.createdAt,
-                );
-                _bookings[index] = updated;
-              }
-
               // Add notification
               _notifications.add(
                 NotificationModel(
@@ -611,9 +620,11 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               );
             });
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Dispute filed successfully. Admin will review.')),
-            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Dispute filed successfully. Admin will review.')),
+              );
+            }
             if (_currentUserRole == 'Household') {
               _goTo(AppStage.bookingsHistory);
             } else {
@@ -625,7 +636,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
       case AppStage.ratingReview:
         final allWorkers = _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers;
         final worker = allWorkers.firstWhere(
-          (w) => w.id == _selectedBooking.workerId,
+          (w) => IdMapping.matchesWorker(w.id, _selectedBooking.workerId),
           orElse: () => allWorkers.first,
         );
         return RatingReviewScreen(
@@ -641,58 +652,42 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         );
         
       case AppStage.workerDashboard:
-        // Filter bookings belonging to current logged in worker (or worker_1 as default)
         final currentWorkerId = SupabaseAuthService().currentUser?.id ?? '00000000-0000-0000-0000-000000000010';
-        final workerBookings = _bookings.where((b) => b.workerId == currentWorkerId || b.workerId == 'worker_1').toList();
+        final workerBookings = _bookings.where((b) => IdMapping.matchesWorker(b.workerId, currentWorkerId)).toList();
         return WorkerDashboardScreen(
           bookings: workerBookings,
           verificationStatus: _workerVerificationStatus,
           workerName: SupabaseAuthService().currentUser?.fullName,
-          onAcceptBooking: (booking) async {
-            try {
-              final updated = await BookingRepository().updateBookingStatus(booking.id, 'Accepted');
-              if (!mounted) return;
-              setState(() {
-                final index = _bookings.indexWhere((b) => b.id == booking.id);
-                if (index != -1) {
-                  _bookings[index] = updated;
-                }
-              });
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Job accepted! Agreement generated.')),
-                );
+          onRefresh: _loadLiveBookings,
+          onAcceptBooking: (booking) {
+            setState(() {
+              final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+              if (index != -1) {
+                _bookings[index] = booking;
+              } else {
+                _bookings.insert(0, booking);
               }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error accepting job: $e')),
-                );
-              }
-            }
+            });
           },
-          onRejectBooking: (booking) async {
-            try {
-              final updated = await BookingRepository().updateBookingStatus(booking.id, 'Rejected');
-              if (!mounted) return;
-              setState(() {
-                final index = _bookings.indexWhere((b) => b.id == booking.id);
-                if (index != -1) {
-                  _bookings[index] = updated;
-                }
-              });
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Job request declined.')),
-                );
+          onRejectBooking: (booking) {
+            setState(() {
+              final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+              if (index != -1) {
+                _bookings[index] = booking;
+              } else {
+                _bookings.insert(0, booking);
               }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error declining job: $e')),
-                );
+            });
+          },
+          onCompleteBooking: (booking) {
+            setState(() {
+              final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+              if (index != -1) {
+                _bookings[index] = booking;
+              } else {
+                _bookings.insert(0, booking);
               }
-            }
+            });
           },
           onManageAvailability: () => _goTo(AppStage.workerAvailability),
           onOpenNotifications: () => _goTo(AppStage.notifications),
@@ -705,8 +700,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           },
           onBrowseAvailableJobs: () => _goTo(AppStage.workerJobFeed),
           onLanguageChanged: () => setState(() {}),
-          onLogout: () {
-            SupabaseAuthService().signOut();
+          onLogout: () async {
+            await SupabaseAuthService().signOut();
+            if (!mounted) return;
+            setState(() {
+              _bookings.clear();
+              _currentUserRole = 'Household';
+            });
             _goTo(AppStage.signIn);
           },
         );
@@ -773,26 +773,11 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
 
       case AppStage.postJob:
         return PostJobScreen(
-          onJobPosted: (newJob) async {
-            try {
-              final created = await JobRepository().createJob(newJob);
-              if (!mounted) return;
-              setState(() {
-                _jobPosts.insert(0, created);
-              });
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(LocalizationService.tr('postSuccess'))),
-                );
-                _goTo(AppStage.homeSearch);
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error posting job: $e')),
-                );
-              }
-            }
+          onJobPosted: (newJob) {
+            setState(() {
+              _jobPosts.insert(0, newJob);
+            });
+            _goTo(AppStage.homeSearch);
           },
           onBack: () => _goTo(AppStage.homeSearch),
         );
@@ -801,31 +786,16 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         final allWorkers = _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers;
         final currentWorkerId = SupabaseAuthService().currentUser?.id ?? '00000000-0000-0000-0000-000000000010';
         final activeWorker = allWorkers.firstWhere(
-          (w) => w.id == currentWorkerId || w.id == 'worker_1',
+          (w) => IdMapping.matchesWorker(w.id, currentWorkerId),
           orElse: () => allWorkers.first,
         );
         return WorkerJobFeedScreen(
           jobPosts: _jobPosts,
           currentWorker: activeWorker,
-          onApply: (application) async {
-            try {
-              final created = await JobRepository().applyForJob(application);
-              if (!mounted) return;
-              setState(() {
-                _jobApplications.insert(0, created);
-              });
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(LocalizationService.tr('applySuccess'))),
-                );
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$e')),
-                );
-              }
-            }
+          onApply: (application) {
+            setState(() {
+              _jobApplications.insert(0, application);
+            });
           },
           onBack: () => _goTo(AppStage.workerDashboard),
         );

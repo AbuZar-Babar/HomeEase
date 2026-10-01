@@ -126,13 +126,14 @@ class WorkerRepository {
 
   /// Fetches a single worker profile by their unique ID.
   Future<WorkerProfile?> getWorkerById(String id) async {
+    final targetId = IdMapping.toWorkerUuid(id);
     final sb = client;
-    if (sb != null) {
+    if (sb != null && IdMapping.isUuid(targetId)) {
       try {
         final response = await sb
             .from('worker_profiles')
             .select('*, profiles(id, full_name, email, phone, avatar_url, role)')
-            .eq('id', id)
+            .eq('id', targetId)
             .maybeSingle();
 
         if (response != null) {
@@ -144,7 +145,7 @@ class WorkerRepository {
     }
 
     try {
-      return SampleData.workers.firstWhere((w) => w.id == id);
+      return SampleData.workers.firstWhere((w) => IdMapping.matchesWorker(w.id, id));
     } catch (_) {
       return null;
     }

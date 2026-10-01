@@ -272,5 +272,127 @@ void main() {
       final workerBookings = await repo.fetchBookingsForWorker('00000000-0000-0000-0000-000000000010');
       expect(workerBookings, isNotEmpty);
     });
+
+    test('BKG-REPO-08: Cross-ID conflict detection (legacy worker_1 conflicts with UUID 00000000-0000-0000-0000-000000000010)', () async {
+      final repo = BookingRepository();
+
+      // Seed booking with canonical UUID
+      await repo.createBooking(Booking(
+        id: 'bkg_uuid_seed',
+        householdId: '00000000-0000-0000-0000-000000000001',
+        workerId: '00000000-0000-0000-0000-000000000010', // Rabia Bibi UUID
+        serviceCategoryId: 'Cook',
+        bookingDate: targetDate,
+        startTime: const TimeOfDay(hour: 14, minute: 0),
+        endTime: const TimeOfDay(hour: 17, minute: 0),
+        address: 'Mandian',
+        notes: '',
+        agreedAmount: 3000.0,
+        status: 'Accepted',
+        createdAt: DateTime.now(),
+      ));
+
+      // Attempt conflicting booking using legacy string ID 'worker_1'
+      final legacyBooking = Booking(
+        id: 'bkg_legacy_overlap',
+        householdId: 'h_1',
+        workerId: 'worker_1', // Legacy ID for Rabia Bibi
+        serviceCategoryId: 'Cook',
+        bookingDate: targetDate,
+        startTime: const TimeOfDay(hour: 15, minute: 0),
+        endTime: const TimeOfDay(hour: 18, minute: 0), // 2 hours overlap
+        address: 'Supply Bazaar',
+        notes: '',
+        agreedAmount: 3000.0,
+        status: 'Pending',
+        createdAt: DateTime.now(),
+      );
+
+      expect(
+        () => repo.createBooking(legacyBooking),
+        throwsA(isA<BookingConflictException>()),
+      );
+    });
+
+    test('BKG-REPO-09: Different workers on the exact same date and time slot do not conflict', () async {
+      final repo = BookingRepository();
+
+      // Worker 1 booking: 09:00 - 11:00
+      await repo.createBooking(Booking(
+        id: 'bkg_worker_a',
+        householdId: 'h_1',
+        workerId: 'worker_1', // Rabia Bibi
+        serviceCategoryId: 'Cook',
+        bookingDate: targetDate,
+        startTime: const TimeOfDay(hour: 9, minute: 0),
+        endTime: const TimeOfDay(hour: 11, minute: 0),
+        address: 'Mandian',
+        notes: '',
+        agreedAmount: 2000.0,
+        status: 'Accepted',
+        createdAt: DateTime.now(),
+      ));
+
+      // Worker 2 booking: same slot 09:00 - 11:00
+      final workerBBooking = Booking(
+        id: 'bkg_worker_b',
+        householdId: 'h_2',
+        workerId: 'worker_2', // Amina Bibi
+        serviceCategoryId: 'Nanny',
+        bookingDate: targetDate,
+        startTime: const TimeOfDay(hour: 9, minute: 0),
+        endTime: const TimeOfDay(hour: 11, minute: 0),
+        address: 'Mandian',
+        notes: '',
+        agreedAmount: 2000.0,
+        status: 'Pending',
+        createdAt: DateTime.now(),
+      );
+
+      final created = await repo.createBooking(workerBBooking);
+      expect(created.id, 'bkg_worker_b');
+    });
+
+    test('BKG-REPO-10: fetchBookingsForWorker returns empty list for worker with no bookings', () async {
+      final repo = BookingRepository();
+      // Worker 12 has no default seed bookings
+      final bookings = await repo.fetchBookingsForWorker('00000000-0000-0000-0000-000000000021');
+      expect(bookings, isEmpty);
+    });
+
+    test('BKG-REPO-11: updateBookingStatus works for legacy booking_1 without throwing StateError', () async {
+      final repo = BookingRepository();
+      final updated = await repo.updateBookingStatus('booking_1', 'Completed');
+      expect(updated.status, 'Completed');
+    });
+  });
+
+  group('IdMapping Verification & Bidirectional Integrity', () {
+    test('ID-MAP-01: isUuid correctly validates UUID format', () {
+      expect(IdMapping.isUuid('00000000-0000-0000-0000-000000000010'), isTrue);
+      expect(IdMapping.isUuid('worker_1'), isFalse);
+      expect(IdMapping.isUuid(''), isFalse);
+      expect(IdMapping.isUuid(null), isFalse);
+    });
+
+    test('ID-MAP-02: toWorkerUuid maps legacy IDs to canonical Supabase UUIDs', () {
+      expect(IdMapping.toWorkerUuid('worker_1'), '00000000-0000-0000-0000-000000000010');
+      expect(IdMapping.toWorkerUuid('worker_2'), '00000000-0000-0000-0000-000000000011');
+      expect(IdMapping.toWorkerUuid('worker_12'), '00000000-0000-0000-0000-000000000021');
+      expect(IdMapping.toWorkerUuid('00000000-0000-0000-0000-000000000010'), '00000000-0000-0000-0000-000000000010');
+    });
+
+    test('ID-MAP-03: matchesWorker compares cross-format IDs symmetrically', () {
+      expect(IdMapping.matchesWorker('worker_1', '00000000-0000-0000-0000-000000000010'), isTrue);
+      expect(IdMapping.matchesWorker('00000000-0000-0000-0000-000000000010', 'worker_1'), isTrue);
+      expect(IdMapping.matchesWorker('worker_1', 'worker_2'), isFalse);
+      expect(IdMapping.matchesWorker('worker_1', '00000000-0000-0000-0000-000000000011'), isFalse);
+    });
+
+    test('ID-MAP-04: matchesHousehold compares cross-format IDs symmetrically', () {
+      expect(IdMapping.matchesHousehold('h_1', '00000000-0000-0000-0000-000000000001'), isTrue);
+      expect(IdMapping.matchesHousehold('00000000-0000-0000-0000-000000000001', 'h_1'), isTrue);
+      expect(IdMapping.matchesHousehold('h_1', 'h_2'), isFalse);
+    });
   });
 }

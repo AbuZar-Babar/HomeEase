@@ -202,8 +202,60 @@ void main() {
 
     test('JOB-REPO-07: fetchApplicationsForJob returns bids for a specific job', () async {
       final repo = JobRepository();
-      final apps = await repo.fetchApplicationsForJob('00000000-0000-0000-0000-0000000101');
+      final apps = await repo.fetchApplicationsForJob('00000000-0000-0000-0000-000000000101');
       expect(apps, isA<List<JobApplication>>());
+    });
+
+    test('JOB-REPO-08: getJobById retrieves job via legacy ID (job_1) and canonical UUID', () async {
+      final repo = JobRepository();
+      final byLegacy = await repo.getJobById('job_1');
+      expect(byLegacy, isNotNull);
+      expect(byLegacy!.title, isNotEmpty);
+
+      final byUuid = await repo.getJobById('00000000-0000-0000-0000-000000000101');
+      expect(byUuid, isNotNull);
+      expect(byUuid!.title, byLegacy.title);
+    });
+
+    test('JOB-REPO-09: applyForJob blocks duplicate submission across ID formats (legacy worker_1 vs UUID)', () async {
+      final repo = JobRepository();
+      final app1 = JobApplication(
+        id: 'app_cross_1',
+        jobPostId: 'job_2',
+        workerId: '00000000-0000-0000-0000-000000000010', // UUID for Rabia
+        workerName: 'Rabia Bibi',
+        workerRole: 'Cook',
+        workerRating: 4.8,
+        proposedRate: 3000.0,
+        notes: 'Initial bid',
+        status: 'pending',
+        appliedAt: DateTime.now(),
+      );
+      await repo.applyForJob(app1);
+
+      // Attempt second bid with legacy ID 'worker_1' on the same job
+      final app2 = JobApplication(
+        id: 'app_cross_2',
+        jobPostId: 'job_2',
+        workerId: 'worker_1', // Legacy ID
+        workerName: 'Rabia Bibi',
+        workerRole: 'Cook',
+        workerRating: 4.8,
+        proposedRate: 2800.0,
+        notes: 'Duplicate bid attempt',
+        status: 'pending',
+        appliedAt: DateTime.now(),
+      );
+
+      expect(() => repo.applyForJob(app2), throwsA(isA<Exception>()));
+    });
+
+    test('JOB-REPO-10: fetchApplicationsForWorker resolves legacy worker ID', () async {
+      final repo = JobRepository();
+      // 'worker_1' has initial application for job_1 in fallback data
+      final apps = await repo.fetchApplicationsForWorker('worker_1');
+      expect(apps, isNotEmpty);
+      expect(apps.first.workerName, 'Rabia Bibi');
     });
   });
 }

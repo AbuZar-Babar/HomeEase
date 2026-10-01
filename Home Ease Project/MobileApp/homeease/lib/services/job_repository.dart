@@ -165,7 +165,7 @@ class JobRepository {
         final authUserId = sb.auth.currentUser?.id;
         final effectiveEmployerId = isUuid(post.householdId)
             ? post.householdId
-            : (isUuid(authUserId) ? authUserId! : '00000000-0000-0000-0000-000000000001');
+            : (isUuid(authUserId) ? authUserId! : IdMapping.toHouseholdUuid(post.householdId));
 
         final payload = post.toMap();
         payload['employer_id'] = effectiveEmployerId;
@@ -195,8 +195,8 @@ class JobRepository {
     // 1. Check duplicate in memory or DB
     final hasAlreadyApplied = _fallbackApplications.any(
       (a) =>
-          a.jobPostId == application.jobPostId &&
-          a.workerId == application.workerId &&
+          IdMapping.matchesJob(a.jobPostId, application.jobPostId) &&
+          IdMapping.matchesWorker(a.workerId, application.workerId) &&
           a.status != 'rejected',
     );
     if (hasAlreadyApplied) {
@@ -209,15 +209,15 @@ class JobRepository {
         final authUserId = sb.auth.currentUser?.id;
         final effectiveWorkerId = isUuid(application.workerId)
             ? application.workerId
-            : (isUuid(authUserId) ? authUserId! : '00000000-0000-0000-0000-000000000010');
+            : (isUuid(authUserId) ? authUserId! : IdMapping.toWorkerUuid(application.workerId));
+
+        final effectiveJobId = isUuid(application.jobPostId)
+            ? application.jobPostId
+            : IdMapping.toJobUuid(application.jobPostId);
 
         final payload = application.toMap();
         payload['worker_id'] = effectiveWorkerId;
-
-        // If jobPostId is not UUID, map to seed job if available
-        if (!isUuid(payload['job_id'])) {
-          payload['job_id'] = '00000000-0000-0000-0000-000000000101';
-        }
+        payload['job_id'] = effectiveJobId;
 
         final response = await sb
             .from('job_applications')
@@ -229,6 +229,12 @@ class JobRepository {
         _fallbackApplications.insert(0, created);
         return created;
       } catch (e) {
+        if (e.toString().contains('23505') ||
+            e.toString().toLowerCase().contains('unique') ||
+            e.toString().toLowerCase().contains('already applied') ||
+            e.toString().toLowerCase().contains('duplicate')) {
+          throw Exception('You have already applied for this job.');
+        }
         debugPrint('JobRepository.applyForJob error: $e. Using local storage fallback.');
       }
     }
@@ -239,13 +245,14 @@ class JobRepository {
 
   /// Fetches all applications submitted for a specific job.
   Future<List<JobApplication>> fetchApplicationsForJob(String jobId) async {
+    final targetJobId = IdMapping.toJobUuid(jobId);
     final sb = client;
-    if (sb != null && isUuid(jobId)) {
+    if (sb != null && isUuid(targetJobId)) {
       try {
         final response = await sb
             .from('job_applications')
             .select('*, profiles:worker_id(id, full_name, phone, email)')
-            .eq('job_id', jobId)
+            .eq('job_id', targetJobId)
             .order('applied_at', ascending: false);
 
         final List<dynamic> data = response as List<dynamic>;
@@ -255,18 +262,19 @@ class JobRepository {
       }
     }
 
-    return _fallbackApplications.where((a) => a.jobPostId == jobId).toList();
+    return _fallbackApplications.where((a) => IdMapping.matchesJob(a.jobPostId, jobId)).toList();
   }
 
   /// Fetches all applications submitted by a specific worker.
   Future<List<JobApplication>> fetchApplicationsForWorker(String workerId) async {
+    final targetWorkerId = IdMapping.toWorkerUuid(workerId);
     final sb = client;
-    if (sb != null && isUuid(workerId)) {
+    if (sb != null && isUuid(targetWorkerId)) {
       try {
         final response = await sb
             .from('job_applications')
             .select('*, profiles:worker_id(id, full_name, phone, email)')
-            .eq('worker_id', workerId)
+            .eq('worker_id', targetWorkerId)
             .order('applied_at', ascending: false);
 
         final List<dynamic> data = response as List<dynamic>;
@@ -276,18 +284,19 @@ class JobRepository {
       }
     }
 
-    return _fallbackApplications.where((a) => a.workerId == workerId).toList();
+    return _fallbackApplications.where((a) => IdMapping.matchesWorker(a.workerId, workerId)).toList();
   }
 
   /// Fetches a single job by its ID.
   Future<JobPost?> getJobById(String jobId) async {
+    final targetJobId = IdMapping.toJobUuid(jobId);
     final sb = client;
-    if (sb != null && isUuid(jobId)) {
+    if (sb != null && isUuid(targetJobId)) {
       try {
         final response = await sb
             .from('jobs')
             .select('*, profiles:employer_id(id, full_name, phone, email)')
-            .eq('id', jobId)
+            .eq('id', targetJobId)
             .maybeSingle();
 
         if (response != null) {
@@ -299,7 +308,7 @@ class JobRepository {
     }
 
     try {
-      return _fallbackJobs.firstWhere((j) => j.id == jobId);
+      return _fallbackJobs.firstWhere((j) => IdMapping.matchesJob(j.id, jobId));
     } catch (_) {
       return null;
     }
