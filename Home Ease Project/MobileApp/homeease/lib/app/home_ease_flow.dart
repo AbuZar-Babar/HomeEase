@@ -21,8 +21,10 @@ import '../screens/splash_screen.dart';
 import '../screens/worker_availability_screen.dart';
 import '../screens/worker_dashboard_screen.dart';
 import '../screens/worker_detail_screen.dart';
+import '../screens/profile_screen.dart';
 import '../screens/worker_job_feed_screen.dart';
 import '../screens/worker_list_screen.dart';
+import '../widgets/app_scaffold.dart';
 
 class HomeEaseFlow extends StatefulWidget {
   const HomeEaseFlow({super.key});
@@ -63,37 +65,6 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
     _loadLiveJobs();
     _loadLiveBookings();
     _restoreSession();
-    // Pre-populate history with completed and accepted bookings for local demo
-    _bookings.addAll([
-      Booking(
-        id: 'booking_1',
-        householdId: 'h_1',
-        workerId: 'worker_3', // Sana Gul
-        serviceCategoryId: 'Cleaner',
-        bookingDate: DateTime.now().subtract(const Duration(days: 2)),
-        startTime: const TimeOfDay(hour: 9, minute: 0),
-        endTime: const TimeOfDay(hour: 11, minute: 0),
-        address: 'House 14, Lane 2, Mandian, Abbottabad',
-        notes: 'Deep kitchen cleaning requested.',
-        agreedAmount: 2200,
-        status: 'Completed',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-      Booking(
-        id: 'booking_2',
-        householdId: 'h_1',
-        workerId: 'worker_1', // Rabia Bibi
-        serviceCategoryId: 'Cook',
-        bookingDate: DateTime.now().add(const Duration(days: 2)),
-        startTime: const TimeOfDay(hour: 10, minute: 0),
-        endTime: const TimeOfDay(hour: 13, minute: 0),
-        address: 'House 14, Lane 2, Mandian, Abbottabad',
-        notes: 'Prepare traditional dinner meals.',
-        agreedAmount: 3000,
-        status: 'Accepted',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-    ]);
 
     // Pre-populate notifications
     _notifications.addAll([
@@ -151,6 +122,99 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         _selectedServices.add(service);
       }
     });
+  }
+
+  int _getHouseholdTabIndex(AppStage stage) {
+    switch (stage) {
+      case AppStage.homeSearch:
+        return 0;
+      case AppStage.postJob:
+        return 1;
+      case AppStage.bookingsHistory:
+        return 2;
+      case AppStage.profile:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
+  void _onHouseholdTabTapped(int index) {
+    switch (index) {
+      case 0:
+        _goTo(AppStage.homeSearch);
+        break;
+      case 1:
+        _goTo(AppStage.postJob);
+        break;
+      case 2:
+        _goTo(AppStage.bookingsHistory);
+        break;
+      case 3:
+        _goTo(AppStage.profile);
+        break;
+    }
+  }
+
+  int _getWorkerTabIndex(AppStage stage) {
+    switch (stage) {
+      case AppStage.workerDashboard:
+        return 0;
+      case AppStage.workerJobFeed:
+        return 1;
+      case AppStage.bookingsHistory:
+        return 2;
+      case AppStage.workerAvailability:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
+  void _onWorkerTabTapped(int index) {
+    switch (index) {
+      case 0:
+        _goTo(AppStage.workerDashboard);
+        break;
+      case 1:
+        _goTo(AppStage.workerJobFeed);
+        break;
+      case 2:
+        _goTo(AppStage.bookingsHistory);
+        break;
+      case 3:
+        _goTo(AppStage.workerAvailability);
+        break;
+    }
+  }
+
+  Widget? _buildBottomNav() {
+    final isWorker = _currentUserRole.toLowerCase() == 'worker';
+    if (isWorker) {
+      final isRootWorkerStage = _stage == AppStage.workerDashboard ||
+          _stage == AppStage.workerJobFeed ||
+          _stage == AppStage.bookingsHistory ||
+          _stage == AppStage.workerAvailability;
+      if (!isRootWorkerStage) return null;
+      return HomeEaseBottomNav(
+        currentIndex: _getWorkerTabIndex(_stage),
+        onTap: _onWorkerTabTapped,
+        isWorker: true,
+        unreadCount: _getUnreadNotificationsCount(),
+      );
+    } else {
+      final isRootHouseholdStage = _stage == AppStage.homeSearch ||
+          _stage == AppStage.postJob ||
+          _stage == AppStage.bookingsHistory ||
+          _stage == AppStage.profile;
+      if (!isRootHouseholdStage) return null;
+      return HomeEaseBottomNav(
+        currentIndex: _getHouseholdTabIndex(_stage),
+        onTap: _onHouseholdTabTapped,
+        isWorker: false,
+        unreadCount: _getUnreadNotificationsCount(),
+      );
+    }
   }
 
   int _getUnreadNotificationsCount() {
@@ -337,6 +401,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           unreadNotificationsCount: _getUnreadNotificationsCount(),
           onOpenPostJob: () => _goTo(AppStage.postJob),
           onLanguageChanged: () => setState(() {}),
+          bottomNavigationBar: _buildBottomNav(),
         );
         
       case AppStage.workerList:
@@ -393,13 +458,21 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return BookingsHistoryScreen(
           bookings: relevantBookings,
           workers: _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers,
-          onBack: () {
-            if (_currentUserRole.toLowerCase() == 'worker') {
-              _goTo(AppStage.workerDashboard);
-            } else {
-              _goTo(AppStage.homeSearch);
-            }
+          onBack: null,
+          roleBadge: isWorker ? 'Worker' : 'Household',
+          onToggleLanguage: () => setState(() {}),
+          onOpenNotifications: () => _goTo(AppStage.notifications),
+          unreadNotificationsCount: _getUnreadNotificationsCount(),
+          onLogout: () async {
+            await SupabaseAuthService().signOut();
+            if (!mounted) return;
+            setState(() {
+              _bookings.clear();
+              _currentUserRole = 'Household';
+            });
+            _goTo(AppStage.signIn);
           },
+          bottomNavigationBar: _buildBottomNav(),
           onRefresh: _loadLiveBookings,
           onStatusChanged: (updated) {
             setState(() {
@@ -700,6 +773,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           },
           onBrowseAvailableJobs: () => _goTo(AppStage.workerJobFeed),
           onLanguageChanged: () => setState(() {}),
+          bottomNavigationBar: _buildBottomNav(),
           onLogout: () async {
             await SupabaseAuthService().signOut();
             if (!mounted) return;
@@ -715,7 +789,21 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return WorkerAvailabilityScreen(
           initialStatus: _availabilityStatus,
           initialSlots: _availabilitySlots,
-          onBack: () => _goTo(AppStage.workerDashboard),
+          onBack: null,
+          roleBadge: 'Worker',
+          onToggleLanguage: () => setState(() {}),
+          onOpenNotifications: () => _goTo(AppStage.notifications),
+          unreadNotificationsCount: _getUnreadNotificationsCount(),
+          onLogout: () async {
+            await SupabaseAuthService().signOut();
+            if (!mounted) return;
+            setState(() {
+              _bookings.clear();
+              _currentUserRole = 'Household';
+            });
+            _goTo(AppStage.signIn);
+          },
+          bottomNavigationBar: _buildBottomNav(),
           onSave: (status, slots) {
             setState(() {
               _availabilityStatus = status;
@@ -773,13 +861,15 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
 
       case AppStage.postJob:
         return PostJobScreen(
+          existingJobs: _jobPosts,
           onJobPosted: (newJob) {
             setState(() {
               _jobPosts.insert(0, newJob);
             });
             _goTo(AppStage.homeSearch);
           },
-          onBack: () => _goTo(AppStage.homeSearch),
+          onBack: null,
+          bottomNavigationBar: _buildBottomNav(),
         );
 
       case AppStage.workerJobFeed:
@@ -797,7 +887,29 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               _jobApplications.insert(0, application);
             });
           },
-          onBack: () => _goTo(AppStage.workerDashboard),
+          onBack: null,
+          bottomNavigationBar: _buildBottomNav(),
+        );
+
+      case AppStage.profile:
+        final user = SupabaseAuthService().currentUser;
+        final currentId = user?.id ?? '00000000-0000-0000-0000-000000000001';
+        final userBookings = _bookings.where((b) => IdMapping.matchesHousehold(b.householdId, currentId)).toList();
+        return ProfileScreen(
+          userRole: _currentUserRole,
+          totalBookings: userBookings.length,
+          totalPostedGigs: _jobPosts.length,
+          onLanguageChanged: () => setState(() {}),
+          bottomNavigationBar: _buildBottomNav(),
+          onLogout: () async {
+            await SupabaseAuthService().signOut();
+            if (!mounted) return;
+            setState(() {
+              _bookings.clear();
+              _currentUserRole = 'Household';
+            });
+            _goTo(AppStage.signIn);
+          },
         );
     }
   }
@@ -821,4 +933,5 @@ enum AppStage {
   notifications,
   postJob,
   workerJobFeed,
+  profile,
 }

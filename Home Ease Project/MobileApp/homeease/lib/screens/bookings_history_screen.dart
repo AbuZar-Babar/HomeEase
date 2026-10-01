@@ -12,22 +12,34 @@ class BookingsHistoryScreen extends StatefulWidget {
     super.key,
     required this.bookings,
     required this.workers,
-    required this.onBack,
+    this.onBack,
     required this.onSelectBooking,
     required this.onRateBooking,
     required this.onRaiseDispute,
     this.onRefresh,
     this.onStatusChanged,
+    this.bottomNavigationBar,
+    this.roleBadge,
+    this.onToggleLanguage,
+    this.onOpenNotifications,
+    this.unreadNotificationsCount,
+    this.onLogout,
   });
 
   final List<Booking> bookings;
   final List<WorkerProfile> workers;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
   final ValueChanged<Booking> onSelectBooking;
   final ValueChanged<Booking> onRateBooking;
   final ValueChanged<Booking> onRaiseDispute;
   final Future<void> Function()? onRefresh;
   final ValueChanged<Booking>? onStatusChanged;
+  final Widget? bottomNavigationBar;
+  final String? roleBadge;
+  final VoidCallback? onToggleLanguage;
+  final VoidCallback? onOpenNotifications;
+  final int? unreadNotificationsCount;
+  final VoidCallback? onLogout;
 
   @override
   State<BookingsHistoryScreen> createState() => _BookingsHistoryScreenState();
@@ -127,19 +139,20 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase().replaceAll(' ', '_')) {
       case 'pending':
-        return Colors.orange;
+        return HomeEaseTheme.statusPending;
       case 'accepted':
       case 'in_progress':
-        return Colors.blue;
+        return HomeEaseTheme.statusVerified;
       case 'completed':
-        return Colors.green;
+        return HomeEaseTheme.statusVerified;
       case 'disputed':
-        return Colors.red;
+      case 'conflict':
+        return HomeEaseTheme.statusConflict;
       case 'cancelled':
       case 'rejected':
-        return Colors.grey;
+        return HomeEaseTheme.muted;
       default:
-        return HomeEaseTheme.brandSoft;
+        return HomeEaseTheme.brand;
     }
   }
 
@@ -151,6 +164,12 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
       title: 'Your bookings',
       subtitle: 'Track status, view agreements, and manage bookings.',
       onBack: widget.onBack,
+      roleBadge: widget.roleBadge,
+      onToggleLanguage: widget.onToggleLanguage,
+      onOpenNotifications: widget.onOpenNotifications,
+      unreadNotificationsCount: widget.unreadNotificationsCount,
+      onLogout: widget.onLogout,
+      bottomNavigationBar: widget.bottomNavigationBar,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -250,20 +269,37 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
-                              vertical: 6,
+                              vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(booking.status)
-                                  .withValues(alpha: 0.15),
+                              color: _getStatusColor(booking.status).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              booking.status,
-                              style: TextStyle(
-                                color: _getStatusColor(booking.status),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                              border: Border.all(
+                                color: _getStatusColor(booking.status).withValues(alpha: 0.28),
+                                width: 1,
                               ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(booking.status),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  booking.status,
+                                  style: TextStyle(
+                                    color: _getStatusColor(booking.status),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -327,8 +363,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                 TextButton(
                                   onPressed: () => _updateStatus(booking, 'Rejected'),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: Colors.red.shade700,
-                                    backgroundColor: Colors.red.shade50,
+                                    foregroundColor: HomeEaseTheme.statusConflict,
+                                    backgroundColor: HomeEaseTheme.statusConflict.withValues(alpha: 0.1),
                                     padding: const EdgeInsets.symmetric(horizontal: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(14),
@@ -353,7 +389,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   onPressed: () => _updateStatus(booking, 'Completed'),
                                   style: TextButton.styleFrom(
                                     foregroundColor: Colors.white,
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: HomeEaseTheme.statusVerified,
                                     padding: const EdgeInsets.symmetric(horizontal: 12),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(14),
@@ -378,7 +414,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   onPressed: () => widget.onRateBooking(booking),
                                   style: TextButton.styleFrom(
                                     foregroundColor: HomeEaseTheme.brand,
-                                    backgroundColor: HomeEaseTheme.cardDark,
+                                    backgroundColor: HomeEaseTheme.accentLight,
                                     padding: const EdgeInsets.symmetric(horizontal: 14),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -389,7 +425,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                 TextButton(
                                   onPressed: () => widget.onRaiseDispute(booking),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: Colors.red,
+                                    foregroundColor: HomeEaseTheme.statusConflict,
                                     padding: const EdgeInsets.symmetric(horizontal: 10),
                                   ),
                                   child: const Text('Dispute'),

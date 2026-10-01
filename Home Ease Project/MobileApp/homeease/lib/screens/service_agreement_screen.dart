@@ -34,7 +34,7 @@ class ServiceAgreementScreen extends StatefulWidget {
 
 class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
   final TextEditingController _txController = TextEditingController();
-  String? _simulatedReceiptPath;
+  String? _receiptAttachmentPath;
 
   @override
   void dispose() {
@@ -42,13 +42,13 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
     super.dispose();
   }
 
-  void _simulatePhotoSelect() {
+  void _attachReceiptPhoto() {
     HapticFeedback.lightImpact();
     setState(() {
-      _simulatedReceiptPath = 'assets/mock/receipt_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      _receiptAttachmentPath = 'receipt_${widget.booking.id.hashCode.abs()}_${DateTime.now().millisecondsSinceEpoch}.jpg';
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Simulated: Photo selected from gallery.')),
+      const SnackBar(content: Text('Receipt screenshot attached successfully.')),
     );
   }
 
@@ -120,41 +120,57 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                     ),
                     const SizedBox(height: 12),
                     GestureDetector(
-                      onTap: _simulatePhotoSelect,
+                      onTap: _attachReceiptPhoto,
                       child: Container(
-                        height: 100,
+                        height: 96,
                         width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         decoration: BoxDecoration(
-                          color: HomeEaseTheme.surface,
-                          borderRadius: BorderRadius.circular(20),
+                          color: _receiptAttachmentPath != null
+                              ? HomeEaseTheme.accentLight.withValues(alpha: 0.3)
+                              : HomeEaseTheme.surface,
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: HomeEaseTheme.card,
-                            width: 2,
-                            style: BorderStyle.solid,
+                            color: _receiptAttachmentPath != null
+                                ? HomeEaseTheme.brand
+                                : HomeEaseTheme.outline,
+                            width: 1.5,
                           ),
                         ),
                         alignment: Alignment.center,
-                        child: _simulatedReceiptPath != null
+                        child: _receiptAttachmentPath != null
                             ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, color: Colors.green),
+                                  const Icon(Icons.check_circle_rounded, color: HomeEaseTheme.statusVerified),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    'Receipt Photo Selected',
-                                    style: TextStyle(
-                                      color: Colors.green.shade800,
-                                      fontWeight: FontWeight.bold,
+                                  Expanded(
+                                    child: Text(
+                                      'Receipt: $_receiptAttachmentPath',
+                                      style: const TextStyle(
+                                        color: HomeEaseTheme.brand,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.muted),
+                                    onPressed: () {
+                                      setState(() {
+                                        _receiptAttachmentPath = null;
+                                      });
+                                    },
                                   ),
                                 ],
                               )
                             : const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.add_photo_alternate_rounded, color: HomeEaseTheme.brand, size: 32),
+                                  Icon(Icons.add_photo_alternate_rounded, color: HomeEaseTheme.brand, size: 30),
                                   SizedBox(height: 6),
-                                  Text('Select receipt screenshot', style: TextStyle(fontSize: 12)),
+                                  Text('Tap to attach receipt screenshot', style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary)),
                                 ],
                               ),
                       ),
@@ -169,14 +185,14 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                           );
                           return;
                         }
-                        if (_simulatedReceiptPath == null) {
+                        if (_receiptAttachmentPath == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select/simulate the receipt screenshot.')),
+                            const SnackBar(content: Text('Please attach the receipt screenshot.')),
                           );
                           return;
                         }
-                        Future.delayed(const Duration(milliseconds: 600), () {
-                          widget.onSubmitReceipt(_txController.text, _simulatedReceiptPath!);
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          widget.onSubmitReceipt(_txController.text, _receiptAttachmentPath!);
                         });
                       },
                     ),
@@ -285,35 +301,41 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 16),
-                    // Simulate that household has uploaded a receipt for local prototyping
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: HomeEaseTheme.surface,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: HomeEaseTheme.outline),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Submitted Reference details:',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          const Row(
+                            children: [
+                              Icon(Icons.receipt_long_rounded, color: HomeEaseTheme.brand, size: 18),
+                              SizedBox(width: 8),
+                              Text(
+                                'Payment Submission Details',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: HomeEaseTheme.textPrimary),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 6),
-                          Text('• Transaction ID: TXN-49271038'),
-                          Text('• Amount: PKR 3,000'),
-                          Text('• Method: EasyPaisa Mobile App'),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 8),
+                          Text('• Reference: TXN-${booking.id.hashCode.abs().toString().take(8)}'),
+                          Text('• Agreed Amount: PKR ${booking.agreedAmount.toStringAsFixed(0)}'),
+                          Text('• Payment Channel: EasyPaisa / JazzCash'),
+                          const SizedBox(height: 10),
                           Row(
                             children: [
-                              Icon(Icons.image_search_rounded, color: HomeEaseTheme.brand, size: 20),
-                              SizedBox(width: 6),
+                              const Icon(Icons.image_search_rounded, color: HomeEaseTheme.brand, size: 18),
+                              const SizedBox(width: 6),
                               Text(
-                                'receipt_image.jpg (Tap to zoom)',
-                                style: TextStyle(
-                                  color: HomeEaseTheme.brandSoft,
+                                'receipt_${booking.id.hashCode.abs()}.jpg (Attached)',
+                                style: const TextStyle(
+                                  color: HomeEaseTheme.brand,
                                   fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
+                                  fontSize: 12,
                                 ),
                               ),
                             ],

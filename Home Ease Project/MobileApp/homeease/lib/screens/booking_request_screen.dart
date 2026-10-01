@@ -84,7 +84,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
         setState(() {
           _hasConflict = conflict;
           _conflictMessage = conflict
-              ? 'Worker already has a booking during this slot on ${BookingRepository.formatDate(_selectedDate!)}.'
+              ? 'Worker already has an existing booking during this slot on ${BookingRepository.formatDate(_selectedDate!)}.'
               : null;
         });
       }
@@ -106,7 +106,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             colorScheme: const ColorScheme.light(
               primary: HomeEaseTheme.brand,
               onPrimary: HomeEaseTheme.white,
-              onSurface: HomeEaseTheme.text,
+              onSurface: HomeEaseTheme.textPrimary,
             ),
           ),
           child: child!,
@@ -133,7 +133,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             colorScheme: const ColorScheme.light(
               primary: HomeEaseTheme.brand,
               onPrimary: HomeEaseTheme.white,
-              onSurface: HomeEaseTheme.text,
+              onSurface: HomeEaseTheme.textPrimary,
             ),
           ),
           child: child!,
@@ -204,7 +204,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
         createdAt: DateTime.now(),
       );
 
-      // Validate interval conflict ($S_req < E_exist AND E_req > S_exist) & create booking
       final created = await BookingRepository().createBooking(newBooking);
       if (!mounted) return;
 
@@ -221,7 +220,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red.shade700,
+          backgroundColor: HomeEaseTheme.statusConflict,
           content: Row(
             children: [
               const Icon(Icons.warning_amber_rounded, color: Colors.white),
@@ -246,7 +245,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
   Widget build(BuildContext context) {
     final worker = widget.worker;
     final dateText = _selectedDate == null
-        ? 'Select date'
+        ? 'Select service date'
         : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}';
     final startTimeText = _selectedStartTime == null
         ? 'Start time'
@@ -262,17 +261,22 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             60.0
         : null;
 
+    final hourlyRate = _getHourlyRate().toInt();
+
     return AppScaffold(
-      title: 'Request booking',
+      title: 'Request Booking',
+      subtitle: 'Specify appointment details and avoid overlaps.',
       onBack: widget.onBack,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Worker Profile Summary Card
           HomeEaseCard(
-            color: HomeEaseTheme.cardDark,
+            color: HomeEaseTheme.white,
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const WorkerAvatar(circular: true, size: 58),
+                const WorkerAvatar(circular: true, size: 54),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -280,16 +284,29 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     children: [
                       Text(
                         worker.name,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: HomeEaseTheme.brand),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${worker.role}  |  PKR ${_getHourlyRate().toInt()}/hr',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: HomeEaseTheme.text,
-                          fontWeight: FontWeight.w600,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: HomeEaseTheme.textPrimary,
                         ),
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Text(
+                            worker.role,
+                            style: const TextStyle(fontSize: 12, color: HomeEaseTheme.brand, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '• Rs. $hourlyRate/hr',
+                            style: const TextStyle(
+                              color: HomeEaseTheme.textSecondary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -297,72 +314,98 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
+
+          // Service Schedule & Conflict Check
           HomeEaseCard(
             color: HomeEaseTheme.white,
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Service details',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                const SectionLabel('Schedule & Time Slots'),
                 const SizedBox(height: 14),
+
                 // Date picker trigger button
                 GestureDetector(
                   onTap: _pickDate,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8F0E6),
-                      borderRadius: BorderRadius.circular(24),
+                      color: HomeEaseTheme.card,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: HomeEaseTheme.outline),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(dateText, style: const TextStyle(color: HomeEaseTheme.text)),
-                        const Icon(Icons.calendar_today_rounded, color: HomeEaseTheme.brandSoft),
+                        Text(
+                          dateText,
+                          style: TextStyle(
+                            color: _selectedDate == null ? HomeEaseTheme.muted : HomeEaseTheme.textPrimary,
+                            fontWeight: _selectedDate == null ? FontWeight.normal : FontWeight.w600,
+                          ),
+                        ),
+                        const Icon(Icons.calendar_today_rounded, color: HomeEaseTheme.brand, size: 20),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
+
+                // Time Pickers
                 Row(
                   children: [
                     Expanded(
                       child: GestureDetector(
                         onTap: () => _pickTime(true),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF8F0E6),
-                            borderRadius: BorderRadius.circular(24),
+                            color: HomeEaseTheme.card,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: HomeEaseTheme.outline),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(startTimeText, style: const TextStyle(color: HomeEaseTheme.text, fontSize: 13)),
-                              const Icon(Icons.access_time_rounded, color: HomeEaseTheme.brandSoft, size: 18),
+                              Text(
+                                startTimeText,
+                                style: TextStyle(
+                                  color: _selectedStartTime == null ? HomeEaseTheme.muted : HomeEaseTheme.textPrimary,
+                                  fontSize: 13,
+                                  fontWeight: _selectedStartTime == null ? FontWeight.normal : FontWeight.bold,
+                                ),
+                              ),
+                              const Icon(Icons.access_time_rounded, color: HomeEaseTheme.brand, size: 18),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: GestureDetector(
                         onTap: () => _pickTime(false),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF8F0E6),
-                            borderRadius: BorderRadius.circular(24),
+                            color: HomeEaseTheme.card,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: HomeEaseTheme.outline),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(endTimeText, style: const TextStyle(color: HomeEaseTheme.text, fontSize: 13)),
-                              const Icon(Icons.access_time_rounded, color: HomeEaseTheme.brandSoft, size: 18),
+                              Text(
+                                endTimeText,
+                                style: TextStyle(
+                                  color: _selectedEndTime == null ? HomeEaseTheme.muted : HomeEaseTheme.textPrimary,
+                                  fontSize: 13,
+                                  fontWeight: _selectedEndTime == null ? FontWeight.normal : FontWeight.bold,
+                                ),
+                              ),
+                              const Icon(Icons.access_time_rounded, color: HomeEaseTheme.brand, size: 18),
                             ],
                           ),
                         ),
@@ -375,7 +418,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                 // Real-time conflict feedback banner
                 if (_isCheckingConflict)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: HomeEaseTheme.card,
                       borderRadius: BorderRadius.circular(12),
@@ -387,33 +430,33 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                           height: 14,
                           child: CircularProgressIndicator(strokeWidth: 2, color: HomeEaseTheme.brand),
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(width: 10),
                         Text(
                           'Checking slot availability...',
-                          style: TextStyle(fontSize: 12, color: HomeEaseTheme.text),
+                          style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
                         ),
                       ],
                     ),
                   )
                 else if (_hasConflict == true)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.shade200),
+                      color: const Color(0xFFFEF2F2), // Red 50
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: HomeEaseTheme.statusConflict.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline_rounded, color: Colors.red, size: 20),
-                        const SizedBox(width: 8),
+                        const Icon(Icons.error_outline_rounded, color: HomeEaseTheme.statusConflict, size: 22),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _conflictMessage ?? 'Time slot overlaps with an existing booking.',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.red.shade800,
-                              fontWeight: FontWeight.w600,
+                              color: HomeEaseTheme.statusConflict,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -422,23 +465,23 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                   )
                 else if (_hasConflict == false && durationHours != null && durationHours > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.shade200),
+                      color: const Color(0xFFECFDF5), // Emerald 50
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: HomeEaseTheme.statusVerified.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle_outline_rounded, color: Colors.green, size: 20),
-                        const SizedBox(width: 8),
+                        const Icon(Icons.check_circle_outline_rounded, color: HomeEaseTheme.statusVerified, size: 22),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Slot available: ${durationHours.toStringAsFixed(1)} hrs ($startTimeText - $endTimeText)',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.green.shade800,
-                              fontWeight: FontWeight.w600,
+                              color: HomeEaseTheme.statusVerified,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -446,11 +489,12 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     ),
                   ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 TextField(
                   controller: _addressController,
                   decoration: const InputDecoration(
                     hintText: 'Service Address (e.g. House 4, Lane 2, Mandian, Abbottabad)',
+                    prefixIcon: Icon(Icons.location_on_outlined, color: HomeEaseTheme.brand),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -458,38 +502,58 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                   controller: _notesController,
                   maxLines: 3,
                   decoration: const InputDecoration(
-                    hintText: 'Notes for worker (special instructions)',
+                    hintText: 'Notes for worker (special instructions or access details)',
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 18),
+
+          // Total Estimate Callout
+          if (dynamicAmount != null && durationHours != null && durationHours > 0)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: HomeEaseTheme.accentLight,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: HomeEaseTheme.brand.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Total Estimated Amount',
+                        style: TextStyle(fontSize: 11, color: HomeEaseTheme.brand, fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        'PKR ${dynamicAmount.toInt()}',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: HomeEaseTheme.brand),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${durationHours.toStringAsFixed(1)} hrs @ Rs. $hourlyRate/hr',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                  ),
+                ],
+              ),
+            ),
+
+          // Submit CTA
           HomeEaseButton(
-            label: _isSubmitting ? 'Validating slot...' : 'Submit Request',
+            label: _isSubmitting ? 'Validating slot...' : 'Submit Booking Request',
+            icon: Icons.check_circle_rounded,
             onPressed: () {
               if (!_isSubmitting) {
                 _submitBooking();
               }
             },
           ),
-          const SizedBox(height: 12),
-          if (dynamicAmount != null && durationHours != null && durationHours > 0)
-            Text(
-              'Total estimate: PKR ${dynamicAmount.toInt()} (${durationHours.toStringAsFixed(1)} hrs @ PKR ${_getHourlyRate().toInt()}/hr)',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: HomeEaseTheme.brandSoft,
-                fontWeight: FontWeight.w700,
-              ),
-            )
-          else
-            Text(
-              'Rate: PKR ${_getHourlyRate().toInt()}/hr',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: HomeEaseTheme.brandSoft,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
         ],
       ),
     );

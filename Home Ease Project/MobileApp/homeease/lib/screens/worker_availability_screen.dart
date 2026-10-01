@@ -10,14 +10,26 @@ class WorkerAvailabilityScreen extends StatefulWidget {
     super.key,
     required this.initialStatus,
     required this.initialSlots,
-    required this.onBack,
+    this.onBack,
     required this.onSave,
+    this.bottomNavigationBar,
+    this.roleBadge,
+    this.onToggleLanguage,
+    this.onOpenNotifications,
+    this.unreadNotificationsCount,
+    this.onLogout,
   });
 
   final String initialStatus;
   final List<String> initialSlots; // e.g. ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
   final Function(String status, List<String> slots) onSave;
+  final Widget? bottomNavigationBar;
+  final String? roleBadge;
+  final VoidCallback? onToggleLanguage;
+  final VoidCallback? onOpenNotifications;
+  final int? unreadNotificationsCount;
+  final VoidCallback? onLogout;
 
   @override
   State<WorkerAvailabilityScreen> createState() => _WorkerAvailabilityScreenState();
@@ -60,6 +72,12 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
       title: 'Availability manager',
       subtitle: 'Set your status and active work days.',
       onBack: widget.onBack,
+      roleBadge: widget.roleBadge,
+      onToggleLanguage: widget.onToggleLanguage,
+      onOpenNotifications: widget.onOpenNotifications,
+      unreadNotificationsCount: widget.unreadNotificationsCount,
+      onLogout: widget.onLogout,
+      bottomNavigationBar: widget.bottomNavigationBar,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -12,13 +12,15 @@ class WorkerJobFeedScreen extends StatefulWidget {
     required this.jobPosts,
     required this.currentWorker,
     required this.onApply,
-    required this.onBack,
+    this.onBack,
+    this.bottomNavigationBar,
   });
 
   final List<JobPost> jobPosts;
   final WorkerProfile currentWorker;
   final ValueChanged<JobApplication> onApply;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
+  final Widget? bottomNavigationBar;
 
   @override
   State<WorkerJobFeedScreen> createState() => _WorkerJobFeedScreenState();
@@ -153,12 +155,12 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: HomeEaseTheme.primary.withValues(alpha: 0.1),
+                      color: HomeEaseTheme.accentLight,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       LocalizationService.getCategoryIcon(job.serviceCategory),
-                      color: HomeEaseTheme.primary,
+                      color: HomeEaseTheme.brand,
                       size: 22,
                     ),
                   ),
@@ -202,14 +204,9 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
               TextField(
                 controller: proposedRateController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   prefixText: 'PKR ',
-                  filled: true,
-                  fillColor: HomeEaseTheme.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: HomeEaseTheme.outline),
-                  ),
+                  hintText: 'e.g. 2500',
                 ),
               ),
               const SizedBox(height: 14),
@@ -231,12 +228,6 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                   hintText: LocalizationService.isUrdu
                       ? 'مثلاً: میں وقت پر پہنچ جاؤں گا اور تمام کام معیاری کروں گا۔'
                       : 'e.g., I am available at this time and have 4+ years experience.',
-                  filled: true,
-                  fillColor: HomeEaseTheme.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: HomeEaseTheme.outline),
-                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -245,7 +236,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                 height: 48,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: HomeEaseTheme.primary,
+                    backgroundColor: HomeEaseTheme.brand,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
@@ -320,6 +311,8 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
             ? 'ایبٹ آباد کے گھرانوں کی جانب سے شائع کردہ اوپن کام تلاش کریں'
             : 'Explore open gig requests posted by local households in Abbottabad',
         onBack: widget.onBack,
+        roleBadge: widget.onBack == null ? 'Worker' : null,
+        bottomNavigationBar: widget.bottomNavigationBar,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -345,7 +338,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
             // Category Filter Chips
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: _filters.map((f) {
                   final isSelected = _selectedCategory == f;
@@ -358,8 +351,11 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                             : LocalizationService.tr(f.toLowerCase()),
                       ),
                       selected: isSelected,
-                      selectedColor: HomeEaseTheme.primary,
-                      backgroundColor: Colors.white,
+                      selectedColor: HomeEaseTheme.brand,
+                      backgroundColor: HomeEaseTheme.white,
+                      side: BorderSide(
+                        color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline,
+                      ),
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.white : HomeEaseTheme.textPrimary,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -376,7 +372,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                 }).toList(),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
             // Job List Feed
             if (filteredJobs.isEmpty)
@@ -405,7 +401,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                         icon: const Icon(Icons.refresh, size: 16),
                         label: const Text('Refresh'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: HomeEaseTheme.primary,
+                          backgroundColor: HomeEaseTheme.brand,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -429,7 +425,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 6,
+                        blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -466,17 +462,17 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: HomeEaseTheme.primary.withValues(alpha: 0.1),
+                                color: HomeEaseTheme.accentLight,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 'PKR ${job.budget.toStringAsFixed(0)}',
                                 style: const TextStyle(
                                   fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: HomeEaseTheme.primary,
+                                  fontWeight: FontWeight.w800,
+                                  color: HomeEaseTheme.brand,
                                 ),
                               ),
                             ),
@@ -501,20 +497,20 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             color: HomeEaseTheme.textSecondary,
-                            height: 1.3,
+                            height: 1.35,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
 
-                        // Meta details row: Area, Date, Household
+                        // Meta details row: Area, Date
                         Row(
                           children: [
                             const Icon(
                               Icons.location_on_outlined,
                               size: 15,
-                              color: HomeEaseTheme.textSecondary,
+                              color: HomeEaseTheme.brand,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -528,7 +524,7 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                             const Icon(
                               Icons.calendar_today_outlined,
                               size: 14,
-                              color: HomeEaseTheme.textSecondary,
+                              color: HomeEaseTheme.brand,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -547,11 +543,11 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                           width: double.infinity,
                           child: isApplied
                               ? Container(
-                                  height: 42,
+                                  height: 44,
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.green),
+                                    color: HomeEaseTheme.statusVerified.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: HomeEaseTheme.statusVerified),
                                   ),
                                   alignment: Alignment.center,
                                   child: Row(
@@ -559,14 +555,14 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                                     children: [
                                       const Icon(
                                         Icons.check_circle_rounded,
-                                        color: Colors.green,
+                                        color: HomeEaseTheme.statusVerified,
                                         size: 18,
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
                                         isUrdu ? 'درخواست بھیج دی گئی' : 'Applied',
                                         style: const TextStyle(
-                                          color: Colors.green,
+                                          color: HomeEaseTheme.statusVerified,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
                                         ),
@@ -579,13 +575,13 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                                     Expanded(
                                       flex: 3,
                                       child: SizedBox(
-                                        height: 42,
+                                        height: 44,
                                         child: ElevatedButton.icon(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: HomeEaseTheme.primary,
+                                            backgroundColor: HomeEaseTheme.brand,
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius: BorderRadius.circular(14),
                                             ),
                                             elevation: 0,
                                             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -606,13 +602,13 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                                     Expanded(
                                       flex: 2,
                                       child: SizedBox(
-                                        height: 42,
+                                        height: 44,
                                         child: OutlinedButton(
                                           style: OutlinedButton.styleFrom(
-                                            foregroundColor: HomeEaseTheme.primary,
-                                            side: const BorderSide(color: HomeEaseTheme.primary),
+                                            foregroundColor: HomeEaseTheme.brand,
+                                            side: const BorderSide(color: HomeEaseTheme.brand),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius: BorderRadius.circular(14),
                                             ),
                                             padding: const EdgeInsets.symmetric(horizontal: 8),
                                           ),

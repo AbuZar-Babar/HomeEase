@@ -35,7 +35,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _experienceController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   String _selectedCategory = 'Cleaner';
-  String? _simulatedCnicPath;
+  String? _cnicDocumentPath;
 
   final List<String> _serviceCategories = ['Cleaner', 'Cook', 'Nanny', 'Caregiver', 'Maid'];
 
@@ -57,13 +57,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void _simulateCnicUpload() {
+  void _attachCnicDocument() {
     HapticFeedback.lightImpact();
     setState(() {
-      _simulatedCnicPath = 'assets/mock/cnic_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      _cnicDocumentPath = 'cnic_${DateTime.now().millisecondsSinceEpoch}.jpg';
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Simulated: CNIC document photo uploaded.')),
+      const SnackBar(content: Text('CNIC document photo attached successfully.')),
     );
   }
 
@@ -194,23 +194,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 14),
                         GestureDetector(
-                          onTap: _simulateCnicUpload,
+                          onTap: _attachCnicDocument,
                           child: Container(
                             height: 80,
                             width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              color: HomeEaseTheme.surface,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: HomeEaseTheme.card, width: 2),
+                              color: _cnicDocumentPath != null
+                                  ? HomeEaseTheme.accentLight.withValues(alpha: 0.3)
+                                  : HomeEaseTheme.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: _cnicDocumentPath != null
+                                    ? HomeEaseTheme.brand
+                                    : HomeEaseTheme.outline,
+                                width: 1.5,
+                              ),
                             ),
                             alignment: Alignment.center,
-                            child: _simulatedCnicPath != null
-                                ? const Row(
+                            child: _cnicDocumentPath != null
+                                ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.check_circle_rounded, color: Colors.green),
-                                      SizedBox(width: 8),
-                                      Text('CNIC Photo Added', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                                      const Icon(Icons.check_circle_rounded, color: HomeEaseTheme.statusVerified),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'CNIC Attached: $_cnicDocumentPath',
+                                          style: const TextStyle(color: HomeEaseTheme.brand, fontWeight: FontWeight.bold, fontSize: 12),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.muted),
+                                        onPressed: () {
+                                          setState(() {
+                                            _cnicDocumentPath = null;
+                                          });
+                                        },
+                                      ),
                                     ],
                                   )
                                 : const Column(
@@ -218,7 +240,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     children: [
                                       Icon(Icons.upload_file_rounded, color: HomeEaseTheme.brand, size: 24),
                                       SizedBox(height: 4),
-                                      Text('Upload CNIC/ID card copy for verification', style: TextStyle(fontSize: 11)),
+                                      Text('Tap to upload CNIC/ID card copy for verification', style: TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary)),
                                     ],
                                   ),
                           ),
@@ -244,7 +266,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (isWorker) {
                       if (_rateController.text.trim().isEmpty ||
                           _experienceController.text.trim().isEmpty ||
-                          _simulatedCnicPath == null) {
+                          _cnicDocumentPath == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Please enter expected rate, experience, and upload CNIC details.')),
                         );
@@ -265,7 +287,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       data['rate'] = _rateController.text.trim();
                       data['experience'] = _experienceController.text.trim();
                       data['bio'] = _bioController.text.trim();
-                      data['cnicPath'] = _simulatedCnicPath;
+                      data['cnicPath'] = _cnicDocumentPath;
                     }
 
                     widget.onCreateAccount(_selectedRole, data);

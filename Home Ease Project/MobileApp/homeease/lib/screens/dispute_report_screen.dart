@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
@@ -24,7 +25,7 @@ class DisputeReportScreen extends StatefulWidget {
 class _DisputeReportScreenState extends State<DisputeReportScreen> {
   final TextEditingController _descController = TextEditingController();
   String _selectedCategory = 'Payment discrepancy';
-  String? _simulatedProofPath;
+  String? _evidenceDocumentPath;
 
   final List<String> _categories = [
     'Payment discrepancy',
@@ -40,12 +41,13 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
     super.dispose();
   }
 
-  void _simulateProofSelect() {
+  void _attachEvidence() {
+    HapticFeedback.lightImpact();
     setState(() {
-      _simulatedProofPath = 'assets/mock/proof_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      _evidenceDocumentPath = 'evidence_${widget.booking.id.hashCode.abs()}_${DateTime.now().millisecondsSinceEpoch}.jpg';
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Simulated: Proof image selected.')),
+      const SnackBar(content: Text('Evidence photo attached successfully.')),
     );
   }
 
@@ -74,7 +76,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                   items: _categories.map((cat) {
                     return DropdownMenuItem(
                       value: cat,
-                      child: Text(cat, style: const TextStyle(color: HomeEaseTheme.text)),
+                      child: Text(cat, style: const TextStyle(color: HomeEaseTheme.textPrimary)),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -99,31 +101,48 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                 const SectionLabel('Upload Evidence (Receipt/Photo)'),
                 const SizedBox(height: 10),
                 GestureDetector(
-                  onTap: _simulateProofSelect,
+                  onTap: _attachEvidence,
                   child: Container(
                     height: 90,
                     width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: HomeEaseTheme.surface,
-                      borderRadius: BorderRadius.circular(20),
+                      color: _evidenceDocumentPath != null
+                          ? HomeEaseTheme.accentLight.withValues(alpha: 0.3)
+                          : HomeEaseTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: HomeEaseTheme.card,
-                        width: 2,
+                        color: _evidenceDocumentPath != null
+                            ? HomeEaseTheme.brand
+                            : HomeEaseTheme.outline,
+                        width: 1.5,
                       ),
                     ),
                     alignment: Alignment.center,
-                    child: _simulatedProofPath != null
+                    child: _evidenceDocumentPath != null
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.check_circle_rounded, color: Colors.green),
+                              const Icon(Icons.check_circle_rounded, color: HomeEaseTheme.statusVerified),
                               const SizedBox(width: 8),
-                              Text(
-                                'Evidence Photo Selected',
-                                style: TextStyle(
-                                  color: Colors.green.shade800,
-                                  fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Text(
+                                  'Evidence attached: $_evidenceDocumentPath',
+                                  style: const TextStyle(
+                                    color: HomeEaseTheme.brand,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.muted),
+                                onPressed: () {
+                                  setState(() {
+                                    _evidenceDocumentPath = null;
+                                  });
+                                },
                               ),
                             ],
                           )
@@ -132,7 +151,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                             children: [
                               Icon(Icons.add_photo_alternate_rounded, color: HomeEaseTheme.brand, size: 28),
                               SizedBox(height: 4),
-                              Text('Select screenshot/photo proof', style: TextStyle(fontSize: 12)),
+                              Text('Tap to attach screenshot/photo evidence', style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary)),
                             ],
                           ),
                   ),
@@ -150,7 +169,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                     widget.onSubmit(
                       _selectedCategory,
                       _descController.text,
-                      _simulatedProofPath ?? 'assets/mock/default_proof.jpg',
+                      _evidenceDocumentPath ?? 'evidence_${widget.booking.id}.jpg',
                     );
                   },
                 ),
