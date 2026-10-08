@@ -134,8 +134,6 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return 1;
       case AppStage.bookingsHistory:
         return 2;
-      case AppStage.profile:
-        return 3;
       default:
         return 0;
     }
@@ -151,9 +149,6 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         break;
       case 2:
         _goTo(AppStage.bookingsHistory);
-        break;
-      case 3:
-        _goTo(AppStage.profile);
         break;
     }
   }
@@ -207,8 +202,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
     } else {
       final isRootHouseholdStage = _stage == AppStage.homeSearch ||
           _stage == AppStage.postJob ||
-          _stage == AppStage.bookingsHistory ||
-          _stage == AppStage.profile;
+          _stage == AppStage.bookingsHistory;
       if (!isRootHouseholdStage) return null;
       return HomeEaseBottomNav(
         currentIndex: _getHouseholdTabIndex(_stage),
@@ -434,6 +428,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onOpenNotifications: () => _goTo(AppStage.notifications),
           unreadNotificationsCount: _getUnreadNotificationsCount(),
           onOpenPostJob: () => _goTo(AppStage.postJob),
+          onOpenProfile: () => _goTo(AppStage.profile),
           onLanguageChanged: () => setState(() {}),
           bottomNavigationBar: _buildBottomNav(),
         );
@@ -929,6 +924,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           totalPostedGigs: _jobPosts.length,
           onLanguageChanged: () => setState(() {}),
           bottomNavigationBar: _buildBottomNav(),
+          onBack: _goBack,
           onLogout: () async {
             await SupabaseAuthService().signOut();
             if (!mounted) return;

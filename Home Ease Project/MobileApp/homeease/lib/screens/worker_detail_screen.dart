@@ -8,6 +8,7 @@ import '../theme/home_ease_theme.dart';
 import '../widgets/animated_scale_button.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/in_app_chat_sheet.dart';
 
 class WorkerDetailScreen extends StatefulWidget {
   const WorkerDetailScreen({
@@ -106,6 +107,34 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                       SnackBar(
                         content: Text('Simulating call to ${widget.worker.name} (+92 312 9845120)...'),
                       ),
+                    );
+                  },
+                ),
+                const Divider(height: 16),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: HomeEaseTheme.brand.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.chat_bubble_outline_rounded, color: HomeEaseTheme.brand),
+                  ),
+                  title: const Text('In-App Direct Chat', style: TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: const Text('Real-time messaging & instant responses'),
+                  trailing: const Icon(Icons.arrow_forward_rounded, color: HomeEaseTheme.brand),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    InAppChatSheet.show(
+                      context,
+                      recipientName: widget.worker.name,
+                      recipientRole: widget.worker.role,
+                      serviceContext: widget.worker.role,
+                      onCallPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Calling ${widget.worker.name}...')),
+                        );
+                      },
                     );
                   },
                 ),
@@ -571,7 +600,29 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
+                AnimatedScaleTap(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    InAppChatSheet.show(
+                      context,
+                      recipientName: widget.worker.name,
+                      recipientRole: widget.worker.role,
+                      serviceContext: widget.worker.role,
+                    );
+                  },
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: HomeEaseTheme.mintSoft,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF99F6E4)),
+                    ),
+                    child: const Icon(Icons.chat_bubble_outline_rounded, color: HomeEaseTheme.brand, size: 22),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   flex: 3,
                   child: AnimatedScaleTap(

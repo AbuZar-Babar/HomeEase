@@ -7,6 +7,7 @@ import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/in_app_chat_sheet.dart';
 import '../widgets/shimmer_loading.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -543,6 +544,27 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   child: Text(isUrdu ? 'تفصیلات' : 'Details'),
                                 ),
                               ] else if (statusLower == 'accepted' || statusLower == 'in_progress') ...[
+                                TextButton.icon(
+                                  icon: const Icon(Icons.chat_bubble_outline_rounded, size: 15),
+                                  label: Text(isUrdu ? 'چیٹ' : 'Chat'),
+                                  onPressed: () {
+                                    InAppChatSheet.show(
+                                      context,
+                                      recipientName: worker.name,
+                                      recipientRole: worker.role,
+                                      serviceContext: '${worker.role} Booking',
+                                    );
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: HomeEaseTheme.brand,
+                                    backgroundColor: HomeEaseTheme.mintSoft,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    minimumSize: const Size(48, 44),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                ),
                                 TextButton(
                                   onPressed: () => _updateStatus(booking, 'Completed'),
                                   style: TextButton.styleFrom(

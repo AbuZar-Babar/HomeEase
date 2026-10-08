@@ -430,24 +430,19 @@ class HomeEaseBottomNav extends StatelessWidget {
 
     final householdItems = [
       _NavItemData(
-        icon: Icons.search_rounded,
-        activeIcon: Icons.search_rounded,
-        label: isUrdu ? 'تلاش' : 'Explore',
+        icon: Icons.home_outlined,
+        activeIcon: Icons.home_rounded,
+        label: isUrdu ? 'ہوم' : 'Home',
       ),
       _NavItemData(
-        icon: Icons.post_add_rounded,
+        icon: Icons.post_add_outlined,
         activeIcon: Icons.post_add_rounded,
         label: isUrdu ? 'ملازمتیں' : 'Jobs',
       ),
       _NavItemData(
-        icon: Icons.calendar_month_outlined,
+        icon: Icons.calendar_today_outlined,
         activeIcon: Icons.calendar_month_rounded,
         label: isUrdu ? 'بکنگز' : 'Bookings',
-      ),
-      _NavItemData(
-        icon: Icons.person_outline_rounded,
-        activeIcon: Icons.person_rounded,
-        label: isUrdu ? 'پروفائل' : 'Profile',
       ),
     ];
 
@@ -483,108 +478,107 @@ class HomeEaseBottomNav extends StatelessWidget {
         color: HomeEaseTheme.white,
         border: Border(
           top: BorderSide(
-            color: HomeEaseTheme.outline.withValues(alpha: 0.8),
+            color: HomeEaseTheme.outline.withValues(alpha: 0.6),
             width: 1,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-            blurRadius: 14,
-            offset: const Offset(0, -3),
+            color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 66,
+          height: 68,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(items.length, (index) {
               final item = items[index];
               final isSelected = index == currentIndex;
 
-              return Expanded(
-                child: Semantics(
-                  label: item.label,
-                  selected: isSelected,
-                  button: true,
-                  child: AnimatedScaleTap(
-                    scaleFactor: 0.92,
-                    onTap: () => onTap(index),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+              return Semantics(
+                label: item.label,
+                selected: isSelected,
+                button: true,
+                child: AnimatedScaleTap(
+                  scaleFactor: 0.94,
+                  onTap: () => onTap(index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 240),
+                    curve: Curves.easeOutCubic,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSelected ? 18 : 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? HomeEaseTheme.brand
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
                       children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutCubic,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isSelected ? 16 : 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? HomeEaseTheme.accentLight
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Icon(
-                                isSelected ? item.activeIcon : item.icon,
-                                color: isSelected
-                                    ? HomeEaseTheme.brand
-                                    : HomeEaseTheme.muted,
-                                size: 22,
-                              ),
-                              if (unreadCount > 0 && ((!isWorker && index == 2) || (isWorker && index == 0)))
-                                Positioned(
-                                  top: -2,
-                                  right: -4,
-                                  child: disableAnimations
-                                      ? Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: const BoxDecoration(
-                                            color: HomeEaseTheme.statusConflict,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        )
-                                      : Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: const BoxDecoration(
-                                            color: HomeEaseTheme.statusConflict,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                                          begin: const Offset(0.8, 0.8),
-                                          end: const Offset(1.2, 1.2),
-                                          duration: 800.ms,
-                                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isSelected ? item.activeIcon : item.icon,
+                              color: isSelected
+                                  ? Colors.white
+                                  : HomeEaseTheme.muted,
+                              size: 22,
+                            ),
+                            if (isSelected) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                item.label,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.2,
                                 ),
+                              ),
                             ],
+                          ],
+                        ),
+                        if (!isSelected && unreadCount > 0 && ((!isWorker && index == 2) || (isWorker && index == 0)))
+                          Positioned(
+                            top: -2,
+                            right: -3,
+                            child: disableAnimations
+                                ? Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: HomeEaseTheme.statusConflict,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  )
+                                : Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: HomeEaseTheme.statusConflict,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                                    begin: const Offset(0.8, 0.8),
+                                    end: const Offset(1.2, 1.2),
+                                    duration: 800.ms,
+                                  ),
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                          color: isSelected
-                              ? HomeEaseTheme.brand
-                              : HomeEaseTheme.muted,
-                          fontFamily: 'Roboto',
-                        ),
-                        child: Text(item.label),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
+              );
             }),
           ),
         ),

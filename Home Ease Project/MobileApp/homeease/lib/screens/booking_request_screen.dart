@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../services/booking_repository.dart';
@@ -364,9 +365,113 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SectionLabel(isUrdu ? 'شیڈول اور اوقات' : 'Schedule & Time Slots'),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
 
-                // Date picker trigger button
+                // Quick Date Pills
+                Row(
+                  children: [
+                    Expanded(
+                      child: AnimatedScaleTap(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          setState(() => _selectedDate = DateTime.now());
+                          _checkSlotAvailability();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: (_selectedDate != null &&
+                                    _selectedDate!.day == DateTime.now().day &&
+                                    _selectedDate!.month == DateTime.now().month)
+                                ? HomeEaseTheme.brand
+                                : HomeEaseTheme.mintSoft,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            isUrdu ? 'آج' : 'Today',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: (_selectedDate != null &&
+                                      _selectedDate!.day == DateTime.now().day &&
+                                      _selectedDate!.month == DateTime.now().month)
+                                  ? Colors.white
+                                  : HomeEaseTheme.brand,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: AnimatedScaleTap(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          setState(() => _selectedDate = DateTime.now().add(const Duration(days: 1)));
+                          _checkSlotAvailability();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: (_selectedDate != null &&
+                                    _selectedDate!.day == DateTime.now().add(const Duration(days: 1)).day &&
+                                    _selectedDate!.month == DateTime.now().add(const Duration(days: 1)).month)
+                                ? HomeEaseTheme.brand
+                                : HomeEaseTheme.mintSoft,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            isUrdu ? 'کل' : 'Tomorrow',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: (_selectedDate != null &&
+                                      _selectedDate!.day == DateTime.now().add(const Duration(days: 1)).day &&
+                                      _selectedDate!.month == DateTime.now().add(const Duration(days: 1)).month)
+                                  ? Colors.white
+                                  : HomeEaseTheme.brand,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: AnimatedScaleTap(
+                        onTap: _pickDate,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: HomeEaseTheme.card,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: HomeEaseTheme.outline),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.calendar_month_outlined, size: 14, color: HomeEaseTheme.brand),
+                              const SizedBox(width: 4),
+                              Text(
+                                isUrdu ? 'دیگر تاریخ' : 'Custom',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: HomeEaseTheme.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Date picker display container
                 AnimatedScaleTap(
                   onTap: _pickDate,
                   child: Container(
@@ -393,6 +498,60 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
+                // Preset Slot Quick Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ActionChip(
+                        label: Text(isUrdu ? 'صبح (9-12)' : 'Morning (9 AM - 12 PM)'),
+                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HomeEaseTheme.brand),
+                        backgroundColor: HomeEaseTheme.mintSoft,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        onPressed: () {
+                          setState(() {
+                            _selectedStartTime = const TimeOfDay(hour: 9, minute: 0);
+                            _selectedEndTime = const TimeOfDay(hour: 12, minute: 0);
+                          });
+                          _checkSlotAvailability();
+                        },
+                      ),
+                      const SizedBox(width: 6),
+                      ActionChip(
+                        label: Text(isUrdu ? 'دوپہر (2-5)' : 'Afternoon (2 PM - 5 PM)'),
+                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HomeEaseTheme.brand),
+                        backgroundColor: HomeEaseTheme.mintSoft,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        onPressed: () {
+                          setState(() {
+                            _selectedStartTime = const TimeOfDay(hour: 14, minute: 0);
+                            _selectedEndTime = const TimeOfDay(hour: 17, minute: 0);
+                          });
+                          _checkSlotAvailability();
+                        },
+                      ),
+                      const SizedBox(width: 6),
+                      ActionChip(
+                        label: Text(isUrdu ? 'مکمل دن (9-5)' : 'Full Day (9 AM - 5 PM)'),
+                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HomeEaseTheme.brand),
+                        backgroundColor: HomeEaseTheme.mintSoft,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        onPressed: () {
+                          setState(() {
+                            _selectedStartTime = const TimeOfDay(hour: 9, minute: 0);
+                            _selectedEndTime = const TimeOfDay(hour: 17, minute: 0);
+                          });
+                          _checkSlotAvailability();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
 
                 // Time Pickers
                 Row(

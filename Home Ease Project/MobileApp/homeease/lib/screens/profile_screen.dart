@@ -18,6 +18,7 @@ class ProfileScreen extends StatelessWidget {
     this.bottomNavigationBar,
     this.onOpenNotifications,
     this.unreadNotificationsCount,
+    this.onBack,
   });
 
   final String userRole;
@@ -28,6 +29,7 @@ class ProfileScreen extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final VoidCallback? onOpenNotifications;
   final int? unreadNotificationsCount;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,7 @@ class ProfileScreen extends StatelessWidget {
           ? 'اکاؤنٹ کی تفصیلات اور سیٹنگز'
           : 'Account settings, addresses, and platform preferences',
         roleBadge: userRole,
+        onBack: onBack,
         onToggleLanguage: () {
           LocalizationService.toggleLanguage();
           onLanguageChanged();

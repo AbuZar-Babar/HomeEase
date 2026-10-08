@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
 
 class HomeEaseTheme {
-  // Clean Teal & Mint Trust Palette
+  // Serene Hearth & Pine-Teal Trust Palette (Reference Style)
   static const Color background = Color(0xFFF8FAFC); // Slate 50
   static const Color surface = Color(0xFFFFFFFF); // Pure White
   static const Color card = Color(0xFFF1F5F9); // Slate 100
   static const Color cardDark = Color(0xFFE2E8F0); // Slate 200
-  static const Color brand = Color(0xFF0F766E); // Deep Teal
+  static const Color brand = Color(0xFF0F594E); // Deep Forest Pine-Teal (Reference)
   static const Color brandSoft = Color(0xFF14B8A6); // Mint / Aquamarine
+  static const Color pineTeal = Color(0xFF0F594E); // Reference Pine-Teal
+  static const Color forestDark = Color(0xFF093E37); // Dark Pine
+  static const Color mintSoft = Color(0xFFE6F4F1); // Soft Mint Wash
   static const Color text = Color(0xFF0F172A); // Slate 900 (WCAG AAA)
   static const Color muted = Color(0xFF64748B); // Slate 500
   static const Color white = Colors.white;
 
   // Semantic aliases for consistency
   static const Color primary = brand;
-  static const Color primaryDark = Color(0xFF115E59); // Teal 800
-  static const Color primaryLight = Color(0xFFCCFBF1); // Teal 100 / Mint tint
+  static const Color primaryDark = forestDark;
+  static const Color primaryLight = mintSoft;
   static const Color secondary = brandSoft;
-  static const Color accentLight = Color(0xFFCCFBF1);
+  static const Color accentLight = mintSoft;
   static const Color textPrimary = text;
   static const Color textSecondary = muted;
-  static const Color outline = cardDark;
+  static const Color outline = Color(0xFFE2E8F0);
   static const Color cardBackground = surface;
 
   // Semantic Status Colors
