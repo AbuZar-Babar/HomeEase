@@ -649,21 +649,24 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                 children: [
                                   Expanded(
                                     child: SizedBox(
-                                      height: 48,
+                                      height: 46,
                                       child: ElevatedButton.icon(
                                         onPressed: () {
                                           HapticFeedback.lightImpact();
                                           _completeBooking(booking);
                                         },
-                                        icon: const Icon(Icons.check_circle_rounded, size: 18),
+                                        icon: const Icon(Icons.check_circle_rounded, size: 17),
                                         label: Text(
                                           isUrdu ? 'مکمل کریں' : 'Mark Completed',
-                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                                         ),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: HomeEaseTheme.statusVerified,
                                           foregroundColor: Colors.white,
                                           elevation: 0,
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                         ),
                                       ),
@@ -672,17 +675,20 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: SizedBox(
-                                      height: 48,
+                                      height: 46,
                                       child: OutlinedButton(
                                         onPressed: () => widget.onSelectBooking(booking),
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor: HomeEaseTheme.brand,
                                           side: const BorderSide(color: HomeEaseTheme.brand),
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                         ),
                                         child: Text(
                                           isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
-                                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),

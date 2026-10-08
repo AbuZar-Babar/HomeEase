@@ -501,138 +501,234 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                         ),
                       ],
                       const SizedBox(height: 14),
+                      const Divider(height: 24, color: HomeEaseTheme.outline),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          Text(
+                            isUrdu ? 'طے شدہ رقم' : 'Agreed Amount',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: HomeEaseTheme.textSecondary,
+                            ),
+                          ),
                           Text(
                             'PKR ${booking.agreedAmount.toStringAsFixed(0)}',
                             style: const TextStyle(
                               color: HomeEaseTheme.brand,
                               fontWeight: FontWeight.w800,
-                              fontSize: 16,
+                              fontSize: 17,
                             ),
-                          ),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 6,
-                            children: [
-                              if (statusLower == 'pending') ...[
-                                TextButton(
-                                  onPressed: () => _updateStatus(booking, 'Rejected'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.statusConflict,
-                                    backgroundColor: HomeEaseTheme.statusConflict.withValues(alpha: 0.1),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  child: Text(isUrdu ? 'منسوخ کریں' : 'Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () => widget.onSelectBooking(booking),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.brand,
-                                    backgroundColor: HomeEaseTheme.card,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(isUrdu ? 'تفصیلات' : 'Details'),
-                                ),
-                              ] else if (statusLower == 'accepted' || statusLower == 'in_progress') ...[
-                                TextButton.icon(
-                                  icon: const Icon(Icons.chat_bubble_outline_rounded, size: 15),
-                                  label: Text(isUrdu ? 'چیٹ' : 'Chat'),
-                                  onPressed: () {
-                                    InAppChatSheet.show(
-                                      context,
-                                      recipientName: worker.name,
-                                      recipientRole: worker.role,
-                                      serviceContext: '${worker.role} Booking',
-                                    );
-                                  },
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.brand,
-                                    backgroundColor: HomeEaseTheme.mintSoft,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () => _updateStatus(booking, 'Completed'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: HomeEaseTheme.statusVerified,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  child: Text(isUrdu ? 'مکمل نشان زد کریں' : 'Mark Completed'),
-                                ),
-                                TextButton(
-                                  onPressed: () => widget.onSelectBooking(booking),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.white,
-                                    backgroundColor: HomeEaseTheme.brand,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement'),
-                                ),
-                              ] else if (statusLower == 'completed') ...[
-                                TextButton(
-                                  onPressed: () => widget.onRateBooking(booking),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.brand,
-                                    backgroundColor: HomeEaseTheme.accentLight,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(isUrdu ? 'درجہ بندی' : 'Rate'),
-                                ),
-                                TextButton(
-                                  onPressed: () => widget.onRaiseDispute(booking),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.statusConflict,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                  ),
-                                  child: Text(isUrdu ? 'تنازعہ' : 'Dispute'),
-                                ),
-                              ] else ...[
-                                TextButton(
-                                  onPressed: () => widget.onSelectBooking(booking),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: HomeEaseTheme.brand,
-                                    backgroundColor: HomeEaseTheme.card,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    minimumSize: const Size(48, 44),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(isUrdu ? 'تفصیلات' : 'Details'),
-                                ),
-                              ],
-                            ],
                           ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      // Action Buttons: responsive, bounded, never overflow
+                      if (statusLower == 'pending') ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => _updateStatus(booking, 'Rejected'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: HomeEaseTheme.statusConflict,
+                                  side: BorderSide(
+                                    color: HomeEaseTheme.statusConflict.withValues(alpha: 0.4),
+                                  ),
+                                  backgroundColor: HomeEaseTheme.statusConflict.withValues(alpha: 0.06),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  minimumSize: const Size(0, 42),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  isUrdu ? 'منسوخ کریں' : 'Cancel',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => widget.onSelectBooking(booking),
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: HomeEaseTheme.brand,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  minimumSize: const Size(0, 42),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  isUrdu ? 'تفصیلات' : 'Details',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else if (statusLower == 'accepted' || statusLower == 'in_progress') ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
+                                label: Text(
+                                  isUrdu ? 'چیٹ' : 'Chat',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                                onPressed: () {
+                                  InAppChatSheet.show(
+                                    context,
+                                    recipientName: worker.name,
+                                    recipientRole: worker.role,
+                                    serviceContext: '${worker.role} Booking',
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: HomeEaseTheme.brand,
+                                  side: BorderSide(color: HomeEaseTheme.brand.withValues(alpha: 0.3)),
+                                  backgroundColor: HomeEaseTheme.mintSoft,
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+                                  minimumSize: const Size(0, 42),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                icon: const Icon(Icons.description_outlined, size: 16),
+                                label: Text(
+                                  isUrdu ? 'معاہدہ' : 'Agreement',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                                onPressed: () => widget.onSelectBooking(booking),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: HomeEaseTheme.brand,
+                                  side: BorderSide(color: HomeEaseTheme.brand.withValues(alpha: 0.3)),
+                                  backgroundColor: HomeEaseTheme.card,
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+                                  minimumSize: const Size(0, 42),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _updateStatus(booking, 'Completed'),
+                            icon: const Icon(Icons.check_circle_rounded, size: 18),
+                            label: Text(
+                              isUrdu ? 'مکمل نشان زد کریں' : 'Mark Completed',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: HomeEaseTheme.statusVerified,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                              minimumSize: const Size(0, 44),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ] else if (statusLower == 'completed') ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => widget.onRateBooking(booking),
+                                icon: const Icon(Icons.star_rounded, size: 16),
+                                label: Text(
+                                  isUrdu ? 'درجہ بندی' : 'Rate',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: HomeEaseTheme.brand,
+                                  backgroundColor: HomeEaseTheme.accentLight,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  minimumSize: const Size(0, 42),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => widget.onRaiseDispute(booking),
+                                icon: const Icon(Icons.report_problem_outlined, size: 16),
+                                label: Text(
+                                  isUrdu ? 'تنازعہ' : 'Dispute',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: HomeEaseTheme.statusConflict,
+                                  side: BorderSide(color: HomeEaseTheme.statusConflict.withValues(alpha: 0.4)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  minimumSize: const Size(0, 42),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => widget.onSelectBooking(booking),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: HomeEaseTheme.brand,
+                              backgroundColor: HomeEaseTheme.card,
+                              side: const BorderSide(color: HomeEaseTheme.outline),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              minimumSize: const Size(0, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              isUrdu ? 'تفصیلات دیکھیں' : 'View Details',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
