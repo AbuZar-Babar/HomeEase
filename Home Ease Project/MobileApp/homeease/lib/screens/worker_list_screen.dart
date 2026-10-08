@@ -47,7 +47,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
   Future<void> _fetchLiveWorkers() async {
     try {
       final live = await WorkerRepository().fetchWorkers();
-      if (mounted && live.isNotEmpty) {
+      if (mounted) {
         setState(() {
           _displayWorkers = live;
         });
@@ -68,7 +68,9 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
             ? 'ایبٹ آباد کے تصدیق شدہ گھریلو معاونین'
             : 'Verified Abbottabad domestic service professionals',
         onBack: widget.onBack,
-        child: Column(
+        child: _displayWorkers.isEmpty
+            ? _buildEmptyState(isUrdu)
+            : Column(
           children: _displayWorkers.asMap().entries.map((entry) {
             final index = entry.key;
             final worker = entry.value;
@@ -150,7 +152,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                       '${worker.location} • ',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
-                                    const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                                    const Icon(Icons.star_rounded, size: 14, color: HomeEaseTheme.starRating),
                                     const SizedBox(width: 2),
                                     Text(
                                       '${worker.rating} (${worker.reviewsCount}) • ${rec.distanceKm.toStringAsFixed(1)} km',
@@ -180,7 +182,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                           ),
                           const SizedBox(width: 6),
                           const Icon(
-                            Icons.chevron_right_rounded,
+                            Icons.arrow_forward_rounded,
                             color: HomeEaseTheme.brand,
                           ),
                         ],
@@ -211,6 +213,51 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
               ),
             ).animate().fadeIn(duration: 250.ms, delay: (index * 40).ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic);
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(bool isUrdu) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: HomeEaseTheme.brand.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.engineering_outlined,
+                size: 48,
+                color: HomeEaseTheme.brand,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              isUrdu ? 'کوئی ورکر رجسٹرڈ نہیں ہے' : 'No verified workers yet',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: HomeEaseTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              isUrdu
+                  ? 'نئے ورکرز کے سائن اپ کرنے پر وہ یہاں نظر آئیں گے'
+                  : 'As workers register and get verified in Abbottabad, they will appear here.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: HomeEaseTheme.muted,
+              ),
+            ),
+          ],
         ),
       ),
     );

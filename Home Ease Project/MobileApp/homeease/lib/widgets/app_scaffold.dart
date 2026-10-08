@@ -97,10 +97,11 @@ class AppScaffold extends StatelessWidget {
                               ),
                             ),
                             if (onBack == null && !hasTopBar) ...[
-                              ?trailing,
+                              if (trailing != null) trailing!,
                               if (onLogout != null)
                                 IconButton(
                                   icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.brand),
+                                  tooltip: 'Logout',
                                   onPressed: onLogout,
                                 ),
                             ],
@@ -231,89 +232,99 @@ class _TopAppBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Compact Language Switcher
+              // Compact Language Switcher with 48dp touch target
               if (onToggleLanguage != null)
-                InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    onToggleLanguage!();
-                  },
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: HomeEaseTheme.card,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: HomeEaseTheme.outline),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.translate_rounded, size: 14, color: HomeEaseTheme.brand),
-                        const SizedBox(width: 4),
-                        Text(
-                          LocalizationService.isUrdu ? 'English' : 'اردو',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                            color: HomeEaseTheme.brand,
+                Semantics(
+                  label: LocalizationService.isUrdu ? 'انگریزی زبان میں تبدیل کریں' : 'Switch to Urdu language',
+                  button: true,
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onToggleLanguage!();
+                    },
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: HomeEaseTheme.card,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: HomeEaseTheme.outline),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.translate_rounded, size: 15, color: HomeEaseTheme.brand),
+                          const SizedBox(width: 4),
+                          Text(
+                            LocalizationService.isUrdu ? 'English' : 'اردو',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: HomeEaseTheme.brand,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
 
-              // Notification Bell with Unread Badge
+              // Notification Bell with Unread Badge (48dp touch target)
               if (onOpenNotifications != null) ...[
                 const SizedBox(width: 6),
-                InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    onOpenNotifications!();
-                  },
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: HomeEaseTheme.card,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: HomeEaseTheme.outline),
-                    ),
-                    child: Stack(
+                Semantics(
+                  label: unreadCount > 0 ? 'Notifications, $unreadCount unread' : 'Notifications',
+                  button: true,
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onOpenNotifications!();
+                    },
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                       alignment: Alignment.center,
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 19),
-                        if (unreadCount > 0)
-                          Positioned(
-                            right: 6,
-                            top: 6,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: HomeEaseTheme.statusConflict,
-                                shape: BoxShape.circle,
+                      decoration: BoxDecoration(
+                        color: HomeEaseTheme.card,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: HomeEaseTheme.outline),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 20),
+                          if (unreadCount > 0)
+                            Positioned(
+                              right: 10,
+                              top: 10,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: HomeEaseTheme.statusConflict,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ],
 
-              ?trailing,
+              if (trailing != null) trailing!,
 
               if (onLogout != null) ...[
                 const SizedBox(width: 4),
                 IconButton(
-                  icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 19),
+                  icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 20),
                   tooltip: 'Logout',
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     onLogout!();
@@ -343,32 +354,43 @@ class _BackHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        AnimatedScaleTap(
-          onTap: onBack,
-          child: Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: HomeEaseTheme.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: HomeEaseTheme.outline),
-              boxShadow: HomeEaseTheme.cardShadow,
-            ),
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: HomeEaseTheme.textPrimary,
-              size: 16,
+        Semantics(
+          label: 'Back',
+          button: true,
+          child: AnimatedScaleTap(
+            onTap: onBack,
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: HomeEaseTheme.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: HomeEaseTheme.outline),
+                boxShadow: HomeEaseTheme.cardShadow,
+              ),
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                color: HomeEaseTheme.textPrimary,
+                size: 20,
+              ),
             ),
           ),
         ),
         const Spacer(),
-        ?trailing,
+        if (trailing != null) trailing!,
         if (onLogout != null)
-          AnimatedScaleTap(
-            onTap: onLogout,
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.logout_rounded, color: HomeEaseTheme.muted),
+          Semantics(
+            label: 'Logout',
+            button: true,
+            child: AnimatedScaleTap(
+              onTap: onLogout,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(8.0),
+                child: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 20),
+              ),
             ),
           ),
       ],
@@ -443,6 +465,8 @@ class HomeEaseBottomNav extends StatelessWidget {
 
     final items = isWorker ? workerItems : householdItems;
 
+    final disableAnimations = MediaQuery.of(context).disableAnimations;
+
     return Container(
       decoration: BoxDecoration(
         color: HomeEaseTheme.white,
@@ -467,56 +491,69 @@ class HomeEaseBottomNav extends StatelessWidget {
               final isSelected = index == currentIndex;
 
               return Expanded(
-                child: AnimatedScaleTap(
-                  scaleFactor: 0.92,
-                  onTap: () => onTap(index),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOutCubic,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSelected ? 16 : 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? HomeEaseTheme.accentLight
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: isSelected
-                                  ? HomeEaseTheme.brand
-                                  : HomeEaseTheme.muted,
-                              size: 22,
-                            ),
-                            if (unreadCount > 0 && ((!isWorker && index == 2) || (isWorker && index == 0)))
-                              Positioned(
-                                top: -2,
-                                right: -4,
-                                child: Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: HomeEaseTheme.statusConflict,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                                  begin: const Offset(0.8, 0.8),
-                                  end: const Offset(1.2, 1.2),
-                                  duration: 800.ms,
-                                ),
+                child: Semantics(
+                  label: item.label,
+                  selected: isSelected,
+                  button: true,
+                  child: AnimatedScaleTap(
+                    scaleFactor: 0.92,
+                    onTap: () => onTap(index),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSelected ? 16 : 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? HomeEaseTheme.accentLight
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Icon(
+                                isSelected ? item.activeIcon : item.icon,
+                                color: isSelected
+                                    ? HomeEaseTheme.brand
+                                    : HomeEaseTheme.muted,
+                                size: 22,
                               ),
-                          ],
+                              if (unreadCount > 0 && ((!isWorker && index == 2) || (isWorker && index == 0)))
+                                Positioned(
+                                  top: -2,
+                                  right: -4,
+                                  child: disableAnimations
+                                      ? Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: const BoxDecoration(
+                                            color: HomeEaseTheme.statusConflict,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        )
+                                      : Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: const BoxDecoration(
+                                            color: HomeEaseTheme.statusConflict,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                                          begin: const Offset(0.8, 0.8),
+                                          end: const Offset(1.2, 1.2),
+                                          duration: 800.ms,
+                                        ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 3),
+                        const SizedBox(height: 3),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 200),
                         style: TextStyle(
@@ -532,7 +569,8 @@ class HomeEaseBottomNav extends StatelessWidget {
                     ],
                   ),
                 ),
-              );
+              ),
+            );
             }),
           ),
         ),

@@ -1,0 +1,13 @@
+{
+  "name": "HomeEase 60% Thesis",
+  "main_doc": "HomeEase_Thesis_60.tex",
+  "engine": "xetex",
+  "color": "#a0c4ff",
+  "kind": "document",
+  "exports": [],
+  "hidden": false,
+  "forked_from": null,
+  "checkpoints": {
+    "mode": "engine_dependencies"
+  }
+}

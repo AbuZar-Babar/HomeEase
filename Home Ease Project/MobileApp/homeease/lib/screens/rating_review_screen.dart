@@ -85,7 +85,7 @@ class _RatingReviewScreenState extends State<RatingReviewScreen> {
                 padding: const EdgeInsets.only(right: 6, bottom: 4),
                 child: Icon(
                   isSelected ? Icons.star_rounded : Icons.star_border_rounded,
-                  color: isSelected ? Colors.amber : HomeEaseTheme.outline,
+                  color: isSelected ? HomeEaseTheme.starRating : HomeEaseTheme.outline,
                   size: 30,
                 ),
               ),

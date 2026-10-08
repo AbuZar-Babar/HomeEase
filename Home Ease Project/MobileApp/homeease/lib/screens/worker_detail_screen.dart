@@ -47,14 +47,20 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: HomeEaseTheme.surface,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: 24 + MediaQuery.of(ctx).viewInsets.bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,6 +77,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded),
+                      tooltip: 'Close',
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ],
@@ -92,7 +99,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                   ),
                   title: const Text('Direct Phone Call', style: TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: const Text('+92 312 9845120 • Abbottabad Mobile Network'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
+                  trailing: const Icon(Icons.arrow_forward_rounded, color: HomeEaseTheme.brand),
                   onTap: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -114,7 +121,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                   ),
                   title: const Text('WhatsApp Chat', style: TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: const Text('Fast response within 15 minutes'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
+                  trailing: const Icon(Icons.arrow_forward_rounded, color: HomeEaseTheme.statusVerified),
                   onTap: () {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -282,7 +289,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                                 style: const TextStyle(color: HomeEaseTheme.textSecondary, fontSize: 12),
                               ),
                               const SizedBox(width: 10),
-                              const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                              const Icon(Icons.star_rounded, size: 16, color: HomeEaseTheme.starRating),
                               const SizedBox(width: 2),
                               Text(
                                 '${worker.rating} (${worker.reviewsCount} reviews)',
@@ -456,7 +463,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                     const SectionLabel('Client Reviews'),
                     Row(
                       children: [
-                        const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                        const Icon(Icons.star_rounded, size: 16, color: HomeEaseTheme.starRating),
                         const SizedBox(width: 4),
                         Text(
                           '${worker.rating} / 5.0',
@@ -500,7 +507,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                             Row(
                               children: List.generate(
                                 r['rating'] as int,
-                                (_) => const Icon(Icons.star_rounded, size: 13, color: Colors.amber),
+                                (_) => const Icon(Icons.star_rounded, size: 13, color: HomeEaseTheme.starRating),
                               ),
                             ),
                           ],

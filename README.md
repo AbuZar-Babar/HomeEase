@@ -41,16 +41,19 @@ HomeEase is a centralized, secure mobile platform designed to bridge the trust a
 ## 📁 Repository Structure
 ```text
 HomeEase/
-├── Docs/                               # Project requirements and documentation
-│   ├── 30 Percent/                     # SRS, SDD, and Diagrams summaries
-│   └── Diagrams/                       # Draw.io design sheets
-├── HOME_EASE_PROJECT_ORIENTATION.md    # Project overview and timeline
+├── Docs/                               # Project documentation & milestones
+│   ├── 00_Project_Specs/               # Core specifications & UI designs
+│   ├── 01_Proposal_10/                 # Milestone 1 (10%): Proposal & Defense
+│   ├── 02_Requirements_and_Design_30/  # Milestone 2 (30%): SRS, SDD, APK & Diagrams
+│   ├── 03_Thesis_60/                   # Milestone 3 (60%): Thesis, Prototype & LaTeX
+│   ├── references/                     # External templates & academic benchmarks
+│   └── README.md                       # Documentation guide & table of contents
 ├── Home Ease Project/                  # Codebase Directory
-│   ├── MobileApp/                      # Flutter Mobile Project
+│   ├── MobileApp/                      # Flutter Mobile Project (iOS & Android)
 │   │   └── homeease/
 │   │       ├── lib/                    # Dart source code (screens, models, app flows, widgets)
 │   │       └── pubspec.yaml            # Project dependencies
-│   └── WebApp/                         # React/Vite Admin Web Dashboard (postponed to 60%)
+│   └── WebApp/                         # React/Vite Admin Web Dashboard
 └── README.md                           # Master project guide
 ```
 

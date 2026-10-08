@@ -157,6 +157,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.muted),
+                                    tooltip: 'Remove receipt',
                                     onPressed: () {
                                       setState(() {
                                         _receiptAttachmentPath = null;
@@ -201,27 +202,27 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
               ),
             ] else if (booking.status == 'Completed') ...[
               HomeEaseCard(
-                color: Colors.green.shade50,
-                child: const Row(
+                color: HomeEaseTheme.statusVerified.withValues(alpha: 0.1),
+                child: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: Colors.green, size: 36),
-                    SizedBox(width: 14),
+                    const Icon(Icons.check_circle_rounded, color: HomeEaseTheme.statusVerified, size: 36),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Payment Confirmed',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.green,
+                              color: HomeEaseTheme.statusVerified,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'This service is completed. Thank you for using HomeEase!',
-                            style: TextStyle(fontSize: 12, color: Colors.black54),
+                            style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
                           ),
                         ],
                       ),
@@ -231,27 +232,27 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
               ),
             ] else if (booking.status == 'Disputed') ...[
               HomeEaseCard(
-                color: Colors.red.shade50,
-                child: const Row(
+                color: HomeEaseTheme.statusConflict.withValues(alpha: 0.1),
+                child: Row(
                   children: [
-                    Icon(Icons.gavel_rounded, color: Colors.red, size: 36),
-                    SizedBox(width: 14),
+                    const Icon(Icons.gavel_rounded, color: HomeEaseTheme.statusConflict, size: 36),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Transaction Under Dispute',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.red,
+                              color: HomeEaseTheme.statusConflict,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'A dispute has been opened for this booking. Admin is currently reviewing payment evidence.',
-                            style: TextStyle(fontSize: 12, color: Colors.black54),
+                            style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
                           ),
                         ],
                       ),
@@ -353,7 +354,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                               widget.onConfirmPayment();
                             },
                             style: FilledButton.styleFrom(
-                              backgroundColor: Colors.green,
+                              backgroundColor: HomeEaseTheme.statusVerified,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -369,8 +370,8 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                               widget.onRejectPayment();
                             },
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
+                              foregroundColor: HomeEaseTheme.statusConflict,
+                              side: const BorderSide(color: HomeEaseTheme.statusConflict),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -386,7 +387,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                         HapticFeedback.lightImpact();
                         widget.onRaiseDispute();
                       },
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      style: TextButton.styleFrom(foregroundColor: HomeEaseTheme.statusConflict),
                       child: const Center(child: Text('Raise Payment Dispute')),
                     ),
                   ],

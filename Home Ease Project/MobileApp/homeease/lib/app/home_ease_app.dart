@@ -12,6 +12,14 @@ class HomeEaseApp extends StatelessWidget {
       title: 'HomeEase',
       debugShowCheckedModeBanner: false,
       theme: HomeEaseTheme.theme,
+      darkTheme: HomeEaseTheme.darkTheme,
+      themeMode: ThemeMode.light,
+      builder: (context, child) {
+        return MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.35,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: const HomeEaseFlow(),
     );
   }

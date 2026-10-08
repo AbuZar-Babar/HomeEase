@@ -344,7 +344,7 @@ class BookingRepository {
             .map((item) => Booking.fromMap(item as Map<String, dynamic>))
             .toList();
       } catch (e) {
-        debugPrint('BookingRepository.fetchBookingsForHousehold error: $e');
+        debugPrint('BookingRepository.fetchBookingsForHousehold error: $e (Falling back to local bookings)');
       }
     }
 
@@ -377,7 +377,7 @@ class BookingRepository {
             .map((item) => Booking.fromMap(item as Map<String, dynamic>))
             .toList();
       } catch (e) {
-        debugPrint('BookingRepository.fetchBookingsForWorker error: $e');
+        debugPrint('BookingRepository.fetchBookingsForWorker error: $e (Falling back to local bookings)');
       }
     }
 

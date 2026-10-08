@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-07T21:08:00Z",
+  "title": "Design System: HomeEase",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Pine Teal Anchor",
+        "canonical": "#0F766E",
+        "tonalRamp": ["#042F2E", "#115E59", "#0F766E", "#14B8A6", "#2DD4BF", "#5EEAD4", "#99F6E4", "#CCFBF1"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Aquamarine Mint",
+        "canonical": "#14B8A6",
+        "tonalRamp": ["#042F2E", "#115E59", "#0F766E", "#14B8A6", "#2DD4BF", "#5EEAD4", "#A7F3D0", "#ECFDF5"]
+      },
+      "status-verified": {
+        "role": "accent",
+        "displayName": "Emerald Verified",
+        "canonical": "#10B981",
+        "tonalRamp": ["#064E3B", "#065F46", "#047857", "#059669", "#10B981", "#34D399", "#A7F3D0", "#ECFDF5"]
+      },
+      "status-pending": {
+        "role": "accent",
+        "displayName": "Amber Pending",
+        "canonical": "#F59E0B",
+        "tonalRamp": ["#78350F", "#92400E", "#B45309", "#D97706", "#F59E0B", "#FBBF24", "#FDE68A", "#FEF3C7"]
+      },
+      "neutral-dark": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "canonical": "#0F172A",
+        "tonalRamp": ["#020617", "#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#F8FAFC"]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Canvas Base",
+        "canonical": "#F8FAFC",
+        "tonalRamp": ["#0F172A", "#334155", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F1F5F9", "#F8FAFC"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero greetings and splash titles." },
+      "headline": { "displayName": "Headline", "purpose": "Screen top headers and AppScaffold titles." },
+      "title": { "displayName": "Title", "purpose": "Section banners and bottom sheet modal titles." },
+      "body": { "displayName": "Body", "purpose": "Primary readable prose, instructions, and bios." },
+      "label": { "displayName": "Label", "purpose": "Status chips, tags, and small captions." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 4px 16px rgba(15,23,42,0.04), 0 1px 4px rgba(15,23,42,0.02)", "purpose": "Standard rest elevation for white cards." },
+      { "name": "elevated-sheet", "value": "0 8px 24px rgba(15,23,42,0.08)", "purpose": "Bottom sheets and floating elevated dialogs." },
+      { "name": "teal-glow", "value": "0 6px 16px rgba(15,118,110,0.28)", "purpose": "Subtle radiant glow under primary Pine Teal buttons." }
+    ],
+    "motion": [
+      { "name": "anim-fast", "value": "150ms", "purpose": "Micro-interactions and button scales." },
+      { "name": "anim-normal", "value": "250ms", "purpose": "Screen stage transitions and fade switchers." },
+      { "name": "curve-cubic", "value": "cubic-bezier(0.2, 0, 0, 1)", "purpose": "Natural decelerating ease out curve." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "360px" },
+      { "name": "compact", "value": "480px" },
+      { "name": "expanded", "value": "600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "52dp high-affordance primary CTA with tactile scale.",
+      "html": "<button class=\"ds-btn-primary\">Book Domestic Helper</button>",
+      "css": ".ds-btn-primary { background: #0F766E; color: #FFFFFF; font-family: Roboto, sans-serif; font-size: 15px; font-weight: 700; height: 52px; width: 100%; border: none; border-radius: 16px; padding: 0 24px; cursor: pointer; transition: transform 0.12s ease, background 0.15s ease; box-shadow: 0 4px 14px rgba(15,118,110,0.25); } .ds-btn-primary:active { transform: scale(0.96); background: #115E59; }"
+    },
+    {
+      "name": "Card Container",
+      "kind": "card",
+      "refersTo": "card-primary",
+      "description": "Layered white card with slate outline and subtle ambient depth.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Verified Domestic Worker</div><div class=\"ds-card-body\">Abbottabad • 4.8 Rating • 12 Reviews</div></div>",
+      "css": ".ds-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; padding: 18px; box-shadow: 0 4px 16px rgba(15,23,42,0.04); font-family: Roboto, sans-serif; } .ds-card-title { font-weight: 700; font-size: 16px; color: #0F172A; } .ds-card-body { font-size: 13px; color: #64748B; margin-top: 4px; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Clean filled input field with focus state transition.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Search cook, cleaner, nanny...\" />",
+      "css": ".ds-input { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; height: 52px; padding: 0 18px; font-family: Roboto, sans-serif; font-size: 14px; color: #0F172A; width: 100%; box-sizing: border-box; outline: none; transition: border-color 0.15s ease; } .ds-input:focus { border: 1.8px solid #0F766E; background: #FFFFFF; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "Interactive pill filter tag for trade selection.",
+      "html": "<div class=\"ds-chip-group\"><span class=\"ds-chip ds-chip-active\">Cook</span><span class=\"ds-chip\">Cleaner</span></div>",
+      "css": ".ds-chip-group { display: flex; gap: 8px; font-family: Roboto, sans-serif; } .ds-chip { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #E2E8F0; background: #FFFFFF; color: #0F172A; } .ds-chip-active { background: #0F766E; color: #FFFFFF; border-color: #0F766E; }"
+    },
+    {
+      "name": "Verified Badge",
+      "kind": "chip",
+      "refersTo": "status-verified",
+      "description": "Redundant color and icon verification badge.",
+      "html": "<span class=\"ds-badge-verified\">✓ Verified Helper</span>",
+      "css": ".ds-badge-verified { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-family: Roboto, sans-serif; font-size: 11px; font-weight: 700; color: #10B981; background: #ECFDF5; border: 1px solid rgba(16,185,129,0.2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Pine Valley Haven",
+    "overview": "HomeEase is a dignified, hyper-local domestic service platform serving Abbottabad, Pakistan. Its visual language balances the trustworthy dependability of a community utility with the modern, refined clarity of an AI-assisted marketplace.",
+    "keyCharacteristics": [
+      "Calm, High-Trust Atmosphere: Deep Pine Teal anchor paired with subtle mint glow highlights.",
+      "Bilingual Symmetry: Seamless bidirectional layout supporting English LTR and Urdu RTL.",
+      "Physical Affordance: Generous touch targets, rounded tactile geometry (16-20dp radii), and physical feedback.",
+      "Explainable Transparency: Clear visual badges communicating verification, distance, and match reasons."
+    ],
+    "rules": [
+      { "name": "The Deep Teal Anchor Rule", "body": "The primary pine teal (#0F766E) serves as the functional anchor of every screen. It is reserved strictly for primary calls-to-action, active navigation tabs, and verified security markers.", "section": "colors" },
+      { "name": "The Redundant Status Indicator Rule", "body": "Never communicate booking or verification status through color alone. Every status badge must pair its semantic color with a recognizable icon.", "section": "colors" },
+      { "name": "The Bilingual RTL Invariance Rule", "body": "Every typographic hierarchy element must render identically in visual weight, relative margin, and alignment when toggled between English (LTR) and Urdu (RTL).", "section": "typography" },
+      { "name": "The Tonal Border Rule", "body": "Elevated cards resting on the canvas must pair their subtle ambient shadow with a 1px border of #E2E8F0.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do maintain a strict 48x48 dp minimum touch target on every button, chip, icon button, and card.",
+      "Do support both English LTR and Urdu RTL seamlessly across all screens.",
+      "Do provide tactile press feedback (AnimatedScaleTap with HapticFeedback.lightImpact()) on primary actions.",
+      "Do explain AI recommendation criteria clearly using human-readable badge chips.",
+      "Do preserve zero-conflict scheduling and alert users with clear date/time overlap warnings."
+    ],
+    "donts": [
+      "Don't use raw, harsh primary colors (generic blue, flat red, plain green); stick to curated Pine Teal, Emerald, Amber, and Slate.",
+      "Don't rely on color alone to indicate status; always provide an icon and textual description.",
+      "Don't hardcode left/right margins that invert incorrectly in Urdu RTL mode.",
+      "Don't create crowded multi-column grid layouts on mobile phones; keep discovery clean and vertical.",
+      "Don't introduce fake or unverified mock data back into the app runtime."
+    ]
+  }
+}

@@ -79,7 +79,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
         locality: _areaFilter != 'All Areas' ? _areaFilter : null,
         query: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
       );
-      if (mounted && workers.isNotEmpty) {
+      if (mounted) {
         setState(() {
           _liveWorkers = workers;
         });
@@ -95,7 +95,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
   }
 
   List<WorkerProfile> _getFilteredWorkers() {
-    final candidatePool = _liveWorkers.isNotEmpty ? _liveWorkers : widget.featuredWorkers;
+    final candidatePool = _liveWorkers;
     return candidatePool.where((worker) {
       if (widget.selectedServices.isNotEmpty) {
         final matchesService = widget.selectedServices.any((s) =>
@@ -133,33 +133,40 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: HomeEaseTheme.surface,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(22, 16, 22, 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 44,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: HomeEaseTheme.cardDark,
-                        borderRadius: BorderRadius.circular(2),
+            return SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: 22,
+                  right: 22,
+                  top: 16,
+                  bottom: 28 + MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 44,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: HomeEaseTheme.cardDark,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Advanced Filters',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
-                  ),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Advanced Filters',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                    ),
                   const SizedBox(height: 18),
                   const SectionLabel('Filter by Area'),
                   const SizedBox(height: 6),
@@ -203,11 +210,12 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                   ),
                 ],
               ),
-            );
-          },
-        );
-      },
-    );
+            ),
+          );
+        },
+      );
+    },
+  );
   }
 
   @override
@@ -222,7 +230,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
 
     final targetCategory = widget.selectedServices.isNotEmpty ? widget.selectedServices.first : 'Cook';
     final targetArea = _areaFilter != 'All Areas' ? _areaFilter : 'Mandian';
-    final candidates = _liveWorkers.isNotEmpty ? _liveWorkers : widget.featuredWorkers;
+    final candidates = _liveWorkers;
     final aiRecs = AIRecommendationEngine.recommendWorkers(
       workers: candidates,
       targetCategory: targetCategory,
@@ -450,21 +458,57 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              height: 164,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: aiRecs.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final rec = aiRecs[index];
-                  return _AIWorkerCard(
-                    rec: rec,
-                    onTap: () => widget.onOpenWorker(rec.worker),
-                  );
-                },
+            if (aiRecs.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+                decoration: BoxDecoration(
+                  color: HomeEaseTheme.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: HomeEaseTheme.outline),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: HomeEaseTheme.brand.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.psychology_outlined, color: HomeEaseTheme.brand, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        isUrdu
+                            ? 'نئے تصدیق شدہ ورکرز شامل ہونے پر AI سفارشات یہاں ظاہر ہوں گی۔'
+                            : 'AI recommendations will appear here as verified workers register in Abbottabad.',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: HomeEaseTheme.muted,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              SizedBox(
+                height: (172 * MediaQuery.textScalerOf(context).scale(1.0)).clamp(172.0, 220.0),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: aiRecs.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final rec = aiRecs[index];
+                    return _AIWorkerCard(
+                      rec: rec,
+                      onTap: () => widget.onOpenWorker(rec.worker),
+                    );
+                  },
+                ),
               ),
-            ),
             const SizedBox(height: 18),
 
             // Matching Results Info Bar
@@ -552,10 +596,10 @@ class _AIWorkerCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
-        width: 224,
+        width: 236,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: HomeEaseTheme.white,
+          color: HomeEaseTheme.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: HomeEaseTheme.outline),
           boxShadow: HomeEaseTheme.cardShadow,
@@ -711,7 +755,7 @@ class _WorkerListTile extends StatelessWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                      const Icon(Icons.star_rounded, size: 14, color: HomeEaseTheme.starRating),
                       const SizedBox(width: 2),
                       Text(
                         '${worker.rating}  •  ${worker.location}  •  ${rec.distanceKm.toStringAsFixed(1)} km',

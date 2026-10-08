@@ -37,13 +37,13 @@ class NotificationsScreen extends StatelessWidget {
   Color _getColorForType(String type) {
     switch (type) {
       case 'Booking':
-        return Colors.blue;
+        return HomeEaseTheme.statusInfo;
       case 'Payment':
-        return Colors.green;
+        return HomeEaseTheme.statusVerified;
       case 'Dispute':
-        return Colors.red;
+        return HomeEaseTheme.statusConflict;
       case 'Verification':
-        return Colors.purple;
+        return HomeEaseTheme.brandSoft;
       default:
         return HomeEaseTheme.brand;
     }

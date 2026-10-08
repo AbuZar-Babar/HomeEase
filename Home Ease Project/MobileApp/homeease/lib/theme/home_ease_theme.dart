@@ -31,6 +31,16 @@ class HomeEaseTheme {
   static const Color statusConflict = Color(0xFFEF4444); // Red 500
   static const Color statusCancelled = Color(0xFF64748B); // Slate 500
   static const Color statusInfo = Color(0xFF0284C7); // Sky 600
+  static const Color starRating = Color(0xFFF59E0B); // Amber 500 curated star rating
+
+  // Dark Theme Palette Tokens (Slate & Deep Teal Contrast)
+  static const Color backgroundDark = Color(0xFF0F172A); // Slate 900
+  static const Color surfaceDark = Color(0xFF1E293B); // Slate 800
+  static const Color cardDarkSurface = Color(0xFF1E293B); // Slate 800
+  static const Color outlineDark = Color(0xFF334155); // Slate 700
+  static const Color textDark = Color(0xFFF8FAFC); // Slate 50 (WCAG AAA)
+  static const Color mutedDark = Color(0xFF94A3B8); // Slate 400
+  static const Color accentDark = Color(0xFF115E59); // Teal 800
 
   // Animation & Motion Constants
   static const Duration animFast = Duration(milliseconds: 150);
@@ -190,6 +200,121 @@ class HomeEaseTheme {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: brand, width: 1.8),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: statusConflict),
+        ),
+      ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: backgroundDark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: brand,
+        brightness: Brightness.dark,
+        primary: brandSoft,
+        secondary: brand,
+        surface: surfaceDark,
+        error: statusConflict,
+      ),
+    );
+
+    return base.copyWith(
+      textTheme: base.textTheme.copyWith(
+        headlineLarge: const TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w800,
+          color: textDark,
+          height: 1.15,
+        ),
+        headlineMedium: const TextStyle(
+          fontSize: 26,
+          fontWeight: FontWeight.w700,
+          color: textDark,
+          height: 1.2,
+        ),
+        titleLarge: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: textDark,
+        ),
+        titleMedium: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textDark,
+        ),
+        bodyLarge: const TextStyle(fontSize: 15, color: textDark, height: 1.5),
+        bodyMedium: const TextStyle(fontSize: 14, color: mutedDark, height: 1.45),
+        bodySmall: const TextStyle(fontSize: 12, color: mutedDark, height: 1.35),
+      ),
+      cardTheme: CardThemeData(
+        color: surfaceDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: outlineDark),
+        ),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: surfaceDark,
+        contentTextStyle: TextStyle(color: textDark, fontWeight: FontWeight.w600),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: brand,
+          foregroundColor: white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: brand,
+          foregroundColor: white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: surfaceDark,
+        selectedItemColor: brandSoft,
+        unselectedItemColor: mutedDark,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF1E293B),
+        hintStyle: const TextStyle(color: mutedDark, fontSize: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: outlineDark),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: outlineDark),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: brandSoft, width: 1.8),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

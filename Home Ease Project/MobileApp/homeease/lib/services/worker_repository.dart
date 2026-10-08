@@ -110,16 +110,9 @@ class WorkerRepository {
         }).toList();
       }
 
-      // If database query returns empty (e.g. unseeded database), provide fallback
-      if (workers.isEmpty &&
-          (category == null || category == 'All') &&
-          (query == null || query.isEmpty)) {
-        return _filterFallback(category: category, locality: locality, query: query);
-      }
-
       return workers;
     } catch (e) {
-      debugPrint('WorkerRepository.fetchWorkers error: $e. Falling back to local dataset.');
+      debugPrint('WorkerRepository.fetchWorkers error: $e (Falling back to local data)');
       return _filterFallback(category: category, locality: locality, query: query);
     }
   }
@@ -128,19 +121,21 @@ class WorkerRepository {
   Future<WorkerProfile?> getWorkerById(String id) async {
     final targetId = IdMapping.toWorkerUuid(id);
     final sb = client;
-    if (sb != null && IdMapping.isUuid(targetId)) {
-      try {
-        final response = await sb
-            .from('worker_profiles')
-            .select('*, profiles(id, full_name, email, phone, avatar_url, role)')
-            .eq('id', targetId)
-            .maybeSingle();
+    if (sb != null) {
+      if (IdMapping.isUuid(targetId)) {
+        try {
+          final response = await sb
+              .from('worker_profiles')
+              .select('*, profiles(id, full_name, email, phone, avatar_url, role)')
+              .eq('id', targetId)
+              .maybeSingle();
 
-        if (response != null) {
-          return WorkerProfile.fromMap(response);
+          if (response != null) {
+            return WorkerProfile.fromMap(response);
+          }
+        } catch (e) {
+          debugPrint('WorkerRepository.getWorkerById error: $e (Falling back to local data)');
         }
-      } catch (e) {
-        debugPrint('WorkerRepository.getWorkerById error: $e');
       }
     }
 

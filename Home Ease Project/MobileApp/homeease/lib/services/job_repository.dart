@@ -144,13 +144,9 @@ class JobRepository {
         }).toList();
       }
 
-      if (jobs.isEmpty && (category == null || category == 'All') && (area == null || area == 'All')) {
-        return _filterFallbackJobs(category: category, area: area, query: query);
-      }
-
       return jobs;
     } catch (e) {
-      debugPrint('JobRepository.fetchOpenJobs error: $e. Falling back to local dataset.');
+      debugPrint('JobRepository.fetchOpenJobs error: $e (Falling back to local jobs)');
       return _filterFallbackJobs(category: category, area: area, query: query);
     }
   }
@@ -291,19 +287,21 @@ class JobRepository {
   Future<JobPost?> getJobById(String jobId) async {
     final targetJobId = IdMapping.toJobUuid(jobId);
     final sb = client;
-    if (sb != null && isUuid(targetJobId)) {
-      try {
-        final response = await sb
-            .from('jobs')
-            .select('*, profiles:employer_id(id, full_name, phone, email)')
-            .eq('id', targetJobId)
-            .maybeSingle();
+    if (sb != null) {
+      if (isUuid(targetJobId)) {
+        try {
+          final response = await sb
+              .from('jobs')
+              .select('*, profiles:employer_id(id, full_name, phone, email)')
+              .eq('id', targetJobId)
+              .maybeSingle();
 
-        if (response != null) {
-          return JobPost.fromMap(response);
+          if (response != null) {
+            return JobPost.fromMap(response);
+          }
+        } catch (e) {
+          debugPrint('JobRepository.getJobById error: $e (Falling back to local jobs)');
         }
-      } catch (e) {
-        debugPrint('JobRepository.getJobById error: $e');
       }
     }
 

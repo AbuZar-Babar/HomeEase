@@ -95,6 +95,21 @@ class WorkerProfile {
     this.hourlyRate = 0.0,
   });
 
+  /// Empty placeholder representation for uninitialized or unselected worker state.
+  static const WorkerProfile empty = WorkerProfile(
+    id: '',
+    name: '',
+    role: '',
+    rating: 0.0,
+    rate: '',
+    experience: '',
+    availability: '',
+    location: '',
+    description: '',
+    highlight: '',
+    reviewsCount: 0,
+  );
+
   /// Factory constructor to deserialize WorkerProfile from Supabase PostgREST responses.
   /// Handles joined `profiles` table attributes (`full_name`, `avatar_url`, `phone`, `email`)
   /// along with `worker_profiles` columns (`skills`, `hourly_rate`, `locality`, etc.).

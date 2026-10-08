@@ -81,14 +81,20 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: HomeEaseTheme.surface,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: 24 + MediaQuery.of(ctx).viewInsets.bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,6 +108,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded),
+                      tooltip: 'Close',
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ],
@@ -351,6 +358,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.textSecondary),
+                                tooltip: 'Remove photo',
                                 onPressed: () {
                                   setState(() => _evidenceDocumentPath = null);
                                 },

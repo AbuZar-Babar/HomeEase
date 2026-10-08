@@ -35,7 +35,7 @@ class HomeEaseFlow extends StatefulWidget {
 
 class _HomeEaseFlowState extends State<HomeEaseFlow> {
   AppStage _stage = AppStage.splash;
-  WorkerProfile _selectedWorker = SampleData.workers.first;
+  WorkerProfile _selectedWorker = WorkerProfile.empty;
   final Set<String> _selectedServices = {'Cleaner'};
   
   // Role & Session State
@@ -58,6 +58,8 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   String _availabilityStatus = 'Available today';
   List<String> _availabilitySlots = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
+  final List<AppStage> _stageHistory = [];
+
   @override
   void initState() {
     super.initState();
@@ -65,49 +67,49 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
     _loadLiveJobs();
     _loadLiveBookings();
     _restoreSession();
-
-    // Pre-populate notifications
-    _notifications.addAll([
-      NotificationModel(
-        id: 'notif_1',
-        userId: 'any',
-        title: 'Welcome to HomeEase',
-        message: 'Your account has been set up successfully. Find verified help nearby.',
-        type: 'General',
-        isRead: true,
-        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      ),
-      NotificationModel(
-        id: 'notif_2',
-        userId: 'any',
-        title: 'Booking Confirmed',
-        message: 'Rabia Bibi accepted your booking request for cooking.',
-        type: 'Booking',
-        isRead: false,
-        createdAt: DateTime.now().subtract(const Duration(minutes: 45)),
-      ),
-      NotificationModel(
-        id: 'notif_3',
-        userId: 'any',
-        title: 'Verification In-Review',
-        message: 'Your worker profile details are currently being reviewed by admin.',
-        type: 'Verification',
-        isRead: false,
-        createdAt: DateTime.now().subtract(const Duration(minutes: 10)),
-      ),
-    ]);
-
-    // Pre-populate open job posts for Abbottabad bidirectional marketplace
-    _jobPosts.addAll(SampleData.initialJobPosts);
   }
 
-  void _goTo(AppStage stage) {
+  bool _isRootStage() {
+    return _stage == AppStage.splash ||
+        _stage == AppStage.onboarding ||
+        _stage == AppStage.signIn ||
+        (_currentUserRole.toLowerCase() == 'worker'
+            ? _stage == AppStage.workerDashboard
+            : _stage == AppStage.homeSearch);
+  }
+
+  void _goTo(AppStage stage, {bool clearHistory = false}) {
+    if (clearHistory) {
+      _stageHistory.clear();
+    } else if (_stage != stage) {
+      _stageHistory.add(_stage);
+    }
     setState(() {
       _stage = stage;
     });
   }
 
+  void _goBack() {
+    if (_stageHistory.isNotEmpty) {
+      final prev = _stageHistory.removeLast();
+      setState(() {
+        _stage = prev;
+      });
+    } else {
+      final isWorker = _currentUserRole.toLowerCase() == 'worker';
+      final root = isWorker ? AppStage.workerDashboard : AppStage.homeSearch;
+      if (_stage != root) {
+        setState(() {
+          _stage = root;
+        });
+      }
+    }
+  }
+
   void _selectWorker(WorkerProfile worker, AppStage stage) {
+    if (_stage != stage) {
+      _stageHistory.add(_stage);
+    }
     setState(() {
       _selectedWorker = worker;
       _stage = stage;
@@ -224,11 +226,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   Future<void> _loadLiveWorkers() async {
     try {
       final workers = await WorkerRepository().fetchWorkers();
-      if (mounted && workers.isNotEmpty) {
+      if (mounted) {
         setState(() {
           _liveWorkers = workers;
-          if (_selectedWorker.id.isEmpty || _selectedWorker.id == 'worker_1') {
-            _selectedWorker = workers.first;
+          if (workers.isNotEmpty) {
+            if (_selectedWorker.id.isEmpty || _selectedWorker.id == 'worker_1') {
+              _selectedWorker = workers.first;
+            }
           }
         });
       }
@@ -240,7 +244,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   Future<void> _loadLiveJobs() async {
     try {
       final jobs = await JobRepository().fetchOpenJobs();
-      if (mounted && jobs.isNotEmpty) {
+      if (mounted) {
         setState(() {
           _jobPosts.clear();
           _jobPosts.addAll(jobs);
@@ -265,10 +269,8 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
 
       if (mounted) {
         setState(() {
-          if (user != null || bookings.isNotEmpty) {
-            _bookings.clear();
-            _bookings.addAll(bookings);
-          }
+          _bookings.clear();
+          _bookings.addAll(bookings);
         });
       }
     } catch (e) {
@@ -292,25 +294,33 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.015),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
+    return PopScope(
+      canPop: _isRootStage() && _stageHistory.isEmpty,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _goBack();
+        }
       },
-      child: KeyedSubtree(
-        key: ValueKey(_stage),
-        child: _buildStageContent(context),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.015),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey(_stage),
+          child: _buildStageContent(context),
+        ),
       ),
     );
   }
@@ -412,7 +422,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         return HomeSearchScreen(
           services: SampleData.serviceFilters,
           selectedServices: _selectedServices,
-          featuredWorkers: _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers,
+          featuredWorkers: _liveWorkers,
           onToggleService: _toggleService,
           onOpenWorkers: () => _goTo(AppStage.workerList),
           onOpenWorker: (worker) => _selectWorker(worker, AppStage.workerDetail),
@@ -430,22 +440,22 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         
       case AppStage.workerList:
         return WorkerListScreen(
-          workers: _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers,
-          onBack: () => _goTo(AppStage.homeSearch),
+          workers: _liveWorkers,
+          onBack: _goBack,
           onSelectWorker: (worker) => _selectWorker(worker, AppStage.workerDetail),
         );
         
       case AppStage.workerDetail:
         return WorkerDetailScreen(
           worker: _selectedWorker,
-          onBack: () => _goTo(AppStage.workerList),
+          onBack: _goBack,
           onBookNow: () => _goTo(AppStage.bookingRequest),
         );
         
       case AppStage.bookingRequest:
         return BookingRequestScreen(
           worker: _selectedWorker,
-          onBack: () => _goTo(AppStage.workerDetail),
+          onBack: _goBack,
           onSubmit: (createdBooking) {
             setState(() {
               _bookings.insert(0, createdBooking);
@@ -481,7 +491,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         }).toList();
         return BookingsHistoryScreen(
           bookings: relevantBookings,
-          workers: _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers,
+          workers: _liveWorkers,
           onBack: null,
           roleBadge: isWorker ? 'Worker' : 'Household',
           onToggleLanguage: () => setState(() {}),
@@ -529,10 +539,10 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         );
         
       case AppStage.serviceAgreement:
-        final allWorkers = _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers;
+        final allWorkers = _liveWorkers;
         final worker = allWorkers.firstWhere(
           (w) => IdMapping.matchesWorker(w.id, _selectedBooking.workerId),
-          orElse: () => allWorkers.first,
+          orElse: () => allWorkers.isNotEmpty ? allWorkers.first : WorkerProfile.empty,
         );
         return ServiceAgreementScreen(
           booking: _selectedBooking,
@@ -658,7 +668,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
       case AppStage.disputeReport:
         return DisputeReportScreen(
           booking: _selectedBooking,
-          onBack: () => _goTo(AppStage.bookingsHistory),
+          onBack: _goBack,
           onSubmit: (category, desc, proof) async {
             try {
               final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Disputed');
@@ -731,15 +741,15 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         );
         
       case AppStage.ratingReview:
-        final allWorkers = _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers;
+        final allWorkers = _liveWorkers;
         final worker = allWorkers.firstWhere(
           (w) => IdMapping.matchesWorker(w.id, _selectedBooking.workerId),
-          orElse: () => allWorkers.first,
+          orElse: () => allWorkers.isNotEmpty ? allWorkers.first : WorkerProfile.empty,
         );
         return RatingReviewScreen(
           booking: _selectedBooking,
           worker: worker,
-          onBack: () => _goTo(AppStage.bookingsHistory),
+          onBack: _goBack,
           onSubmit: (rating, comment) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Feedback submitted: $rating stars. Thank you!')),
@@ -843,13 +853,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
       case AppStage.notifications:
         return NotificationsScreen(
           notifications: _notifications,
-          onBack: () {
-            if (_currentUserRole == 'Household') {
-              _goTo(AppStage.homeSearch);
-            } else {
-              _goTo(AppStage.workerDashboard);
-            }
-          },
+          onBack: _goBack,
           onClearAll: () {
             setState(() {
               _notifications.clear();
@@ -897,11 +901,11 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         );
 
       case AppStage.workerJobFeed:
-        final allWorkers = _liveWorkers.isNotEmpty ? _liveWorkers : SampleData.workers;
+        final allWorkers = _liveWorkers;
         final currentWorkerId = SupabaseAuthService().currentUser?.id ?? '00000000-0000-0000-0000-000000000010';
         final activeWorker = allWorkers.firstWhere(
           (w) => IdMapping.matchesWorker(w.id, currentWorkerId),
-          orElse: () => allWorkers.first,
+          orElse: () => allWorkers.isNotEmpty ? allWorkers.first : WorkerProfile.empty,
         );
         return WorkerJobFeedScreen(
           jobPosts: _jobPosts,
