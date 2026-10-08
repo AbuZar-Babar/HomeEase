@@ -219,7 +219,28 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const WorkerAvatar(size: 76, circular: true),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        const WorkerAvatar(size: 76, circular: true),
+                        Positioned(
+                          bottom: -2,
+                          right: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.verified_rounded,
+                              size: 20,
+                              color: HomeEaseTheme.statusVerified,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
@@ -231,28 +252,31 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                                 child: Text(
                                   worker.name,
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        color: HomeEaseTheme.brand,
-                                        fontWeight: FontWeight.bold,
+                                        color: HomeEaseTheme.textPrimary,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.3,
                                       ),
                                 ),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: HomeEaseTheme.statusVerified.withValues(alpha: 0.12),
+                                  color: const Color(0xFFE6FFFA),
                                   borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFF99F6E4), width: 1),
                                 ),
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.verified_rounded, size: 12, color: HomeEaseTheme.statusVerified),
+                                    Icon(Icons.verified_rounded, size: 12, color: HomeEaseTheme.brand),
                                     SizedBox(width: 4),
                                     Text(
                                       'VERIFIED',
                                       style: TextStyle(
                                         fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: HomeEaseTheme.statusVerified,
+                                        fontWeight: FontWeight.w800,
+                                        color: HomeEaseTheme.brand,
+                                        letterSpacing: 0.3,
                                       ),
                                     ),
                                   ],
@@ -260,7 +284,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 5),
                           Row(
                             children: [
                               Icon(
@@ -272,8 +296,8 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                               Text(
                                 isUrdu ? LocalizationService.tr(worker.role.toLowerCase()) : worker.role,
                                 style: const TextStyle(
-                                  color: HomeEaseTheme.textPrimary,
-                                  fontWeight: FontWeight.w600,
+                                  color: HomeEaseTheme.brand,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 14,
                                 ),
                               ),
@@ -315,13 +339,13 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                       value: worker.experience,
                       icon: Icons.work_history_rounded,
                     ),
-                    Container(height: 30, width: 1, color: HomeEaseTheme.outline),
+                    Container(height: 36, width: 1, color: HomeEaseTheme.outline),
                     _StatBadge(
                       label: isUrdu ? 'معاوضہ' : 'Hourly Rate',
                       value: worker.rate,
                       icon: Icons.payments_outlined,
                     ),
-                    Container(height: 30, width: 1, color: HomeEaseTheme.outline),
+                    Container(height: 36, width: 1, color: HomeEaseTheme.outline),
                     _StatBadge(
                       label: isUrdu ? 'دستیابی' : 'Status',
                       value: worker.availability,
@@ -609,16 +633,33 @@ class _StatBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, size: 20, color: HomeEaseTheme.brand),
-        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: HomeEaseTheme.card,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.6)),
+          ),
+          child: Icon(icon, size: 18, color: HomeEaseTheme.brand),
+        ),
+        const SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: HomeEaseTheme.textPrimary),
+          style: const TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
+            color: HomeEaseTheme.textPrimary,
+            letterSpacing: -0.1,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+          style: const TextStyle(
+            fontSize: 11,
+            color: HomeEaseTheme.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -639,14 +680,39 @@ class _PricingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: HomeEaseTheme.textSecondary)),
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: HomeEaseTheme.brand,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: HomeEaseTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
           Text(
             price,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: HomeEaseTheme.textPrimary),
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              color: HomeEaseTheme.textPrimary,
+              letterSpacing: -0.1,
+            ),
           ),
         ],
       ),

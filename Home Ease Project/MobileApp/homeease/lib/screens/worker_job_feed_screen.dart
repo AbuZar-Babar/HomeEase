@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../services/job_repository.dart';
@@ -245,12 +246,13 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: HomeEaseTheme.brand,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: _isApplying
                       ? null
@@ -359,9 +361,15 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
               child: Row(
                 children: _filters.map((f) {
                   final isSelected = _selectedCategory == f;
+                  final icon = f == 'All' ? Icons.apps_rounded : LocalizationService.getCategoryIcon(f);
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ChoiceChip(
+                      avatar: Icon(
+                        icon,
+                        size: 15,
+                        color: isSelected ? Colors.white : HomeEaseTheme.brand,
+                      ),
                       label: Text(
                         f == 'All'
                             ? LocalizationService.tr('allWorkers')
@@ -373,13 +381,17 @@ class _WorkerJobFeedScreenState extends State<WorkerJobFeedScreen> {
                       side: BorderSide(
                         color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline,
                       ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.white : HomeEaseTheme.textPrimary,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 12.5,
                       ),
                       onSelected: (val) {
                         if (val) {
+                          HapticFeedback.lightImpact();
                           setState(() => _selectedCategory = f);
                           _fetchLiveJobsAndApplications();
                         }

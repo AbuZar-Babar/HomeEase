@@ -30,10 +30,15 @@ class HomeEaseButton extends StatelessWidget {
           foregroundColor: isPrimary
               ? HomeEaseTheme.white
               : HomeEaseTheme.textPrimary,
-          elevation: isPrimary ? 1 : 0,
+          elevation: isPrimary ? 1.5 : 0,
+          shadowColor: isPrimary ? HomeEaseTheme.brand.withValues(alpha: 0.3) : Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+            side: isPrimary
+                ? BorderSide.none
+                : const BorderSide(color: HomeEaseTheme.outline, width: 1),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
         onPressed: () {
           HapticFeedback.lightImpact();
@@ -41,6 +46,7 @@ class HomeEaseButton extends StatelessWidget {
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 18),
@@ -48,7 +54,11 @@ class HomeEaseButton extends StatelessWidget {
             ],
             Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                letterSpacing: 0.2,
+              ),
             ),
           ],
         ),
@@ -80,8 +90,12 @@ class HomeEaseTextAction extends StatelessWidget {
         },
         style: TextButton.styleFrom(
           foregroundColor: HomeEaseTheme.brand,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+            letterSpacing: 0.1,
+          ),
         ),
         child: Text(label),
       ),
@@ -111,15 +125,20 @@ class HomeEaseCard extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: HomeEaseTheme.outline,
+          color: HomeEaseTheme.outline.withValues(alpha: 0.8),
           width: 1,
         ),
         boxShadow: isWhite
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.02),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
                 ),
               ]
             : null,
@@ -139,8 +158,9 @@ class SectionLabel extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             color: HomeEaseTheme.textPrimary,
+            letterSpacing: -0.2,
           ),
     );
   }
@@ -158,13 +178,21 @@ class WorkerAvatar extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: HomeEaseTheme.accentLight,
-        borderRadius: BorderRadius.circular(circular ? size / 2 : 16),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE6FFFA), Color(0xFFCCFBF1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(circular ? size / 2 : 18),
+        border: Border.all(
+          color: HomeEaseTheme.brandSoft.withValues(alpha: 0.35),
+          width: 1.4,
+        ),
       ),
       child: Icon(
         Icons.home_repair_service_rounded,
         color: HomeEaseTheme.brand,
-        size: size * 0.48,
+        size: size * 0.46,
       ),
     );
   }
@@ -183,18 +211,25 @@ class LabelValueChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeEaseTheme.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: HomeEaseTheme.outline),
+        border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 2),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: HomeEaseTheme.muted,
+                ),
+          ),
+          const SizedBox(height: 3),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: HomeEaseTheme.text,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.1,
             ),
           ),
         ],

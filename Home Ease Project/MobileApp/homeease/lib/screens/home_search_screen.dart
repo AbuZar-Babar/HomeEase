@@ -259,7 +259,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
             if (widget.onOpenPostJob != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: InkWell(
+                child: AnimatedScaleTap(
                   onTap: () {
                     HapticFeedback.lightImpact();
                     widget.onOpenPostJob!();
@@ -276,9 +276,9 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: HomeEaseTheme.brand.withValues(alpha: 0.22),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: HomeEaseTheme.brand.withValues(alpha: 0.25),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -287,8 +287,12 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
+                            color: Colors.white.withValues(alpha: 0.16),
                             borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
                           ),
                           child: const Icon(Icons.post_add_rounded, color: Colors.white, size: 26),
                         ),
@@ -302,34 +306,45 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.2,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 3),
                               Text(
                                 isUrdu
                                     ? 'گھر کے کام کے لیے ورکرز کی پیشکشیں حاصل کریں'
                                     : 'Receive proposals from verified local Abbottabad workers',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.88),
-                                  fontSize: 11,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  fontSize: 11.5,
+                                  height: 1.25,
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Text(
                             isUrdu ? 'پوسٹ کریں' : 'Post Gig',
                             style: const TextStyle(
                               color: HomeEaseTheme.brand,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                               fontSize: 12,
+                              letterSpacing: 0.2,
                             ),
                           ),
                         ),
@@ -351,31 +366,59 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                     decoration: InputDecoration(
                       hintText: LocalizationService.tr('searchPlaceholder'),
                       prefixIcon: const Icon(Icons.search_rounded, color: HomeEaseTheme.brand),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.muted),
+                              tooltip: 'Clear search',
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {});
+                              },
+                            )
+                          : null,
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
-                GestureDetector(
+                AnimatedScaleTap(
                   onTap: () {
                     HapticFeedback.lightImpact();
                     _showFilterSheet();
                   },
+                  borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    width: 50,
-                    height: 50,
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
                       color: HomeEaseTheme.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: HomeEaseTheme.outline),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
+                      border: Border.all(
+                        color: (_areaFilter != 'All Areas' || _experienceFilter != 'Any Experience')
+                            ? HomeEaseTheme.brand
+                            : HomeEaseTheme.outline.withValues(alpha: 0.8),
+                        width: (_areaFilter != 'All Areas' || _experienceFilter != 'Any Experience') ? 1.5 : 1,
+                      ),
+                      boxShadow: HomeEaseTheme.cardShadow,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(Icons.tune_rounded, color: HomeEaseTheme.brand, size: 22),
+                        if (_areaFilter != 'All Areas' || _experienceFilter != 'Any Experience')
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: HomeEaseTheme.brandSoft,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                    child: const Icon(Icons.tune_rounded, color: HomeEaseTheme.brand, size: 22),
                   ),
                 ),
               ],
@@ -601,7 +644,7 @@ class _AIWorkerCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: HomeEaseTheme.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: HomeEaseTheme.outline),
+          border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
           boxShadow: HomeEaseTheme.cardShadow,
         ),
         child: Column(
@@ -609,7 +652,28 @@ class _AIWorkerCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const WorkerAvatar(circular: true, size: 38),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const WorkerAvatar(circular: true, size: 38),
+                    Positioned(
+                      bottom: -1,
+                      right: -1,
+                      child: Container(
+                        padding: const EdgeInsets.all(1),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.verified_rounded,
+                          size: 13,
+                          color: HomeEaseTheme.statusVerified,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -619,13 +683,22 @@ class _AIWorkerCard extends StatelessWidget {
                         worker.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: HomeEaseTheme.textPrimary),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                          color: HomeEaseTheme.textPrimary,
+                          letterSpacing: -0.2,
+                        ),
                       ),
                       Text(
                         worker.role,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, color: HomeEaseTheme.brand, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: HomeEaseTheme.brand,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                   ),
@@ -633,12 +706,17 @@ class _AIWorkerCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(
-                    color: HomeEaseTheme.statusVerified.withValues(alpha: 0.15),
+                    color: const Color(0xFFE6FFFA),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF99F6E4), width: 1),
                   ),
                   child: Text(
                     '$matchPercent%',
-                    style: const TextStyle(color: HomeEaseTheme.statusVerified, fontSize: 10, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                      color: HomeEaseTheme.brand,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -658,7 +736,11 @@ class _AIWorkerCard extends StatelessWidget {
                 ),
                 Text(
                   'Rs. $hourlyRate/hr',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: HomeEaseTheme.textPrimary),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: HomeEaseTheme.textPrimary,
+                  ),
                 ),
               ],
             ),
@@ -672,7 +754,7 @@ class _AIWorkerCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.auto_awesome, size: 10, color: HomeEaseTheme.brand),
+                  const Icon(Icons.auto_awesome, size: 11, color: HomeEaseTheme.brand),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
@@ -681,7 +763,7 @@ class _AIWorkerCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: HomeEaseTheme.brand,
                       ),
                     ),
@@ -721,7 +803,28 @@ class _WorkerListTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            const WorkerAvatar(circular: true, size: 48),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const WorkerAvatar(circular: true, size: 48),
+                Positioned(
+                  bottom: -1,
+                  right: -1,
+                  child: Container(
+                    padding: const EdgeInsets.all(1),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.verified_rounded,
+                      size: 15,
+                      color: HomeEaseTheme.statusVerified,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -734,8 +837,9 @@ class _WorkerListTile extends StatelessWidget {
                           '${worker.name} • ${worker.role}',
                           style: const TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w800,
                             color: HomeEaseTheme.textPrimary,
+                            letterSpacing: -0.2,
                           ),
                         ),
                       ),
@@ -800,7 +904,7 @@ class _WorkerListTile extends StatelessWidget {
               ),
               child: Text(
                 isUrdu ? 'بک کریں' : 'Book',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.1),
               ),
             ),
           ],

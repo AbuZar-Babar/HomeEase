@@ -93,8 +93,29 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                     children: [
                       Row(
                         children: [
-                          const WorkerAvatar(size: 56),
-                          const SizedBox(width: 12),
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              const WorkerAvatar(size: 56),
+                              Positioned(
+                                bottom: -2,
+                                right: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(1.5),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.verified_rounded,
+                                    size: 16,
+                                    color: HomeEaseTheme.statusVerified,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,23 +125,31 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                     Expanded(
                                       child: Text(
                                         worker.name,
-                                        style: Theme.of(context).textTheme.titleMedium,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: -0.2,
+                                            ),
                                       ),
                                     ),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: HomeEaseTheme.statusVerified.withValues(alpha: 0.12),
+                                        color: const Color(0xFFE6FFFA),
                                         borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: const Color(0xFF99F6E4), width: 1),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.auto_awesome, size: 10, color: HomeEaseTheme.statusVerified),
+                                          const Icon(Icons.auto_awesome, size: 10, color: HomeEaseTheme.brand),
                                           const SizedBox(width: 3),
                                           Text(
                                             '$matchPercent% Match',
-                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: HomeEaseTheme.statusVerified),
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w800,
+                                              color: HomeEaseTheme.brand,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -139,8 +168,8 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                     Text(
                                       '${isUrdu ? LocalizationService.tr(worker.role.toLowerCase()) : worker.role} • ${worker.rate}',
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            color: HomeEaseTheme.brandSoft,
-                                            fontWeight: FontWeight.w600,
+                                            color: HomeEaseTheme.brand,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                     ),
                                   ],
@@ -156,7 +185,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                     const SizedBox(width: 2),
                                     Text(
                                       '${worker.rating} (${worker.reviewsCount}) • ${rec.distanceKm.toStringAsFixed(1)} km',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
                                     ),
                                   ],
                                 ),
@@ -171,7 +200,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                                           rec.matchReasons.join(' • '),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 10, color: HomeEaseTheme.statusVerified, fontWeight: FontWeight.w500),
+                                          style: const TextStyle(fontSize: 10, color: HomeEaseTheme.statusVerified, fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                     ],
@@ -180,28 +209,39 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            color: HomeEaseTheme.brand,
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: HomeEaseTheme.card,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: HomeEaseTheme.brand,
+                              size: 18,
+                            ),
                           ),
                         ],
                       ),
                       if (worker.skillTags.isNotEmpty) ...[
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         Wrap(
                           spacing: 6,
                           runSpacing: 4,
                           children: worker.skillTags.map((tag) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: HomeEaseTheme.card.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(6),
+                                color: HomeEaseTheme.card,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.6)),
                               ),
                               child: Text(
                                 tag,
-                                style: const TextStyle(fontSize: 10, color: HomeEaseTheme.brand, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 10.5, color: HomeEaseTheme.brand, fontWeight: FontWeight.w600),
                               ),
                             );
                           }).toList(),

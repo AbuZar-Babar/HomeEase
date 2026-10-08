@@ -371,12 +371,18 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                               children: [
                                 Text(
                                   worker.name,
-                                  style: Theme.of(context).textTheme.titleMedium,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.2,
+                                      ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 3),
                                 Text(
                                   worker.role,
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: HomeEaseTheme.brand,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                               ],
                             ),
@@ -410,7 +416,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   _formatStatus(booking.status),
                                   style: TextStyle(
                                     color: _getStatusColor(booking.status),
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w800,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -419,7 +425,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                           ),
                         ],
                       ),
-                      const Divider(height: 24, color: HomeEaseTheme.background),
+                      const Divider(height: 22, color: HomeEaseTheme.outline),
                       Row(
                         children: [
                           const Icon(

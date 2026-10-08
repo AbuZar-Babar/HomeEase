@@ -726,7 +726,8 @@ class _SummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: HomeEaseTheme.outline),
+        border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+        boxShadow: HomeEaseTheme.cardShadow,
       ),
       child: Row(
         children: [

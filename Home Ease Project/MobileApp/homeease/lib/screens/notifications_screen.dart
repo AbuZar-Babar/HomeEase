@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../theme/home_ease_theme.dart';
@@ -68,18 +69,18 @@ class NotificationsScreen extends StatelessWidget {
               ),
             ),
           if (notifications.isEmpty)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 40),
+                padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Column(
                   children: [
                     Icon(
                       Icons.notifications_none_rounded,
                       size: 64,
-                      color: HomeEaseTheme.cardDark,
+                      color: HomeEaseTheme.muted.withValues(alpha: 0.35),
                     ),
-                    SizedBox(height: 14),
-                    Text(
+                    const SizedBox(height: 14),
+                    const Text(
                       'No new notifications.',
                       style: TextStyle(
                         fontSize: 16,
@@ -99,10 +100,13 @@ class NotificationsScreen extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: InkWell(
-                  onTap: () => onMarkAsRead(notif),
-                  borderRadius: BorderRadius.circular(24),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    onMarkAsRead(notif);
+                  },
+                  borderRadius: BorderRadius.circular(20),
                   child: HomeEaseCard(
-                    color: notif.isRead ? HomeEaseTheme.white : HomeEaseTheme.white,
+                    color: notif.isRead ? HomeEaseTheme.white : const Color(0xFFF0FDF4),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,9 +136,9 @@ class NotificationsScreen extends StatelessWidget {
                                     child: Text(
                                       notif.title,
                                       style: TextStyle(
-                                        fontWeight: notif.isRead ? FontWeight.bold : FontWeight.w900,
+                                        fontWeight: notif.isRead ? FontWeight.bold : FontWeight.w800,
                                         fontSize: 14,
-                                        color: HomeEaseTheme.text,
+                                        color: HomeEaseTheme.textPrimary,
                                       ),
                                     ),
                                   ),
@@ -151,8 +155,8 @@ class NotificationsScreen extends StatelessWidget {
                                 notif.message,
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: notif.isRead ? HomeEaseTheme.muted : HomeEaseTheme.text,
-                                  height: 1.3,
+                                  color: notif.isRead ? HomeEaseTheme.textSecondary : HomeEaseTheme.textPrimary,
+                                  height: 1.35,
                                 ),
                               ),
                             ],
@@ -164,7 +168,7 @@ class NotificationsScreen extends StatelessWidget {
                             width: 8,
                             height: 8,
                             decoration: const BoxDecoration(
-                              color: HomeEaseTheme.brandSoft,
+                              color: HomeEaseTheme.brand,
                               shape: BoxShape.circle,
                             ),
                           ),

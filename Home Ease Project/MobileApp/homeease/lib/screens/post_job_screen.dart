@@ -245,11 +245,12 @@ class _PostJobScreenState extends State<PostJobScreen> {
               SectionLabel(LocalizationService.tr('selectArea')),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
                   color: HomeEaseTheme.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: HomeEaseTheme.outline),
+                  border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+                  boxShadow: HomeEaseTheme.cardShadow,
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -259,7 +260,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                     items: _areas.map((a) {
                       return DropdownMenuItem(
                         value: a,
-                        child: Text(a, style: const TextStyle(fontSize: 14, color: HomeEaseTheme.textPrimary)),
+                        child: Text(a, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: HomeEaseTheme.textPrimary)),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -281,14 +282,15 @@ class _PostJobScreenState extends State<PostJobScreen> {
                   decoration: BoxDecoration(
                     color: HomeEaseTheme.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: HomeEaseTheme.outline),
+                    border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+                    boxShadow: HomeEaseTheme.cardShadow,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: HomeEaseTheme.textPrimary),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: HomeEaseTheme.textPrimary),
                       ),
                       const Icon(Icons.calendar_today_rounded, color: HomeEaseTheme.brand, size: 19),
                     ],
@@ -328,18 +330,20 @@ class _PostJobScreenState extends State<PostJobScreen> {
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? HomeEaseTheme.accentLight : HomeEaseTheme.card,
+                        color: isSelected ? const Color(0xFFE6FFFA) : HomeEaseTheme.card,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline),
-                        boxShadow: isSelected ? HomeEaseTheme.mintGlow : [],
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF99F6E4) : HomeEaseTheme.outline,
+                          width: isSelected ? 1.4 : 1,
+                        ),
                       ),
                       child: Text(
                         'Rs. ${b.toInt()}',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                           color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.textSecondary,
                         ),
                       ),

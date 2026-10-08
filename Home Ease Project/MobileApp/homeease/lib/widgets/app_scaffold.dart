@@ -246,23 +246,25 @@ class _TopAppBar extends StatelessWidget {
                     child: Container(
                       constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
                       alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: HomeEaseTheme.card,
+                        color: HomeEaseTheme.white,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: HomeEaseTheme.outline),
+                        border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+                        boxShadow: HomeEaseTheme.cardShadow,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.translate_rounded, size: 15, color: HomeEaseTheme.brand),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 5),
                           Text(
                             LocalizationService.isUrdu ? 'English' : 'اردو',
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               fontSize: 12,
                               color: HomeEaseTheme.brand,
+                              letterSpacing: 0.1,
                             ),
                           ),
                         ],
@@ -273,7 +275,7 @@ class _TopAppBar extends StatelessWidget {
 
               // Notification Bell with Unread Badge (48dp touch target)
               if (onOpenNotifications != null) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Semantics(
                   label: unreadCount > 0 ? 'Notifications, $unreadCount unread' : 'Notifications',
                   button: true,
@@ -287,19 +289,20 @@ class _TopAppBar extends StatelessWidget {
                       constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: HomeEaseTheme.card,
+                        color: HomeEaseTheme.white,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: HomeEaseTheme.outline),
+                        border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+                        boxShadow: HomeEaseTheme.cardShadow,
                       ),
                       child: Stack(
                         alignment: Alignment.center,
                         clipBehavior: Clip.none,
                         children: [
-                          const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 20),
+                          const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 21),
                           if (unreadCount > 0)
                             Positioned(
-                              right: 10,
-                              top: 10,
+                              right: 9,
+                              top: 9,
                               child: Container(
                                 width: 8,
                                 height: 8,
@@ -319,16 +322,24 @@ class _TopAppBar extends StatelessWidget {
               if (trailing != null) trailing!,
 
               if (onLogout != null) ...[
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 20),
-                  tooltip: 'Logout',
-                  padding: EdgeInsets.zero,
+                const SizedBox(width: 6),
+                Container(
                   constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    onLogout!();
-                  },
+                  decoration: BoxDecoration(
+                    color: HomeEaseTheme.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: HomeEaseTheme.outline.withValues(alpha: 0.8)),
+                    boxShadow: HomeEaseTheme.cardShadow,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.logout_rounded, color: HomeEaseTheme.muted, size: 19),
+                    tooltip: 'Logout',
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      onLogout!();
+                    },
+                  ),
                 ),
               ],
             ],
@@ -470,13 +481,16 @@ class HomeEaseBottomNav extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: HomeEaseTheme.white,
-        border: const Border(
-          top: BorderSide(color: HomeEaseTheme.outline, width: 1),
+        border: Border(
+          top: BorderSide(
+            color: HomeEaseTheme.outline.withValues(alpha: 0.8),
+            width: 1,
+          ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 14,
             offset: const Offset(0, -3),
           ),
         ],
@@ -484,7 +498,7 @@ class HomeEaseBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 64,
+          height: 66,
           child: Row(
             children: List.generate(items.length, (index) {
               final item = items[index];
