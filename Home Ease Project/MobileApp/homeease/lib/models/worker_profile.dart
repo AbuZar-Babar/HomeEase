@@ -22,21 +22,6 @@ class AppUser {
   });
 }
 
-class HouseholdProfile {
-  final String id;
-  final String address;
-  final String city;
-  final String area;
-  final String servicePreferences;
-
-  HouseholdProfile({
-    required this.id,
-    required this.address,
-    required this.city,
-    required this.area,
-    required this.servicePreferences,
-  });
-}
 
 class WorkerProfile {
   final String id;
@@ -413,51 +398,6 @@ class WorkerProfile {
   }
 }
 
-class ServiceCategory {
-  final String id;
-  final String name;
-  final String description;
-
-  ServiceCategory({
-    required this.id,
-    required this.name,
-    required this.description,
-  });
-}
-
-class WorkerService {
-  final String id;
-  final String workerId;
-  final String serviceCategoryId;
-  final double rate;
-  final String rateUnit;
-
-  WorkerService({
-    required this.id,
-    required this.workerId,
-    required this.serviceCategoryId,
-    required this.rate,
-    required this.rateUnit,
-  });
-}
-
-class AvailabilitySlot {
-  final String id;
-  final String workerId;
-  final String dayOfWeek;
-  final TimeOfDay startTime;
-  final TimeOfDay endTime;
-  final bool isAvailable;
-
-  AvailabilitySlot({
-    required this.id,
-    required this.workerId,
-    required this.dayOfWeek,
-    required this.startTime,
-    required this.endTime,
-    required this.isAvailable,
-  });
-}
 
 class Booking {
   final String id;
@@ -709,63 +649,6 @@ class Booking {
   }
 }
 
-class ServiceAgreement {
-  final String id;
-  final String bookingId;
-  final String householdId;
-  final String workerId;
-  final String serviceCategoryId;
-  final String agreementText;
-  final double agreedAmount;
-  final String terms;
-  final String status;
-  final DateTime generatedAt;
-
-  ServiceAgreement({
-    required this.id,
-    required this.bookingId,
-    required this.householdId,
-    required this.workerId,
-    required this.serviceCategoryId,
-    required this.agreementText,
-    required this.agreedAmount,
-    required this.terms,
-    required this.status,
-    required this.generatedAt,
-  });
-}
-
-class PaymentRecord {
-  final String id;
-  final String bookingId;
-  final String householdId;
-  final String workerId;
-  final double amount;
-  final String paymentMethod;
-  final String receiverAccountTitle;
-  final String receiverAccountNumber;
-  final String receiptURL;
-  final String transactionNote;
-  final String status; // 'Submitted', 'Confirmed', 'Disputed', 'Cancelled'
-  final DateTime submittedAt;
-  final DateTime? confirmedAt;
-
-  PaymentRecord({
-    required this.id,
-    required this.bookingId,
-    required this.householdId,
-    required this.workerId,
-    required this.amount,
-    required this.paymentMethod,
-    required this.receiverAccountTitle,
-    required this.receiverAccountNumber,
-    required this.receiptURL,
-    required this.transactionNote,
-    required this.status,
-    required this.submittedAt,
-    this.confirmedAt,
-  });
-}
 
 class Review {
   final String id;
@@ -873,27 +756,6 @@ class NotificationModel {
   });
 }
 
-class VerificationRequest {
-  final String id;
-  final String workerId;
-  final String submittedDetails;
-  final String status; // 'PendingVerification', 'Verified', 'RejectedVerification'
-  final String? adminId;
-  final String rejectionReason;
-  final DateTime submittedAt;
-  final DateTime? reviewedAt;
-
-  VerificationRequest({
-    required this.id,
-    required this.workerId,
-    required this.submittedDetails,
-    required this.status,
-    this.adminId,
-    required this.rejectionReason,
-    required this.submittedAt,
-    this.reviewedAt,
-  });
-}
 
 class Dispute {
   final String id;
@@ -1011,23 +873,6 @@ class Dispute {
   }
 }
 
-class IssueReport {
-  final String id;
-  final String reporterId;
-  final String relatedBookingId;
-  final String message;
-  final String status;
-  final DateTime createdAt;
-
-  IssueReport({
-    required this.id,
-    required this.reporterId,
-    required this.relatedBookingId,
-    required this.message,
-    required this.status,
-    required this.createdAt,
-  });
-}
 
 class JobPost {
   final String id;

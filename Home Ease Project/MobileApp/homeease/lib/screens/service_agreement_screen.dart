@@ -23,7 +23,6 @@ class ServiceAgreementScreen extends StatefulWidget {
     required this.onBack,
     required this.onSubmitReceipt,
     required this.onConfirmPayment,
-    this.onRejectPayment,
     required this.onRaiseDispute,
     this.onVerifyArrival,
     this.onPaymentCompleted,
@@ -36,7 +35,6 @@ class ServiceAgreementScreen extends StatefulWidget {
   final VoidCallback onBack;
   final Function(String txId, String receiptPath) onSubmitReceipt;
   final VoidCallback onConfirmPayment;
-  final VoidCallback? onRejectPayment;
   final VoidCallback onRaiseDispute;
   final VoidCallback? onVerifyArrival;
   final void Function(PaymentResult result)? onPaymentCompleted;

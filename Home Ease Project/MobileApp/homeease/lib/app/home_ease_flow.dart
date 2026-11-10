@@ -737,36 +737,6 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               _goTo(AppStage.workerDashboard);
             }
           },
-          onRejectPayment: () async {
-            try {
-              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Disputed');
-              if (!mounted) return;
-              setState(() {
-                final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
-                if (index != -1) {
-                  _bookings[index] = updated;
-                  _selectedBooking = updated;
-                }
-              });
-            } catch (_) {
-              if (mounted) {
-                setState(() {
-                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
-                  if (index != -1) {
-                    final updated = _selectedBooking.copyWith(status: 'Disputed');
-                    _bookings[index] = updated;
-                    _selectedBooking = updated;
-                  }
-                });
-              }
-            }
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Receipt rejected. Dispute opened.')),
-              );
-              _goTo(AppStage.workerDashboard);
-            }
-          },
           onRaiseDispute: () {
             _goTo(AppStage.disputeReport);
           },

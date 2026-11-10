@@ -53,8 +53,8 @@ class _PostJobScreenState extends State<PostJobScreen> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   bool _isSubmitting = false;
 
-  final List<String> _categories = ['Cook', 'Cleaner', 'Nanny', 'Caregiver', 'Maid'];
-  final List<String> _areas = ['Mandian', 'Jhangi Syedan', 'Supply Bazaar', 'Nawan Shehr', 'PMA Kakul Road'];
+  final List<String> _categories = SampleData.serviceFilters;
+  final List<String> _areas = SampleData.abbottabadAreas;
   final List<double> _presetBudgets = [1500, 2500, 4000, 6000];
 
   @override

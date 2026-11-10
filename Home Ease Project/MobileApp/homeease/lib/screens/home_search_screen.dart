@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/supabase_auth_service.dart';
+import '../data/sample_data.dart';
 import '../models/worker_profile.dart';
 import '../services/ai_recommendation_engine.dart';
 import '../services/localization_service.dart';
@@ -55,14 +56,7 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
   String _areaFilter = 'All Areas';
   String _experienceFilter = 'Any Experience';
 
-  final List<String> _areas = [
-    'All Areas',
-    'Mandian',
-    'Jhangi Syedan',
-    'Supply Bazaar',
-    'Nawan Shehr',
-    'PMA Kakul Road',
-  ];
+  final List<String> _areas = ['All Areas', ...SampleData.abbottabadAreas];
   final List<String> _expRanges = ['Any Experience', '1-2 years', '3-5 years', '5+ years'];
 
   List<WorkerProfile> _liveWorkers = [];

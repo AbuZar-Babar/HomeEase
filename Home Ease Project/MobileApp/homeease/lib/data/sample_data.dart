@@ -3,6 +3,15 @@ import '../models/worker_profile.dart';
 class SampleData {
   static const serviceFilters = ['Cleaner', 'Cook', 'Nanny', 'Caregiver', 'Maid'];
 
+  // Canonical Abbottabad localities list
+  static const List<String> abbottabadAreas = [
+    'Mandian',
+    'Jhangi Syedan',
+    'Supply Bazaar',
+    'Nawan Shehr',
+    'PMA Kakul Road',
+  ];
+
   // Abbottabad locality geographic coordinates
   static const Map<String, Map<String, double>> localityCoordinates = {
     'Mandian': {'lat': 34.1983, 'lon': 73.2425},
