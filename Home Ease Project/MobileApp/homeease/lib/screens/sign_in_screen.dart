@@ -11,12 +11,14 @@ class SignInScreen extends StatefulWidget {
     super.key,
     required this.onSignIn,
     required this.onWorkerSignIn,
+    this.onAdminSignIn,
     this.onBack,
     required this.onCreateAccount,
   });
 
   final VoidCallback onSignIn;
   final VoidCallback onWorkerSignIn;
+  final VoidCallback? onAdminSignIn;
   final VoidCallback? onBack;
   final Function(String role) onCreateAccount;
 
@@ -25,7 +27,7 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  String _selectedRole = 'Household'; // 'Household' or 'Worker'
+  String _selectedRole = 'Household'; // 'Household', 'Worker', or 'Admin'
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -74,7 +76,9 @@ class _SignInScreenState extends State<SignInScreen> {
         setState(() => _isLoading = false);
         if (user != null) {
           HapticFeedback.mediumImpact();
-          if (_selectedRole == 'Household') {
+          if (_selectedRole == 'Admin') {
+            widget.onAdminSignIn?.call();
+          } else if (_selectedRole == 'Household') {
             widget.onSignIn();
           } else {
             widget.onWorkerSignIn();
@@ -293,7 +297,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               Expanded(
                 child: _buildRoleTabItem(
                   title: 'Worker',
@@ -308,10 +312,95 @@ class _SignInScreenState extends State<SignInScreen> {
                   },
                 ),
               ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _buildRoleTabItem(
+                  title: 'Admin',
+                  subtitle: 'Governance',
+                  icon: Icons.admin_panel_settings_rounded,
+                  isSelected: _selectedRole == 'Admin',
+                  onTap: () {
+                    if (_selectedRole != 'Admin') {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedRole = 'Admin');
+                    }
+                  },
+                ),
+              ),
             ],
           ),
         ),
+        const SizedBox(height: 10),
+        _buildDemoAdminPill(),
       ],
+    );
+  }
+
+  Widget _buildDemoAdminPill() {
+    return Center(
+      child: Semantics(
+        button: true,
+        label: 'Demo Admin Login with admin@homeease.com',
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            setState(() {
+              _selectedRole = 'Admin';
+              _emailController.text = 'admin@homeease.com';
+              _passwordController.text = 'admin123';
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Admin demo credentials populated (admin@homeease.com)'),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: HomeEaseTheme.brand.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: HomeEaseTheme.brand.withValues(alpha: 0.35)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.shield_rounded, size: 18, color: HomeEaseTheme.brand),
+                const SizedBox(width: 8),
+                const Text(
+                  'Demo Admin Login',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: HomeEaseTheme.brand,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: HomeEaseTheme.brand,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    '1-Tap',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -329,7 +418,8 @@ class _SignInScreenState extends State<SignInScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: isSelected ? HomeEaseTheme.brand : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
@@ -340,10 +430,10 @@ class _SignInScreenState extends State<SignInScreen> {
           children: [
             Icon(
               icon,
-              size: 20,
+              size: 18,
               color: isSelected ? Colors.white : HomeEaseTheme.muted,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,7 +444,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12.5,
                       fontWeight: FontWeight.w700,
                       color: isSelected ? Colors.white : HomeEaseTheme.text,
                     ),
@@ -364,7 +454,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 10.5,
+                      fontSize: 10,
                       fontWeight: FontWeight.w500,
                       color: isSelected ? Colors.white.withValues(alpha: 0.8) : HomeEaseTheme.muted,
                     ),
@@ -512,14 +602,19 @@ class _SignInScreenState extends State<SignInScreen> {
                       )
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'Sign In as $_selectedRole',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.2,
+                          Flexible(
+                            child: Text(
+                              'Sign In as $_selectedRole',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -535,6 +630,22 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildFooterAction() {
+    if (_selectedRole == 'Admin') {
+      return Center(
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          alignment: Alignment.center,
+          child: const Text(
+            'Admin governance terminal — HomeEase Abbottabad',
+            style: TextStyle(
+              fontSize: 13,
+              color: HomeEaseTheme.muted,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -556,6 +667,7 @@ class _SignInScreenState extends State<SignInScreen> {
           style: TextButton.styleFrom(
             foregroundColor: HomeEaseTheme.brand,
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            minimumSize: const Size(48, 48),
           ),
           child: const Text(
             'Create account',

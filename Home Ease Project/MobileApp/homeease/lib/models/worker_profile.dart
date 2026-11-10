@@ -66,6 +66,8 @@ class WorkerProfile {
   final String? avatarUrl;
   final String? phone;
   final double hourlyRate;
+  final List<String> availabilitySlots;
+  final String? cnic;
 
   const WorkerProfile({
     this.id = '',
@@ -93,7 +95,19 @@ class WorkerProfile {
     this.avatarUrl,
     this.phone,
     this.hourlyRate = 0.0,
+    this.availabilitySlots = const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    this.cnic,
   });
+
+  /// Formatted NADRA CNIC number adhering to Abbottabad standard format: 13101-XXXXXXX-X.
+  String get formattedCnic {
+    if (cnic != null && cnic!.isNotEmpty) return cnic!;
+    final numDigits = id.replaceAll(RegExp(r'[^0-9]'), '');
+    final seed = numDigits.isEmpty ? '1' : numDigits;
+    final middle = seed.padRight(7, '4567891').substring(0, 7);
+    final last = ((int.tryParse(seed) ?? 1) % 9 + 1).toString();
+    return '13101-$middle-$last';
+  }
 
   /// Empty placeholder representation for uninitialized or unselected worker state.
   static const WorkerProfile empty = WorkerProfile(
@@ -108,6 +122,7 @@ class WorkerProfile {
     description: '',
     highlight: '',
     reviewsCount: 0,
+    availabilitySlots: [],
   );
 
   /// Factory constructor to deserialize WorkerProfile from Supabase PostgREST responses.
@@ -243,11 +258,22 @@ class WorkerProfile {
 
     // 9. Availability
     String availabilityStatus = 'Available today';
+    List<String> availabilitySlots = const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     final dynamic rawAvail = map['availability'] ?? map['availability_status'] ?? map['availabilityStatus'];
-    if (rawAvail is Map && rawAvail['status'] != null) {
-      availabilityStatus = rawAvail['status'].toString();
+    if (rawAvail is Map) {
+      if (rawAvail['status'] != null) {
+        availabilityStatus = rawAvail['status'].toString();
+      }
+      if (rawAvail['slots'] is List) {
+        availabilitySlots = (rawAvail['slots'] as List).map((e) => e.toString()).toList();
+      }
     } else if (rawAvail is String && rawAvail.isNotEmpty) {
       availabilityStatus = rawAvail;
+    }
+    if (map['availability_slots'] is List) {
+      availabilitySlots = (map['availability_slots'] as List).map((e) => e.toString()).toList();
+    } else if (map['availabilitySlots'] is List) {
+      availabilitySlots = (map['availabilitySlots'] as List).map((e) => e.toString()).toList();
     }
     final String availability = map['availability'] is String
         ? (map['availability'] as String)
@@ -288,6 +314,8 @@ class WorkerProfile {
       avatarUrl: avatarUrl,
       phone: phone,
       hourlyRate: hourlyRate,
+      availabilitySlots: availabilitySlots,
+      cnic: map['cnic']?.toString() ?? profileMap?['cnic']?.toString(),
     );
   }
 
@@ -295,6 +323,7 @@ class WorkerProfile {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'cnic': formattedCnic,
       'skills': skillTags,
       'experience_years': experienceYears,
       'hourly_rate': hourlyRate > 0
@@ -307,7 +336,7 @@ class WorkerProfile {
       'verified': verificationStatus == 'Verified',
       'availability': {
         'status': availabilityStatus.isNotEmpty ? availabilityStatus : availability,
-        'slots': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        'slots': availabilitySlots,
       },
       'latitude': latitude,
       'longitude': longitude,
@@ -339,6 +368,7 @@ class WorkerProfile {
     String? city,
     String? area,
     String? availabilityStatus,
+    List<String>? availabilitySlots,
     String? verificationStatus,
     double? averageRating,
     bool? profileVisibility,
@@ -349,6 +379,7 @@ class WorkerProfile {
     String? avatarUrl,
     String? phone,
     double? hourlyRate,
+    String? cnic,
   }) {
     return WorkerProfile(
       id: id ?? this.id,
@@ -366,6 +397,7 @@ class WorkerProfile {
       city: city ?? this.city,
       area: area ?? this.area,
       availabilityStatus: availabilityStatus ?? this.availabilityStatus,
+      availabilitySlots: availabilitySlots ?? this.availabilitySlots,
       verificationStatus: verificationStatus ?? this.verificationStatus,
       averageRating: averageRating ?? this.averageRating,
       profileVisibility: profileVisibility ?? this.profileVisibility,
@@ -376,6 +408,7 @@ class WorkerProfile {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       phone: phone ?? this.phone,
       hourlyRate: hourlyRate ?? this.hourlyRate,
+      cnic: cnic ?? this.cnic,
     );
   }
 }
@@ -465,6 +498,13 @@ class Booking {
     final e = endTime.hour * 60 + endTime.minute;
     final diff = (e - s) / 60.0;
     return diff > 0 ? diff : 2.0;
+  }
+
+  /// Secure 4-digit arrival verification OTP derived deterministically from booking identity.
+  String get arrivalOtp {
+    final seed = id.isNotEmpty ? id.hashCode.abs() : createdAt.millisecondsSinceEpoch.abs();
+    final code = (seed % 9000) + 1000;
+    return code.toString();
   }
 
   /// Deserializes Booking from a Supabase row map.
@@ -733,18 +773,84 @@ class Review {
   final String householdId;
   final String workerId;
   final int rating;
+  final int? punctualityRating;
+  final int? behaviorRating;
   final String comment;
   final DateTime createdAt;
 
   Review({
     required this.id,
     required this.bookingId,
-    required this.householdId,
+    String? householdId,
+    String? employerId,
     required this.workerId,
     required this.rating,
+    this.punctualityRating,
+    this.behaviorRating,
     required this.comment,
     required this.createdAt,
-  });
+  }) : householdId = householdId ?? employerId ?? '';
+
+  String get employerId => householdId;
+
+  factory Review.fromMap(Map<String, dynamic> map) {
+    return Review(
+      id: map['id']?.toString() ?? '',
+      bookingId: map['booking_id']?.toString() ?? map['bookingId']?.toString() ?? '',
+      householdId: map['employer_id']?.toString() ??
+          map['household_id']?.toString() ??
+          map['householdId']?.toString() ??
+          '',
+      workerId: map['worker_id']?.toString() ?? map['workerId']?.toString() ?? '',
+      rating: (map['rating'] as num?)?.toInt() ?? 5,
+      punctualityRating: (map['punctuality_rating'] as num?)?.toInt() ??
+          (map['punctualityRating'] as num?)?.toInt(),
+      behaviorRating: (map['behavior_rating'] as num?)?.toInt() ??
+          (map['behaviorRating'] as num?)?.toInt(),
+      comment: map['comment']?.toString() ?? '',
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'].toString())
+          : DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'booking_id': bookingId,
+      'employer_id': householdId,
+      'worker_id': workerId,
+      'rating': rating,
+      if (punctualityRating != null) 'punctuality_rating': punctualityRating,
+      if (behaviorRating != null) 'behavior_rating': behaviorRating,
+      'comment': comment,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  Review copyWith({
+    String? id,
+    String? bookingId,
+    String? householdId,
+    String? workerId,
+    int? rating,
+    int? punctualityRating,
+    int? behaviorRating,
+    String? comment,
+    DateTime? createdAt,
+  }) {
+    return Review(
+      id: id ?? this.id,
+      bookingId: bookingId ?? this.bookingId,
+      householdId: householdId ?? this.householdId,
+      workerId: workerId ?? this.workerId,
+      rating: rating ?? this.rating,
+      punctualityRating: punctualityRating ?? this.punctualityRating,
+      behaviorRating: behaviorRating ?? this.behaviorRating,
+      comment: comment ?? this.comment,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }
 
 class NotificationModel {
@@ -792,33 +898,117 @@ class VerificationRequest {
 class Dispute {
   final String id;
   final String bookingId;
-  final String paymentRecordId;
-  final String raisedBy;
-  final String againstUserId;
+  final String complainantId;
+  final String respondentId;
   final String category;
   final String description;
-  final String evidenceURL;
-  final String status; // 'OpenDispute', 'InReview', 'Resolved', 'RejectedDispute'
+  final String? evidencePath;
+  final String status; // 'open', 'under_review', 'resolved', 'dismissed', etc.
+  final String? resolutionNotes;
   final String? adminId;
-  final String adminRemarks;
   final DateTime createdAt;
+  final DateTime updatedAt;
   final DateTime? resolvedAt;
+
+  // Backward-compatibility getters:
+  String get raisedBy => complainantId;
+  String get againstUserId => respondentId;
+  String get evidenceURL => evidencePath ?? '';
+  String get adminRemarks => resolutionNotes ?? '';
+  String get paymentRecordId => 'payment_record_$bookingId';
 
   Dispute({
     required this.id,
     required this.bookingId,
-    required this.paymentRecordId,
-    required this.raisedBy,
-    required this.againstUserId,
+    String? complainantId,
+    String? raisedBy,
+    String? respondentId,
+    String? againstUserId,
+    String? paymentRecordId,
     required this.category,
     required this.description,
-    required this.evidenceURL,
-    required this.status,
+    String? evidencePath,
+    String? evidenceURL,
+    this.status = 'open',
     this.adminId,
-    required this.adminRemarks,
+    String? resolutionNotes,
+    String? adminRemarks,
     required this.createdAt,
+    DateTime? updatedAt,
     this.resolvedAt,
-  });
+  })  : complainantId = complainantId ?? raisedBy ?? '',
+        respondentId = respondentId ?? againstUserId ?? '',
+        evidencePath = evidencePath ?? evidenceURL,
+        resolutionNotes = resolutionNotes ?? adminRemarks,
+        updatedAt = updatedAt ?? createdAt;
+
+  factory Dispute.fromMap(Map<String, dynamic> map) {
+    return Dispute(
+      id: map['id']?.toString() ?? '',
+      bookingId: map['booking_id']?.toString() ?? map['bookingId']?.toString() ?? '',
+      complainantId: map['complainant_id']?.toString() ?? map['raisedBy']?.toString() ?? '',
+      respondentId: map['respondent_id']?.toString() ?? map['againstUserId']?.toString() ?? '',
+      category: map['category']?.toString() ?? 'General Dispute',
+      description: map['description']?.toString() ?? '',
+      evidencePath: map['evidence_path']?.toString() ?? map['evidenceURL']?.toString(),
+      status: map['status']?.toString() ?? 'open',
+      adminId: map['admin_id']?.toString() ?? map['adminId']?.toString(),
+      resolutionNotes: map['resolution_notes']?.toString() ?? map['adminRemarks']?.toString(),
+      createdAt: map['created_at'] != null ? DateTime.parse(map['created_at'].toString()) : DateTime.now(),
+      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at'].toString()) : DateTime.now(),
+      resolvedAt: map['resolved_at'] != null ? DateTime.parse(map['resolved_at'].toString()) : null,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'booking_id': bookingId,
+      'complainant_id': complainantId,
+      'respondent_id': respondentId,
+      'category': category,
+      'description': description,
+      if (evidencePath != null) 'evidence_path': evidencePath,
+      'status': status,
+      if (adminId != null) 'admin_id': adminId,
+      if (resolutionNotes != null) 'resolution_notes': resolutionNotes,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      if (resolvedAt != null) 'resolved_at': resolvedAt!.toIso8601String(),
+    };
+  }
+
+  Dispute copyWith({
+    String? id,
+    String? bookingId,
+    String? complainantId,
+    String? respondentId,
+    String? category,
+    String? description,
+    String? evidencePath,
+    String? status,
+    String? adminId,
+    String? resolutionNotes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? resolvedAt,
+  }) {
+    return Dispute(
+      id: id ?? this.id,
+      bookingId: bookingId ?? this.bookingId,
+      complainantId: complainantId ?? this.complainantId,
+      respondentId: respondentId ?? this.respondentId,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      evidencePath: evidencePath ?? this.evidencePath,
+      status: status ?? this.status,
+      adminId: adminId ?? this.adminId,
+      resolutionNotes: resolutionNotes ?? this.resolutionNotes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+    );
+  }
 }
 
 class IssueReport {

@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/worker_profile.dart';
+import '../services/hardware_interoperability.dart';
 import '../services/localization_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/animated_scale_button.dart';
@@ -64,16 +68,211 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
   }
 
   void _attachEvidence() {
+    _showPhotoSourceDialog();
+  }
+
+  void _showPhotoSourceDialog() {
     HapticFeedback.lightImpact();
-    setState(() {
-      _evidenceDocumentPath =
-          'evidence_dispute_${widget.booking.id.hashCode.abs()}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Evidence photo/receipt attached successfully.'),
-        duration: Duration(seconds: 2),
+    final isUrdu = LocalizationService.isUrdu;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: HomeEaseTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isUrdu ? 'شواہد کی تصویر منسلک کریں' : 'Attach Evidence Photo',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: HomeEaseTheme.brand,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isUrdu
+                    ? 'براہ کرم تنازعہ کے شواہد کی تصویر لیں یا گیلری سے منتخب کریں'
+                    : 'Capture dispute evidence or select receipts/photos from gallery',
+                style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+              ),
+              const SizedBox(height: 18),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                leading: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: HomeEaseTheme.brand.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: HomeEaseTheme.brand),
+                ),
+                title: Text(
+                  isUrdu ? 'کیمرے سے تصویر لیں' : 'Take Photo (Camera)',
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                ),
+                subtitle: Text(
+                  isUrdu ? 'کیمرہ استعمال کریں' : 'Use camera to capture damage/issue',
+                  style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickAndUploadEvidence(ImageSource.camera);
+                },
+              ),
+              const Divider(height: 12),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                leading: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: HomeEaseTheme.mintSoft,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: HomeEaseTheme.brand),
+                ),
+                title: Text(
+                  isUrdu ? 'گیلری سے منتخب کریں' : 'Choose from Gallery',
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                ),
+                subtitle: Text(
+                  isUrdu ? 'موبائل گیلری سے منتخب کریں' : 'Select proof from photos',
+                  style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickAndUploadEvidence(ImageSource.gallery);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndUploadEvidence(ImageSource source) async {
+    final localPath = await HardwareInteroperability.pickImage(source: source);
+    if (localPath == null) return;
+
+    if (!mounted) return;
+    setState(() {
+      _evidenceDocumentPath = localPath;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(LocalizationService.isUrdu
+            ? 'شواہد کی تصویر منسلک ہو گئی۔'
+            : 'Evidence photo/receipt attached successfully.'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Asynchronously attempt upload to Supabase Storage bucket 'disputes'
+    final uploadedPath = await HardwareInteroperability.uploadPhotoToStorage(
+      filePath: localPath,
+      bucket: 'disputes',
+    );
+    if (mounted && _evidenceDocumentPath == localPath) {
+      setState(() {
+        _evidenceDocumentPath = uploadedPath;
+      });
+    }
+  }
+
+  Widget _buildThumbnailPreview(String path, VoidCallback onRemove, {required bool isUrdu}) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: HomeEaseTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: HomeEaseTheme.brand, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              width: 56,
+              height: 56,
+              child: _buildImageWidget(path),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: HomeEaseTheme.statusVerified, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      isUrdu ? 'شواہد منسلک ہو گئے' : 'Evidence Attached',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: HomeEaseTheme.brand,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  path.split(RegExp(r'[/\\]')).last,
+                  style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            icon: const Icon(Icons.delete_outline_rounded, color: HomeEaseTheme.statusConflict, size: 22),
+            tooltip: isUrdu ? 'تصویر ہٹائیں' : 'Remove photo',
+            onPressed: onRemove,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(String path) {
+    if (kIsWeb || path.startsWith('http://') || path.startsWith('https://')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _fallbackThumb(),
+      );
+    }
+    final file = File(path);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _fallbackThumb(),
+      );
+    }
+    return _fallbackThumb();
+  }
+
+  Widget _fallbackThumb() {
+    return Container(
+      color: HomeEaseTheme.brand.withValues(alpha: 0.1),
+      alignment: Alignment.center,
+      child: const Icon(Icons.shield_rounded, color: HomeEaseTheme.brand, size: 28),
     );
   }
 
@@ -132,9 +331,7 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                   subtitle: const Text('0992-111-4663 (Abbottabad Control Center)'),
                   onTap: () {
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Dialing Abbottabad Safety Center: 0992-111-4663...')),
-                    );
+                    HardwareInteroperability.dialPhone('09921114663');
                   },
                 ),
                 const Divider(height: 16),
@@ -322,62 +519,42 @@ class _DisputeReportScreenState extends State<DisputeReportScreen> {
                 const SizedBox(height: 16),
                 const SectionLabel('Attach Photo / Receipt Proof'),
                 const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: _attachEvidence,
-                  child: Container(
-                    height: 80,
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: _evidenceDocumentPath != null
-                          ? HomeEaseTheme.brand.withValues(alpha: 0.05)
-                          : HomeEaseTheme.surface,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: _evidenceDocumentPath != null ? HomeEaseTheme.brand : HomeEaseTheme.outline,
-                        width: 1.5,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: _evidenceDocumentPath != null
-                        ? Row(
+                _evidenceDocumentPath != null
+                    ? _buildThumbnailPreview(
+                        _evidenceDocumentPath!,
+                        () {
+                          setState(() => _evidenceDocumentPath = null);
+                        },
+                        isUrdu: isUrdu,
+                      )
+                    : GestureDetector(
+                        onTap: _attachEvidence,
+                        child: Container(
+                          height: 80,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: HomeEaseTheme.surface,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: HomeEaseTheme.outline,
+                              width: 1.5,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.check_circle_rounded, color: HomeEaseTheme.statusVerified, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Photo attached: $_evidenceDocumentPath',
-                                  style: const TextStyle(
-                                    color: HomeEaseTheme.brand,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close_rounded, size: 18, color: HomeEaseTheme.textSecondary),
-                                tooltip: 'Remove photo',
-                                onPressed: () {
-                                  setState(() => _evidenceDocumentPath = null);
-                                },
-                              ),
-                            ],
-                          )
-                        : const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add_a_photo_rounded, color: HomeEaseTheme.brand, size: 24),
-                              SizedBox(height: 4),
+                              const Icon(Icons.add_a_photo_rounded, color: HomeEaseTheme.brand, size: 24),
+                              const SizedBox(height: 4),
                               Text(
-                                'Tap to take photo or attach from gallery',
-                                style: TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                                isUrdu ? 'تصویر لینے یا گیلری سے منتخب کرنے کے لیے ٹیپ کریں' : 'Tap to take photo or attach from gallery',
+                                style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
                               ),
                             ],
                           ),
-                  ),
-                ),
+                        ),
+                      ),
                 const SizedBox(height: 20),
                 HomeEaseButton(
                   label: isUrdu ? 'تنازعہ جمع کروائیں' : 'Submit for Arbitration',

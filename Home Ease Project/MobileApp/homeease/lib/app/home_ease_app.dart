@@ -16,7 +16,7 @@ class HomeEaseApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       builder: (context, child) {
         return MediaQuery.withClampedTextScaling(
-          maxScaleFactor: 1.35,
+          maxScaleFactor: 2.0, // Allows WCAG 200% text enlargement without clipping
           child: child ?? const SizedBox.shrink(),
         );
       },

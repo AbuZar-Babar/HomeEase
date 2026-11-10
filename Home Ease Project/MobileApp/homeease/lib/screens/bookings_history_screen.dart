@@ -104,7 +104,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
           ? await BookingRepository().fetchBookingsForWorker(effectiveId)
           : await BookingRepository().fetchBookingsForHousehold(effectiveId);
 
-      if (mounted && (user != null || fresh.isNotEmpty)) {
+      if (mounted && (user != null || (fresh.isNotEmpty && widget.bookings.isEmpty))) {
         setState(() {
           _liveBookings = fresh;
         });
@@ -482,9 +482,9 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                 isUrdu ? 'سروس شروع OTP: ' : 'Start OTP: ',
                                 style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary, fontWeight: FontWeight.w600),
                               ),
-                              const Text(
-                                '8492',
-                                style: TextStyle(
+                              Text(
+                                booking.arrivalOtp,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 2,
@@ -537,8 +537,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                     color: HomeEaseTheme.statusConflict.withValues(alpha: 0.4),
                                   ),
                                   backgroundColor: HomeEaseTheme.statusConflict.withValues(alpha: 0.06),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  minimumSize: const Size(0, 42),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -553,23 +553,24 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: ElevatedButton(
+                              child: ElevatedButton.icon(
                                 onPressed: () => widget.onSelectBooking(booking),
+                                icon: const Icon(Icons.description_outlined, size: 16),
+                                label: Text(
+                                  isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
                                   backgroundColor: HomeEaseTheme.brand,
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  minimumSize: const Size(0, 42),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                ),
-                                child: Text(
-                                  isUrdu ? 'تفصیلات' : 'Details',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                                 ),
                               ),
                             ),
@@ -590,6 +591,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                 onPressed: () {
                                   InAppChatSheet.show(
                                     context,
+                                    recipientId: worker.id,
                                     recipientName: worker.name,
                                     recipientRole: worker.role,
                                     serviceContext: '${worker.role} Booking',
@@ -599,8 +601,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   foregroundColor: HomeEaseTheme.brand,
                                   side: BorderSide(color: HomeEaseTheme.brand.withValues(alpha: 0.3)),
                                   backgroundColor: HomeEaseTheme.mintSoft,
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-                                  minimumSize: const Size(0, 42),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -612,7 +614,7 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                               child: OutlinedButton.icon(
                                 icon: const Icon(Icons.description_outlined, size: 16),
                                 label: Text(
-                                  isUrdu ? 'معاہدہ' : 'Agreement',
+                                  isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
@@ -622,8 +624,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   foregroundColor: HomeEaseTheme.brand,
                                   side: BorderSide(color: HomeEaseTheme.brand.withValues(alpha: 0.3)),
                                   backgroundColor: HomeEaseTheme.card,
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-                                  minimumSize: const Size(0, 42),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -636,20 +638,20 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: () => _updateStatus(booking, 'Completed'),
-                            icon: const Icon(Icons.check_circle_rounded, size: 18),
+                            onPressed: () => widget.onSelectBooking(booking),
+                            icon: const Icon(Icons.verified_user_rounded, size: 18),
                             label: Text(
-                              isUrdu ? 'مکمل نشان زد کریں' : 'Mark Completed',
+                              LocalizationService.tr('settlePayment'),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
                             ),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: HomeEaseTheme.statusVerified,
+                              backgroundColor: HomeEaseTheme.brand,
                               elevation: 0,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-                              minimumSize: const Size(0, 44),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              minimumSize: const Size(0, 48),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -673,8 +675,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                   foregroundColor: HomeEaseTheme.brand,
                                   backgroundColor: HomeEaseTheme.accentLight,
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  minimumSize: const Size(0, 42),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -695,8 +697,8 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: HomeEaseTheme.statusConflict,
                                   side: BorderSide(color: HomeEaseTheme.statusConflict.withValues(alpha: 0.4)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  minimumSize: const Size(0, 42),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -708,20 +710,21 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                       ] else ...[
                         SizedBox(
                           width: double.infinity,
-                          child: OutlinedButton(
+                          child: OutlinedButton.icon(
                             onPressed: () => widget.onSelectBooking(booking),
+                            icon: const Icon(Icons.description_outlined, size: 16),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: HomeEaseTheme.brand,
                               backgroundColor: HomeEaseTheme.card,
                               side: const BorderSide(color: HomeEaseTheme.outline),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                              minimumSize: const Size(0, 42),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              minimumSize: const Size(0, 48),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: Text(
-                              isUrdu ? 'تفصیلات دیکھیں' : 'View Details',
+                            label: Text(
+                              isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),

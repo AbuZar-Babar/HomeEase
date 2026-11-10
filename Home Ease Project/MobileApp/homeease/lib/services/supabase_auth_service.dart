@@ -69,6 +69,16 @@ class SupabaseAuthService {
         accountStatus: 'Active',
         createdAt: DateTime.now().subtract(const Duration(days: 30)),
       ),
+      AppUser(
+        id: 'admin_1',
+        fullName: 'System Administrator',
+        email: 'admin@homeease.com',
+        phone: '+923009999999',
+        password: 'admin123',
+        role: 'Admin',
+        accountStatus: 'Active',
+        createdAt: DateTime.now().subtract(const Duration(days: 60)),
+      ),
     ]);
   }
 
@@ -296,6 +306,10 @@ class SupabaseAuthService {
           final role = profile?['role']?.toString() ??
               user.userMetadata?['role']?.toString() ??
               'Household';
+          final roleLower = role.toLowerCase();
+          final String mappedRole = roleLower == 'admin'
+              ? 'Admin'
+              : (roleLower == 'worker' ? 'Worker' : 'Household');
 
           final appUser = AppUser(
             id: user.id,
@@ -308,7 +322,7 @@ class SupabaseAuthService {
                 user.userMetadata?['phone']?.toString() ??
                 '',
             password: '',
-            role: role.toLowerCase() == 'worker' ? 'Worker' : 'Household',
+            role: mappedRole,
             accountStatus: 'Active',
             createdAt: profile?['created_at'] != null
                 ? DateTime.tryParse(profile!['created_at']) ?? DateTime.now()
@@ -326,7 +340,9 @@ class SupabaseAuthService {
 
   /// Get demo accounts for quick auto-fill in UI or evaluation.
   List<AppUser> getDemoAccounts() {
-    return _localUsers.where((u) => u.id.startsWith('h_demo') || u.id == 'worker_1').toList();
+    return _localUsers
+        .where((u) => u.id.startsWith('h_demo') || u.id == 'worker_1' || u.id == 'admin_1')
+        .toList();
   }
 
   AppUser? _findLocalUser(String cleanEmail, String password, String cleanRole) {

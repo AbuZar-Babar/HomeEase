@@ -104,6 +104,22 @@ CREATE TABLE IF NOT EXISTS public.reviews (
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 
+-- 1.7 DISPUTES (Audit trail & dispute mediation)
+CREATE TABLE IF NOT EXISTS public.disputes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    booking_id UUID NOT NULL REFERENCES public.bookings(id) ON DELETE CASCADE,
+    complainant_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    respondent_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    category TEXT NOT NULL,
+    description TEXT NOT NULL,
+    evidence_path TEXT,
+    status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'under_review', 'resolved', 'dismissed')),
+    resolution_notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    resolved_at TIMESTAMPTZ
+);
+
 -- ============================================================================
 -- 2. PERFORMANCE INDEXES
 -- ============================================================================
@@ -118,6 +134,10 @@ CREATE INDEX IF NOT EXISTS idx_bookings_service_date ON public.bookings(service_
 CREATE INDEX IF NOT EXISTS idx_reviews_booking_id ON public.reviews(booking_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_worker_id ON public.reviews(worker_id);
 CREATE INDEX IF NOT EXISTS idx_worker_profiles_locality ON public.worker_profiles(locality);
+CREATE INDEX IF NOT EXISTS idx_disputes_booking_id ON public.disputes(booking_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_complainant_id ON public.disputes(complainant_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_respondent_id ON public.disputes(respondent_id);
+CREATE INDEX IF NOT EXISTS idx_disputes_status ON public.disputes(status);
 
 -- ============================================================================
 -- 3. FUNCTIONS & TRIGGERS (Hardened with explicit search_path)
@@ -244,6 +264,11 @@ CREATE TRIGGER on_review_created_or_updated
     AFTER INSERT OR UPDATE OR DELETE ON public.reviews
     FOR EACH ROW EXECUTE FUNCTION public.sync_worker_rating();
 
+DROP TRIGGER IF EXISTS touch_disputes_updated_at ON public.disputes;
+CREATE TRIGGER touch_disputes_updated_at
+    BEFORE UPDATE ON public.disputes
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
 -- Revoke direct RPC execution on internal triggers for extra security
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.sync_worker_rating() FROM anon, authenticated;
@@ -259,6 +284,7 @@ ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.disputes ENABLE ROW LEVEL SECURITY;
 
 -- 4.1 PROFILES POLICIES
 DROP POLICY IF EXISTS "Profiles are viewable by authenticated users" ON public.profiles;
@@ -414,3 +440,46 @@ CREATE POLICY "Employers can update own review"
     TO authenticated
     USING ((SELECT auth.uid()) = employer_id)
     WITH CHECK ((SELECT auth.uid()) = employer_id);
+
+-- 4.7 DISPUTES POLICIES
+DROP POLICY IF EXISTS "Disputes viewable by involved parties" ON public.disputes;
+CREATE POLICY "Disputes viewable by involved parties"
+    ON public.disputes FOR SELECT
+    TO authenticated
+    USING (
+        (SELECT auth.uid()) = complainant_id
+        OR (SELECT auth.uid()) = respondent_id
+        OR EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = (SELECT auth.uid())
+            AND profiles.role = 'admin'
+        )
+    );
+
+DROP POLICY IF EXISTS "Users can create disputes as complainant" ON public.disputes;
+CREATE POLICY "Users can create disputes as complainant"
+    ON public.disputes FOR INSERT
+    TO authenticated
+    WITH CHECK ((SELECT auth.uid()) = complainant_id);
+
+DROP POLICY IF EXISTS "Admin or complainant can update disputes" ON public.disputes;
+CREATE POLICY "Admin or complainant can update disputes"
+    ON public.disputes FOR UPDATE
+    TO authenticated
+    USING (
+        (SELECT auth.uid()) = complainant_id
+        OR EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = (SELECT auth.uid())
+            AND profiles.role = 'admin'
+        )
+    )
+    WITH CHECK (
+        (SELECT auth.uid()) = complainant_id
+        OR EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = (SELECT auth.uid())
+            AND profiles.role = 'admin'
+        )
+    );
+

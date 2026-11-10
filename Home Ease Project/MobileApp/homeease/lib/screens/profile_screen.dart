@@ -15,6 +15,7 @@ class ProfileScreen extends StatelessWidget {
     required this.onLanguageChanged,
     this.totalBookings = 0,
     this.totalPostedGigs = 0,
+    this.primaryLocality,
     this.bottomNavigationBar,
     this.onOpenNotifications,
     this.unreadNotificationsCount,
@@ -26,6 +27,7 @@ class ProfileScreen extends StatelessWidget {
   final VoidCallback onLanguageChanged;
   final int totalBookings;
   final int totalPostedGigs;
+  final String? primaryLocality;
   final Widget? bottomNavigationBar;
   final VoidCallback? onOpenNotifications;
   final int? unreadNotificationsCount;
@@ -38,6 +40,26 @@ class ProfileScreen extends StatelessWidget {
     final userName = currentUser?.fullName ?? (isUrdu ? 'صارف' : 'Household Employer');
     final userEmail = currentUser?.email ?? 'household@homeease.com';
     final userPhone = currentUser?.phone ?? '+92 312 9876543';
+
+    final locality = primaryLocality ?? (isUrdu ? 'مانڈیاں، ایبٹ آباد' : 'Mandian, Abbottabad');
+
+    final accountStatus = currentUser?.accountStatus ?? 'Active';
+    final String securityStatusText;
+    final Color securityStatusColor;
+    final IconData securityStatusIcon;
+    if (accountStatus.toLowerCase() == 'active' || accountStatus.toLowerCase() == 'verified') {
+      securityStatusText = isUrdu ? 'شناختی کارڈ تصدیق شدہ • فعال' : 'CNIC Verified • 2FA Active';
+      securityStatusColor = HomeEaseTheme.statusVerified;
+      securityStatusIcon = Icons.verified_user_outlined;
+    } else if (accountStatus.toLowerCase() == 'pendingverification') {
+      securityStatusText = isUrdu ? 'تصدیق کا عمل جاری ہے' : 'Pending Verification';
+      securityStatusColor = HomeEaseTheme.statusPending;
+      securityStatusIcon = Icons.pending_actions_outlined;
+    } else {
+      securityStatusText = isUrdu ? 'غیر تصدیق شدہ' : 'Unverified Profile';
+      securityStatusColor = HomeEaseTheme.statusConflict;
+      securityStatusIcon = Icons.shield_outlined;
+    }
 
     return Directionality(
       textDirection: LocalizationService.direction,
@@ -203,14 +225,14 @@ class ProfileScreen extends StatelessWidget {
                   _ProfileDetailItem(
                     icon: Icons.location_on_outlined,
                     label: isUrdu ? 'بنیادی پتہ' : 'Primary Locality',
-                    value: 'Mandian, Abbottabad, Khyber Pakhtunkhwa',
+                    value: locality,
                   ),
                   const Divider(height: 20, color: HomeEaseTheme.outline),
                   _ProfileDetailItem(
-                    icon: Icons.shield_outlined,
+                    icon: securityStatusIcon,
                     label: isUrdu ? 'حفاظتی تصدیق' : 'Security Status',
-                    value: isUrdu ? 'شناختی کارڈ تصدیق شدہ' : 'CNIC Verified • 2FA Active',
-                    valueColor: HomeEaseTheme.statusVerified,
+                    value: securityStatusText,
+                    valueColor: securityStatusColor,
                   ),
                 ],
               ),

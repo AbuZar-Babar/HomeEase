@@ -4,6 +4,8 @@ import '../services/supabase_auth_service.dart';
 import '../services/worker_repository.dart';
 import '../services/job_repository.dart';
 import '../services/booking_repository.dart';
+import '../services/dispute_repository.dart';
+import '../services/localization_service.dart';
 import '../data/sample_data.dart';
 import '../models/worker_profile.dart';
 import '../screens/booking_request_screen.dart';
@@ -24,6 +26,9 @@ import '../screens/worker_detail_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/worker_job_feed_screen.dart';
 import '../screens/worker_list_screen.dart';
+import '../screens/worker_map_screen.dart';
+import '../screens/admin_dashboard_screen.dart';
+import '../services/audit_log_service.dart';
 import '../widgets/app_scaffold.dart';
 
 class HomeEaseFlow extends StatefulWidget {
@@ -73,9 +78,11 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
     return _stage == AppStage.splash ||
         _stage == AppStage.onboarding ||
         _stage == AppStage.signIn ||
-        (_currentUserRole.toLowerCase() == 'worker'
-            ? _stage == AppStage.workerDashboard
-            : _stage == AppStage.homeSearch);
+        (_currentUserRole.toLowerCase() == 'admin'
+            ? _stage == AppStage.adminDashboard
+            : (_currentUserRole.toLowerCase() == 'worker'
+                ? _stage == AppStage.workerDashboard
+                : _stage == AppStage.homeSearch));
   }
 
   void _goTo(AppStage stage, {bool clearHistory = false}) {
@@ -96,8 +103,10 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
         _stage = prev;
       });
     } else {
-      final isWorker = _currentUserRole.toLowerCase() == 'worker';
-      final root = isWorker ? AppStage.workerDashboard : AppStage.homeSearch;
+      final roleLower = _currentUserRole.toLowerCase();
+      final root = roleLower == 'admin'
+          ? AppStage.adminDashboard
+          : (roleLower == 'worker' ? AppStage.workerDashboard : AppStage.homeSearch);
       if (_stage != root) {
         setState(() {
           _stage = root;
@@ -186,6 +195,9 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   }
 
   Widget? _buildBottomNav() {
+    if (_currentUserRole.toLowerCase() == 'admin' || _stage == AppStage.adminDashboard) {
+      return null;
+    }
     final isWorker = _currentUserRole.toLowerCase() == 'worker';
     if (isWorker) {
       final isRootWorkerStage = _stage == AppStage.workerDashboard ||
@@ -238,10 +250,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   Future<void> _loadLiveJobs() async {
     try {
       final jobs = await JobRepository().fetchOpenJobs();
+      final apps = await JobRepository().fetchAllApplications();
       if (mounted) {
         setState(() {
           _jobPosts.clear();
           _jobPosts.addAll(jobs);
+          _jobApplications.clear();
+          _jobApplications.addAll(apps);
         });
       }
     } catch (e) {
@@ -326,7 +341,12 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           final auth = SupabaseAuthService();
           if (auth.isAuthenticated) {
             final user = auth.currentUser;
-            if (user != null && user.role.toLowerCase() == 'worker') {
+            if (user != null && user.role.toLowerCase() == 'admin') {
+              setState(() {
+                _currentUserRole = 'Admin';
+              });
+              _goTo(AppStage.adminDashboard);
+            } else if (user != null && user.role.toLowerCase() == 'worker') {
               setState(() {
                 _currentUserRole = 'Worker';
               });
@@ -360,6 +380,19 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             });
             _loadLiveBookings();
             _goTo(AppStage.workerDashboard);
+          },
+          onAdminSignIn: () {
+            setState(() {
+              _currentUserRole = 'Admin';
+            });
+            AuditLogService().logEvent(
+              actionType: 'auth',
+              title: 'Admin Session Authenticated',
+              description: 'System Administrator logged in to governance terminal.',
+              actor: 'Admin (admin@homeease.com)',
+              severity: 'info',
+            );
+            _goTo(AppStage.adminDashboard);
           },
           onCreateAccount: (role) {
             setState(() {
@@ -420,6 +453,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onToggleService: _toggleService,
           onOpenWorkers: () => _goTo(AppStage.workerList),
           onOpenWorker: (worker) => _selectWorker(worker, AppStage.workerDetail),
+          onOpenWorkerMap: () => _goTo(AppStage.workerMap),
           onLogout: () {
             SupabaseAuthService().signOut();
             _goTo(AppStage.signIn);
@@ -431,6 +465,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onOpenProfile: () => _goTo(AppStage.profile),
           onLanguageChanged: () => setState(() {}),
           bottomNavigationBar: _buildBottomNav(),
+        );
+
+      case AppStage.workerMap:
+        return WorkerMapScreen(
+          workers: _liveWorkers,
+          onSelectWorker: (w) => _selectWorker(w, AppStage.workerDetail),
+          onBack: _goBack,
         );
         
       case AppStage.workerList:
@@ -550,6 +591,77 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
               _goTo(AppStage.workerDashboard);
             }
           },
+          onPaymentCompleted: (result) async {
+            try {
+              final updated = await BookingRepository().completeBookingPayment(
+                bookingId: _selectedBooking.id,
+                paymentMethod: result.mode.dbValue,
+                txId: result.txId,
+              );
+              if (!mounted) return;
+              setState(() {
+                final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                if (index != -1) {
+                  _bookings[index] = updated;
+                }
+                _selectedBooking = updated;
+              });
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  final updated = _selectedBooking.copyWith(
+                    status: 'Completed',
+                    paymentStatus: 'confirmed',
+                    paymentMethod: result.mode.dbValue,
+                  );
+                  if (index != -1) {
+                    _bookings[index] = updated;
+                  }
+                  _selectedBooking = updated;
+                });
+              }
+            }
+            if (mounted) {
+              setState(() {
+                _notifications.add(
+                  NotificationModel(
+                    id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+                    userId: 'h_1',
+                    title: 'Payment Successful',
+                    message: 'Your payment (${result.mode.displayName}) TxID ${result.txId} has been confirmed.',
+                    type: 'Payment',
+                    isRead: false,
+                    createdAt: DateTime.now(),
+                  ),
+                );
+              });
+            }
+          },
+          onVerifyArrival: () async {
+            try {
+              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'In Progress');
+              if (!mounted) return;
+              setState(() {
+                final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                if (index != -1) {
+                  _bookings[index] = updated;
+                }
+                _selectedBooking = updated;
+              });
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
+                  final updated = _selectedBooking.copyWith(status: 'In Progress');
+                  if (index != -1) {
+                    _bookings[index] = updated;
+                  }
+                  _selectedBooking = updated;
+                });
+              }
+            }
+          },
           onSubmitReceipt: (txId, receiptPath) async {
             try {
               final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Completed');
@@ -666,72 +778,61 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onBack: _goBack,
           onSubmit: (category, desc, proof) async {
             try {
-              final updated = await BookingRepository().updateBookingStatus(_selectedBooking.id, 'Disputed');
+              final createdDispute = await DisputeRepository().createDispute(
+                bookingId: _selectedBooking.id,
+                complainantId: _selectedBooking.employerId,
+                respondentId: _selectedBooking.workerId,
+                category: category,
+                description: desc,
+                evidencePath: proof,
+              );
+
               if (mounted) {
                 setState(() {
-                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
-                  if (index != -1) {
-                    _bookings[index] = updated;
-                    _selectedBooking = updated;
-                  }
+                  _disputes.removeWhere((d) => d.id == createdDispute.id);
+                  _disputes.insert(0, createdDispute);
+                  _notifications.add(
+                    NotificationModel(
+                      id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+                      userId: _selectedBooking.employerId,
+                      title: 'Dispute Filed',
+                      message: LocalizationService.isUrdu
+                          ? 'تنازعہ برائے "$category" کامیابی کے ساتھ "open" حیثیت میں درج کر لیا گیا۔'
+                          : 'A dispute for "$category" has been recorded under status "open" and submitted for administrative arbitration.',
+                      type: 'Dispute',
+                      isRead: false,
+                      createdAt: DateTime.now(),
+                    ),
+                  );
                 });
               }
-            } catch (_) {
-              if (mounted) {
-                setState(() {
-                  final index = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, _selectedBooking.id));
-                  if (index != -1) {
-                    final updated = _selectedBooking.copyWith(status: 'Disputed');
-                    _bookings[index] = updated;
-                    _selectedBooking = updated;
-                  }
-                });
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      LocalizationService.isUrdu
+                          ? 'تنازعہ کامیابی سے درج کر لیا گیا ہے (حیثیت: کھلا)۔ بکنگ کی تاریخ محفوظ ہے اور ایڈمن اس کا جائزہ لے گا۔'
+                          : 'Dispute recorded under status "open" and submitted for administrative arbitration while booking history remains untouched.',
+                    ),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      LocalizationService.isUrdu
+                          ? 'تنازعہ درج کرنے میں خرابی پیش آگئی۔'
+                          : 'Failed to record dispute: $e',
+                    ),
+                  ),
+                );
               }
             }
 
-            if (!mounted) return;
-            setState(() {
-              // Add dispute
-              _disputes.add(
-                Dispute(
-                  id: 'dispute_${DateTime.now().millisecondsSinceEpoch}',
-                  bookingId: _selectedBooking.id,
-                  paymentRecordId: 'payment_1',
-                  raisedBy: _currentUserRole,
-                  againstUserId: 'other',
-                  category: category,
-                  description: desc,
-                  evidenceURL: proof,
-                  status: 'OpenDispute',
-                  adminRemarks: 'Pending review by admin panel.',
-                  createdAt: DateTime.now(),
-                ),
-              );
-
-              // Add notification
-              _notifications.add(
-                NotificationModel(
-                  id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
-                  userId: 'any',
-                  title: 'Dispute Filed',
-                  message: 'A dispute for "$category" has been filed and sent to the admin dashboard.',
-                  type: 'Dispute',
-                  isRead: false,
-                  createdAt: DateTime.now(),
-                ),
-              );
-            });
-
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Dispute filed successfully. Admin will review.')),
-              );
-            }
-            if (_currentUserRole == 'Household') {
-              _goTo(AppStage.bookingsHistory);
-            } else {
-              _goTo(AppStage.workerDashboard);
-            }
+            _goTo(AppStage.bookingsHistory);
           },
         );
         
@@ -745,10 +846,13 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           booking: _selectedBooking,
           worker: worker,
           onBack: _goBack,
-          onSubmit: (rating, comment) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Feedback submitted: $rating stars. Thank you!')),
-            );
+          onSubmit: (rating, comment) async {
+            final updatedWorkers = await WorkerRepository().fetchWorkers();
+            if (mounted) {
+              setState(() {
+                _liveWorkers = updatedWorkers;
+              });
+            }
             _goTo(AppStage.bookingsHistory);
           },
         );
@@ -833,14 +937,32 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             _goTo(AppStage.signIn);
           },
           bottomNavigationBar: _buildBottomNav(),
-          onSave: (status, slots) {
-            setState(() {
-              _availabilityStatus = status;
-              _availabilitySlots = slots;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Availability settings updated successfully.')),
+          onSave: (status, slots) async {
+            final workerId = SupabaseAuthService().currentUser?.id ?? '00000000-0000-0000-0000-000000000010';
+            await WorkerRepository().updateWorkerAvailability(
+              workerId: workerId,
+              status: status,
+              slots: slots,
             );
+            final updatedWorkers = await WorkerRepository().fetchWorkers();
+            if (mounted) {
+              setState(() {
+                _availabilityStatus = status;
+                _availabilitySlots = slots;
+                _liveWorkers = updatedWorkers;
+              });
+            }
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    LocalizationService.isUrdu
+                        ? 'دستیابی کی ترتیبات کامیابی کے ساتھ محفوظ ہو گئیں۔'
+                        : 'Availability settings updated successfully.',
+                  ),
+                ),
+              );
+            }
             _goTo(AppStage.workerDashboard);
           },
         );
@@ -885,6 +1007,78 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
       case AppStage.postJob:
         return PostJobScreen(
           existingJobs: _jobPosts,
+          applications: _jobApplications,
+          onAcceptApplication: (app) async {
+            try {
+              // 1. Mark application accepted and job assigned via JobRepository().acceptApplication
+              await JobRepository().acceptApplication(app.id, jobId: app.jobPostId);
+
+              // Locate target job
+              final targetJob = _jobPosts.firstWhere(
+                (j) => IdMapping.matchesJob(j.id, app.jobPostId),
+                orElse: () => JobPost(
+                  id: app.jobPostId,
+                  householdId: SupabaseAuthService().currentUser?.id ?? '00000000-0000-0000-0000-000000000001',
+                  householdName: 'Household Employer',
+                  title: 'Domestic Task',
+                  serviceCategory: 'Cleaner',
+                  description: 'Task agreed via accepted proposal',
+                  city: 'Abbottabad',
+                  area: 'Mandian',
+                  latitude: 34.1983,
+                  longitude: 73.2425,
+                  budget: app.proposedRate > 0 ? app.proposedRate : 2500,
+                  requiredDate: DateTime.now().add(const Duration(days: 1)),
+                  status: 'assigned',
+                  createdAt: DateTime.now(),
+                ),
+              );
+
+              // 2. Synthesize confirmed booking via BookingRepository with agreed rate
+              final confirmedBooking = await BookingRepository().synthesizeConfirmedBooking(
+                job: targetJob,
+                application: app,
+              );
+
+              // 3. Mutate _jobApplications, _jobPosts, _bookings, set _selectedBooking = confirmedBooking
+              if (!mounted) return;
+              setState(() {
+                final appIdx = _jobApplications.indexWhere((a) => a.id == app.id);
+                if (appIdx != -1) {
+                  _jobApplications[appIdx] = app.copyWith(status: 'accepted');
+                }
+                for (var i = 0; i < _jobApplications.length; i++) {
+                  if (_jobApplications[i].id != app.id && IdMapping.matchesJob(_jobApplications[i].jobPostId, app.jobPostId)) {
+                    _jobApplications[i] = _jobApplications[i].copyWith(status: 'rejected');
+                  }
+                }
+
+                final jobIdx = _jobPosts.indexWhere((j) => IdMapping.matchesJob(j.id, app.jobPostId));
+                if (jobIdx != -1) {
+                  _jobPosts[jobIdx] = _jobPosts[jobIdx].copyWith(status: 'assigned');
+                }
+
+                final bIdx = _bookings.indexWhere((b) => IdMapping.matchesBooking(b.id, confirmedBooking.id));
+                if (bIdx != -1) {
+                  _bookings[bIdx] = confirmedBooking;
+                } else {
+                  _bookings.insert(0, confirmedBooking);
+                }
+
+                _selectedBooking = confirmedBooking;
+              });
+
+              // 4. Immediately transition to AppStage.serviceAgreement
+              _goTo(AppStage.serviceAgreement);
+            } catch (e) {
+              debugPrint('Error accepting application: $e');
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error accepting bid: $e')),
+                );
+              }
+            }
+          },
           onJobPosted: (newJob) {
             setState(() {
               _jobPosts.insert(0, newJob);
@@ -935,6 +1129,26 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             _goTo(AppStage.signIn);
           },
         );
+
+      case AppStage.adminDashboard:
+        return AdminDashboardScreen(
+          onLogout: () async {
+            await SupabaseAuthService().signOut();
+            AuditLogService().logEvent(
+              actionType: 'auth',
+              title: 'Admin Session Terminated',
+              description: 'System Administrator logged out safely.',
+              actor: 'Admin (admin@homeease.com)',
+              severity: 'info',
+            );
+            if (!mounted) return;
+            setState(() {
+              _currentUserRole = 'Household';
+            });
+            _goTo(AppStage.signIn, clearHistory: true);
+          },
+          onLanguageChanged: () => setState(() {}),
+        );
     }
   }
 }
@@ -947,6 +1161,7 @@ enum AppStage {
   homeSearch,
   workerList,
   workerDetail,
+  workerMap,
   bookingRequest,
   bookingsHistory,
   serviceAgreement,
@@ -958,4 +1173,5 @@ enum AppStage {
   postJob,
   workerJobFeed,
   profile,
+  adminDashboard,
 }

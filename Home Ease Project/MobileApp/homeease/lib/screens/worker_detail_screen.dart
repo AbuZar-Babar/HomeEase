@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../models/worker_profile.dart';
+import '../services/hardware_interoperability.dart';
 import '../services/localization_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/animated_scale_button.dart';
@@ -99,15 +100,11 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                     child: const Icon(Icons.phone_rounded, color: HomeEaseTheme.brand),
                   ),
                   title: const Text('Direct Phone Call', style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('+92 312 9845120 • Abbottabad Mobile Network'),
+                  subtitle: Text('${widget.worker.phone ?? '+92 312 9845120'} • Abbottabad Mobile Network'),
                   trailing: const Icon(Icons.arrow_forward_rounded, color: HomeEaseTheme.brand),
                   onTap: () {
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Simulating call to ${widget.worker.name} (+92 312 9845120)...'),
-                      ),
-                    );
+                    HardwareInteroperability.dialPhone(widget.worker.phone ?? '+923129845120');
                   },
                 ),
                 const Divider(height: 16),
@@ -127,13 +124,12 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                     Navigator.pop(ctx);
                     InAppChatSheet.show(
                       context,
+                      recipientId: widget.worker.id,
                       recipientName: widget.worker.name,
                       recipientRole: widget.worker.role,
                       serviceContext: widget.worker.role,
                       onCallPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Calling ${widget.worker.name}...')),
-                        );
+                        HardwareInteroperability.dialPhone(widget.worker.phone ?? '+923129845120');
                       },
                     );
                   },
@@ -333,24 +329,35 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 6),
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
                             children: [
-                              const Icon(Icons.location_on_rounded, size: 14, color: HomeEaseTheme.textSecondary),
-                              const SizedBox(width: 4),
-                              Text(
-                                worker.location,
-                                style: const TextStyle(color: HomeEaseTheme.textSecondary, fontSize: 12),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.location_on_rounded, size: 14, color: HomeEaseTheme.textSecondary),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    worker.location,
+                                    style: const TextStyle(color: HomeEaseTheme.textSecondary, fontSize: 12),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              const Icon(Icons.star_rounded, size: 16, color: HomeEaseTheme.starRating),
-                              const SizedBox(width: 2),
-                              Text(
-                                '${worker.rating} (${worker.reviewsCount} reviews)',
-                                style: const TextStyle(
-                                  color: HomeEaseTheme.textPrimary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 12,
-                                ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.star_rounded, size: 16, color: HomeEaseTheme.starRating),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    '${worker.rating} (${worker.reviewsCount} reviews)',
+                                    style: const TextStyle(
+                                      color: HomeEaseTheme.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -606,9 +613,13 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                     HapticFeedback.lightImpact();
                     InAppChatSheet.show(
                       context,
+                      recipientId: widget.worker.id,
                       recipientName: widget.worker.name,
                       recipientRole: widget.worker.role,
                       serviceContext: widget.worker.role,
+                      onCallPressed: () {
+                        HardwareInteroperability.dialPhone(widget.worker.phone ?? '+923129845120');
+                      },
                     );
                   },
                   child: Container(
@@ -646,12 +657,15 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
                         children: [
                           const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 18),
                           const SizedBox(width: 8),
-                          Text(
-                            isUrdu ? 'بکنگ کا وقت چنیں' : 'Book Appointment',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                          Flexible(
+                            child: Text(
+                              isUrdu ? 'بکنگ کا وقت چنیں' : 'Book Appointment',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -735,27 +749,32 @@ class _PricingRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: HomeEaseTheme.brand,
-                  shape: BoxShape.circle,
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: HomeEaseTheme.brand,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: HomeEaseTheme.textSecondary,
-                  fontWeight: FontWeight.w500,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: HomeEaseTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Text(
             price,
             style: const TextStyle(

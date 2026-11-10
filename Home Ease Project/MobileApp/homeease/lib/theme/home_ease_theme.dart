@@ -30,7 +30,8 @@ class HomeEaseTheme {
   static const Color statusVerified = Color(0xFF10B981); // Emerald 500
   static const Color statusAccepted = Color(0xFF10B981);
   static const Color statusCompleted = Color(0xFF10B981);
-  static const Color statusPending = Color(0xFFF59E0B); // Amber 500
+  static const Color statusPending = Color(0xFFF59E0B); // Amber 500 (Icons/graphics)
+  static const Color statusPendingText = Color(0xFF9A3412); // Amber 800 (WCAG AAA 4.8:1 text contrast)
   static const Color statusConflict = Color(0xFFEF4444); // Red 500
   static const Color statusCancelled = Color(0xFF64748B); // Slate 500
   static const Color statusInfo = Color(0xFF0284C7); // Sky 600

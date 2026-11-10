@@ -103,6 +103,7 @@ class BookingConflictEngine {
 /// - Graceful fallback to deterministic local dataset when offline or uninitialized.
 class BookingRepository {
   static final BookingRepository _instance = BookingRepository._internal();
+  static int _bookingCounter = 0;
 
   factory BookingRepository({SupabaseClient? client}) {
     if (client != null) {
@@ -324,6 +325,57 @@ class BookingRepository {
     return booking;
   }
 
+  /// Synthesizes and creates a confirmed booking from an accepted job proposal.
+  ///
+  /// Sets agreed rate to [application.proposedRate] if > 0, else [job.budget].
+  /// Sets status to 'Accepted'.
+  /// Attempts morning slot (9:00 - 12:00) by default, and falls back to afternoon slot (14:00 - 17:00)
+  /// if a schedule conflict is encountered.
+  Future<Booking> synthesizeConfirmedBooking({
+    required JobPost job,
+    required JobApplication application,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
+  }) async {
+    final start = startTime ?? const TimeOfDay(hour: 9, minute: 0);
+    final end = endTime ?? const TimeOfDay(hour: 12, minute: 0);
+    final agreedRate = application.proposedRate > 0 ? application.proposedRate : job.budget;
+
+    final seq = (_bookingCounter++ % 10000).toString().padLeft(4, '0');
+    final ts = (DateTime.now().millisecondsSinceEpoch % 100000000).toString().padLeft(8, '0');
+    final id = isUuid(job.id)
+        ? '00000000-0000-0000-0000-$ts$seq'
+        : 'bkg_${DateTime.now().millisecondsSinceEpoch}_$seq';
+
+    final booking = Booking(
+      id: id,
+      householdId: job.householdId,
+      workerId: application.workerId,
+      serviceCategoryId: job.serviceCategory,
+      bookingDate: job.requiredDate,
+      startTime: start,
+      endTime: end,
+      address: job.area.isNotEmpty ? '${job.area}, ${job.city}' : job.city,
+      notes: 'Marketplace task: ${job.title}. ${job.description}',
+      agreedAmount: agreedRate,
+      status: 'Accepted',
+      paymentMethod: 'cash',
+      paymentStatus: 'unpaid',
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      return await createBooking(booking);
+    } on BookingConflictException {
+      // Afternoon slot fallback if morning slot has scheduling conflict
+      final alt = booking.copyWith(
+        startTime: const TimeOfDay(hour: 14, minute: 0),
+        endTime: const TimeOfDay(hour: 17, minute: 0),
+      );
+      return await createBooking(alt);
+    }
+  }
+
   /// Fetches all bookings made by a household employer.
   Future<List<Booking>> fetchBookingsForHousehold(String householdId) async {
     final effectiveId = isUuid(householdId)
@@ -469,6 +521,79 @@ class BookingRepository {
     return fallbackUpdated;
   }
 
+  /// Completes payment for a booking and transitions its status to 'Completed'
+  /// and paymentStatus to 'confirmed' across Supabase and the local fallback cache.
+  Future<Booking> completeBookingPayment({
+    required String bookingId,
+    required String paymentMethod,
+    required String txId,
+    String paymentStatus = 'confirmed',
+  }) async {
+    final targetUuid = IdMapping.toBookingUuid(bookingId);
+    final sb = client;
+
+    if (sb != null && isUuid(targetUuid)) {
+      try {
+        final response = await sb
+            .from('bookings')
+            .update({
+              'status': 'completed',
+              'payment_status': paymentStatus,
+              'payment_method': paymentMethod.toLowerCase(),
+            })
+            .eq('id', targetUuid)
+            .select('*')
+            .single();
+
+        final updated = Booking.fromMap(response);
+
+        // Sync fallback cache
+        final idx = _fallbackBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, bookingId));
+        if (idx != -1) {
+          _fallbackBookings[idx] = updated;
+        } else {
+          _fallbackBookings.insert(0, updated);
+        }
+
+        return updated;
+      } catch (e) {
+        debugPrint('BookingRepository.completeBookingPayment error: $e');
+      }
+    }
+
+    // Local fallback update
+    final idx = _fallbackBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, bookingId));
+    if (idx != -1) {
+      final updated = _fallbackBookings[idx].copyWith(
+        status: 'Completed',
+        paymentStatus: paymentStatus,
+        paymentMethod: paymentMethod.toLowerCase(),
+      );
+      _fallbackBookings[idx] = updated;
+      return updated;
+    }
+
+    // Fallback if not found in cache
+    final fallbackUpdated = Booking(
+      id: bookingId,
+      householdId: '00000000-0000-0000-0000-000000000001',
+      workerId: '00000000-0000-0000-0000-000000000010',
+      serviceCategoryId: 'Domestic Service',
+      bookingDate: DateTime.now(),
+      startTime: const TimeOfDay(hour: 9, minute: 0),
+      endTime: const TimeOfDay(hour: 11, minute: 0),
+      address: 'Abbottabad',
+      notes: 'TxID: $txId',
+      agreedAmount: 2000.0,
+      status: 'Completed',
+      paymentMethod: paymentMethod.toLowerCase(),
+      paymentStatus: paymentStatus,
+      createdAt: DateTime.now(),
+    );
+    _fallbackBookings.insert(0, fallbackUpdated);
+    return fallbackUpdated;
+  }
+
   /// Pre-flight check to see if a worker has an overlapping booking for the slot.
   Future<bool> hasConflict({
     required String workerId,
@@ -512,5 +637,23 @@ class BookingRepository {
       endTime: endTime,
       existingBookings: _fallbackBookings,
     );
+  }
+
+  /// Fetches all bookings across the platform for platform analytics.
+  Future<List<Booking>> fetchAllBookings() async {
+    final sb = client;
+    if (sb != null) {
+      try {
+        final response = await sb
+            .from('bookings')
+            .select('*')
+            .order('created_at', ascending: false);
+        final List<dynamic> data = response as List<dynamic>;
+        return data.map((item) => Booking.fromMap(item as Map<String, dynamic>)).toList();
+      } catch (e) {
+        debugPrint('BookingRepository.fetchAllBookings error: $e. Falling back to local cache.');
+      }
+    }
+    return List.unmodifiable(_fallbackBookings);
   }
 }

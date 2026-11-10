@@ -25,6 +25,7 @@ class HomeSearchScreen extends StatefulWidget {
     required this.unreadNotificationsCount,
     this.onOpenPostJob,
     this.onOpenProfile,
+    this.onOpenWorkerMap,
     this.onLanguageChanged,
     this.bottomNavigationBar,
   });
@@ -41,6 +42,7 @@ class HomeSearchScreen extends StatefulWidget {
   final int unreadNotificationsCount;
   final VoidCallback? onOpenPostJob;
   final VoidCallback? onOpenProfile;
+  final VoidCallback? onOpenWorkerMap;
   final VoidCallback? onLanguageChanged;
   final Widget? bottomNavigationBar;
 
@@ -530,56 +532,100 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
               Row(
                 children: [
                   // Location Indicator
-                  AnimatedScaleTap(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _showLocalitySelector();
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.16),
-                            shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: isUrdu
+                        ? 'آپ کا مقام: $areaDisplay، تبدیل کرنے کے لیے ٹیپ کریں'
+                        : 'Location: $areaDisplay. Tap to change area',
+                    child: AnimatedScaleTap(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        _showLocalitySelector();
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.16),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
                           ),
-                          child: const Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isUrdu ? 'آپ کا مقام' : 'Your Location',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.75),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Row(
-                              children: [
-                                Text(
-                                  areaDisplay,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.2,
-                                  ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isUrdu ? 'آپ کا مقام' : 'Your Location',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.75),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 18),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                              ),
+                              const SizedBox(height: 1),
+                              Row(
+                                children: [
+                                  Text(
+                                    areaDisplay,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.2,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 18),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
                   const Spacer(),
+
+                  // 1-Tap Language Switcher Pill (EN | اردو)
+                  Semantics(
+                    label: isUrdu ? 'Switch to English' : 'اردو میں تبدیل کریں',
+                    button: true,
+                    child: AnimatedScaleTap(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        LocalizationService.toggleLanguage();
+                        setState(() {});
+                        widget.onLanguageChanged?.call();
+                      },
+                      child: Container(
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.28),
+                            width: 1,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          isUrdu ? 'EN' : 'اردو',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 12.5,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
 
                   // Notification Bell with Badge
                   AnimatedScaleTap(
@@ -703,6 +749,93 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
                 ),
               ),
 
+              const SizedBox(height: 12),
+
+              // Search Action Bar: Map View Button & Browse Workers
+              Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      label: isUrdu ? 'نقشہ دیکھیں' : 'Map View',
+                      child: AnimatedScaleTap(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          widget.onOpenWorkerMap?.call();
+                        },
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.32),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.map_rounded, color: Colors.white, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                isUrdu ? 'نقشہ دیکھیں' : 'Map View',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13.5,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      label: isUrdu ? 'تمام ورکرز' : 'All Workers',
+                      child: AnimatedScaleTap(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          widget.onOpenWorkers();
+                        },
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.32),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.people_alt_rounded, color: Colors.white, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                isUrdu ? 'تمام ورکرز' : 'All Workers',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13.5,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 18),
 
               // Hero Promo Banner Card ("YOUR SOLUTION, ONE TAP AWAY!")
@@ -806,8 +939,9 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
 
   /// Stylized Isometric Visual representing domestic repair & home services
   Widget _buildIsometricVisual() {
-    return SizedBox(
-      height: 116,
+    return ExcludeSemantics(
+      child: SizedBox(
+        height: 116,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -925,7 +1059,8 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   /// Section Header with "View all >" action

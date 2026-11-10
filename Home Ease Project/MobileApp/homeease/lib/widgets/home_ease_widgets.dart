@@ -19,48 +19,54 @@ class HomeEaseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: isPrimary
-              ? HomeEaseTheme.brand
-              : HomeEaseTheme.cardDark,
-          foregroundColor: isPrimary
-              ? HomeEaseTheme.white
-              : HomeEaseTheme.textPrimary,
-          elevation: isPrimary ? 1.5 : 0,
-          shadowColor: isPrimary ? HomeEaseTheme.brand.withValues(alpha: 0.3) : Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: isPrimary
-                ? BorderSide.none
-                : const BorderSide(color: HomeEaseTheme.outline, width: 1),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-        ),
-        onPressed: () {
-          HapticFeedback.lightImpact();
-          onPressed();
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 18),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
-                letterSpacing: 0.2,
-              ),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: double.infinity,
+        minHeight: 52, // Guarantees min 48dp target; allows dynamic vertical expansion
+      ),
+      child: Semantics(
+        button: true,
+        label: label,
+        child: FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: isPrimary
+                ? HomeEaseTheme.brand
+                : HomeEaseTheme.cardDark,
+            foregroundColor: isPrimary
+                ? HomeEaseTheme.white
+                : HomeEaseTheme.textPrimary,
+            elevation: isPrimary ? 1.5 : 0,
+            shadowColor: isPrimary ? HomeEaseTheme.brand.withValues(alpha: 0.3) : Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: isPrimary
+                  ? BorderSide.none
+                  : const BorderSide(color: HomeEaseTheme.outline, width: 1),
             ),
-          ],
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            onPressed();
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                ExcludeSemantics(child: Icon(icon, size: 18)),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -174,25 +180,27 @@ class WorkerAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFE6FFFA), Color(0xFFCCFBF1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFE6FFFA), Color(0xFFCCFBF1)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(circular ? size / 2 : 18),
+          border: Border.all(
+            color: HomeEaseTheme.brandSoft.withValues(alpha: 0.35),
+            width: 1.4,
+          ),
         ),
-        borderRadius: BorderRadius.circular(circular ? size / 2 : 18),
-        border: Border.all(
-          color: HomeEaseTheme.brandSoft.withValues(alpha: 0.35),
-          width: 1.4,
+        child: Icon(
+          Icons.home_repair_service_rounded,
+          color: HomeEaseTheme.brand,
+          size: size * 0.46,
         ),
-      ),
-      child: Icon(
-        Icons.home_repair_service_rounded,
-        color: HomeEaseTheme.brand,
-        size: size * 0.46,
       ),
     );
   }

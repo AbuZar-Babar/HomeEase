@@ -312,6 +312,188 @@ class JobRepository {
     }
   }
 
+  /// Accepts a worker application/bid for a job posting.
+  ///
+  /// Marks this application as 'accepted', rejects competing applications for the job,
+  /// and updates the job's status to 'assigned'.
+  /// Synchronizes with Supabase when connected and updates local fallback lists.
+  Future<JobApplication> acceptApplication(
+    String applicationId, {
+    required String jobId,
+  }) async {
+    final targetJobId = IdMapping.toJobUuid(jobId);
+    final sb = client;
+
+    if (sb != null) {
+      try {
+        // 1. Accept target application
+        var updateAppBuilder = sb
+            .from('job_applications')
+            .update({'status': 'accepted'});
+        if (isUuid(applicationId)) {
+          updateAppBuilder = updateAppBuilder.eq('id', applicationId);
+        } else {
+          updateAppBuilder = updateAppBuilder.eq('id', applicationId);
+        }
+        await updateAppBuilder;
+
+        // 2. Reject competing applications for the same job
+        var rejectBuilder = sb
+            .from('job_applications')
+            .update({'status': 'rejected'})
+            .neq('id', applicationId);
+        if (isUuid(targetJobId)) {
+          rejectBuilder = rejectBuilder.eq('job_id', targetJobId);
+        }
+        await rejectBuilder;
+
+        // 3. Update job status to assigned
+        if (isUuid(targetJobId)) {
+          await sb.from('jobs').update({'status': 'assigned'}).eq('id', targetJobId);
+        }
+      } catch (e) {
+        debugPrint('JobRepository.acceptApplication error: $e. Falling back to local state.');
+      }
+    }
+
+    // Synchronize fallback datasets
+    JobApplication? updatedApp;
+    for (int i = 0; i < _fallbackApplications.length; i++) {
+      final a = _fallbackApplications[i];
+      if (a.id == applicationId || (isUuid(applicationId) && a.id == applicationId)) {
+        updatedApp = a.copyWith(status: 'accepted');
+        _fallbackApplications[i] = updatedApp;
+      } else if (IdMapping.matchesJob(a.jobPostId, jobId)) {
+        _fallbackApplications[i] = a.copyWith(status: 'rejected');
+      }
+    }
+
+    for (int i = 0; i < _fallbackJobs.length; i++) {
+      if (IdMapping.matchesJob(_fallbackJobs[i].id, jobId)) {
+        _fallbackJobs[i] = _fallbackJobs[i].copyWith(status: 'assigned');
+      }
+    }
+
+    if (updatedApp != null) {
+      return updatedApp;
+    }
+
+    return JobApplication(
+      id: applicationId,
+      jobPostId: jobId,
+      workerId: '',
+      workerName: '',
+      workerRole: '',
+      workerRating: 5.0,
+      proposedRate: 0.0,
+      notes: '',
+      status: 'accepted',
+      appliedAt: DateTime.now(),
+    );
+  }
+
+  /// Updates the status of an application ('pending', 'accepted', 'rejected').
+  Future<JobApplication?> updateApplicationStatus(String applicationId, String status) async {
+    final sb = client;
+    if (sb != null) {
+      try {
+        final response = await sb
+            .from('job_applications')
+            .update({'status': status.toLowerCase()})
+            .eq('id', applicationId)
+            .select('*, profiles:worker_id(id, full_name, phone, email)')
+            .maybeSingle();
+        if (response != null) {
+          final updated = JobApplication.fromMap(response);
+          final idx = _fallbackApplications.indexWhere((a) => a.id == applicationId);
+          if (idx != -1) _fallbackApplications[idx] = updated;
+          return updated;
+        }
+      } catch (e) {
+        debugPrint('JobRepository.updateApplicationStatus error: $e');
+      }
+    }
+
+    final idx = _fallbackApplications.indexWhere((a) => a.id == applicationId);
+    if (idx != -1) {
+      final updated = _fallbackApplications[idx].copyWith(status: status.toLowerCase());
+      _fallbackApplications[idx] = updated;
+      return updated;
+    }
+    return null;
+  }
+
+  /// Updates the status of a job posting ('open', 'assigned', 'completed', 'cancelled').
+  Future<JobPost?> updateJobStatus(String jobId, String status) async {
+    final targetJobId = IdMapping.toJobUuid(jobId);
+    final sb = client;
+    if (sb != null && isUuid(targetJobId)) {
+      try {
+        final response = await sb
+            .from('jobs')
+            .update({'status': status.toLowerCase()})
+            .eq('id', targetJobId)
+            .select('*, profiles:employer_id(id, full_name, phone, email)')
+            .maybeSingle();
+        if (response != null) {
+          final updated = JobPost.fromMap(response);
+          final idx = _fallbackJobs.indexWhere((j) => IdMapping.matchesJob(j.id, jobId));
+          if (idx != -1) _fallbackJobs[idx] = updated;
+          return updated;
+        }
+      } catch (e) {
+        debugPrint('JobRepository.updateJobStatus error: $e');
+      }
+    }
+
+    final idx = _fallbackJobs.indexWhere((j) => IdMapping.matchesJob(j.id, jobId));
+    if (idx != -1) {
+      final updated = _fallbackJobs[idx].copyWith(status: status.toLowerCase());
+      _fallbackJobs[idx] = updated;
+      return updated;
+    }
+    return null;
+  }
+
+  /// Fetches all applications across all jobs (for employer review and marketplace management).
+  Future<List<JobApplication>> fetchAllApplications() async {
+    final sb = client;
+    if (sb != null) {
+      try {
+        final response = await sb
+            .from('job_applications')
+            .select('*, profiles:worker_id(id, full_name, phone, email)')
+            .order('applied_at', ascending: false);
+        final List<dynamic> data = response as List<dynamic>;
+        return data.map((item) => JobApplication.fromMap(item as Map<String, dynamic>)).toList();
+      } catch (e) {
+        debugPrint('JobRepository.fetchAllApplications error: $e');
+      }
+    }
+    return List.unmodifiable(_fallbackApplications);
+  }
+
+  /// Fetches all jobs posted by a specific employer (regardless of status).
+  Future<List<JobPost>> fetchJobsForEmployer(String employerId) async {
+    final targetId = IdMapping.toHouseholdUuid(employerId);
+    final sb = client;
+    if (sb != null && isUuid(targetId)) {
+      try {
+        final response = await sb
+            .from('jobs')
+            .select('*, profiles:employer_id(id, full_name, phone, email)')
+            .eq('employer_id', targetId)
+            .order('created_at', ascending: false);
+        final List<dynamic> data = response as List<dynamic>;
+        return data.map((item) => JobPost.fromMap(item as Map<String, dynamic>)).toList();
+      } catch (e) {
+        debugPrint('JobRepository.fetchJobsForEmployer error: $e');
+      }
+    }
+
+    return _fallbackJobs.where((j) => IdMapping.matchesHousehold(j.householdId, employerId)).toList();
+  }
+
   List<JobPost> _filterFallbackJobs({
     String? category,
     String? area,

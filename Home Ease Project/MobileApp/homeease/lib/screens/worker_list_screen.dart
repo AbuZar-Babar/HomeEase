@@ -195,7 +195,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
 
             // Horizontal Category Filter Pills
             SizedBox(
-              height: 38,
+              height: 48,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
@@ -204,28 +204,33 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                   final cat = _categories[index];
                   final isSelected = _selectedCategory == cat;
 
-                  return AnimatedScaleTap(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      setState(() => _selectedCategory = cat);
-                      _fetchLiveWorkers();
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? HomeEaseTheme.brand : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline.withValues(alpha: 0.8),
+                  return Semantics(
+                    button: true,
+                    selected: isSelected,
+                    label: cat == 'All' ? 'All categories' : cat,
+                    child: AnimatedScaleTap(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        setState(() => _selectedCategory = cat);
+                        _fetchLiveWorkers();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? HomeEaseTheme.brand : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline.withValues(alpha: 0.8),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        isUrdu ? (cat == 'All' ? 'تمام' : LocalizationService.tr(cat.toLowerCase())) : cat,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : HomeEaseTheme.textPrimary,
-                          fontSize: 12.5,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        child: Text(
+                          isUrdu ? (cat == 'All' ? 'تمام' : LocalizationService.tr(cat.toLowerCase())) : cat,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : HomeEaseTheme.textPrimary,
+                            fontSize: 12.5,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -238,7 +243,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
 
             // Locality Pill Selector
             SizedBox(
-              height: 34,
+              height: 48,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _areas.length,
@@ -330,10 +335,17 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 14),
-                  child: AnimatedScaleTap(
-                    onTap: () => widget.onSelectWorker(worker),
-                    borderRadius: BorderRadius.circular(22),
-                    child: Container(
+                  child: Semantics(
+                    button: true,
+                    label: '${worker.name}, ${worker.role}, verified professional, '
+                        'Rating ${worker.rating} out of 5 from ${worker.reviewsCount} reviews, '
+                        '${worker.experienceYears} years experience, in ${worker.location}, '
+                        'Rs. $hourlyRate per hour',
+                    child: ExcludeSemantics(
+                      child: AnimatedScaleTap(
+                        onTap: () => widget.onSelectWorker(worker),
+                        borderRadius: BorderRadius.circular(22),
+                        child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -546,8 +558,10 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                       ),
                     ),
                   ),
-                );
-              }),
+                ),
+              ),
+            );
+          }),
           ],
         ),
       ),

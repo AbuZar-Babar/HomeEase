@@ -76,7 +76,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
       final user = SupabaseAuthService().currentUser;
       final workerId = user?.id ?? '00000000-0000-0000-0000-000000000010';
       final fresh = await BookingRepository().fetchBookingsForWorker(workerId);
-      if (mounted && (user != null || fresh.isNotEmpty)) {
+      if (mounted && (user != null || (fresh.isNotEmpty && widget.bookings.isEmpty))) {
         setState(() {
           _liveBookings = fresh;
         });
@@ -95,7 +95,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
       setState(() {
         final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
         if (idx != -1) {
-          _liveBookings[idx] = updated;
+          _liveBookings[idx] = _liveBookings[idx].copyWith(status: 'Accepted');
         }
       });
       widget.onAcceptBooking(updated);
@@ -123,7 +123,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
       setState(() {
         final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
         if (idx != -1) {
-          _liveBookings[idx] = updated;
+          _liveBookings[idx] = _liveBookings[idx].copyWith(status: 'Rejected');
         }
       });
       widget.onRejectBooking(updated);
@@ -151,7 +151,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
       setState(() {
         final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
         if (idx != -1) {
-          _liveBookings[idx] = updated;
+          _liveBookings[idx] = _liveBookings[idx].copyWith(status: 'Completed');
         }
       });
       widget.onCompleteBooking?.call(updated);
@@ -184,6 +184,13 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
       final s = b.status.toLowerCase().replaceAll(' ', '_');
       return s == 'accepted' || s == 'in_progress';
     }).toList();
+    final completedBookings = candidateBookings.where((b) {
+      final s = b.status.toLowerCase().replaceAll(' ', '_');
+      return s == 'completed';
+    }).toList();
+    final grossEarnings = completedBookings.fold<double>(0.0, (sum, b) => sum + b.agreedAmount);
+    final completedTasks = completedBookings.length;
+    final averageYield = completedTasks > 0 ? (grossEarnings / completedTasks) : 0.0;
 
     final welcomeSubtitle = widget.workerName != null
         ? (isUrdu ? 'خوش آمدید، ${widget.workerName}' : 'Welcome back, ${widget.workerName}')
@@ -220,7 +227,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
               icon: const Icon(Icons.refresh_rounded, color: HomeEaseTheme.brand, size: 20),
               visualDensity: VisualDensity.compact,
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               onPressed: () async {
                 await _fetchLiveWorkerBookings();
                 if (widget.onRefresh != null) {
@@ -234,90 +241,6 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bidirectional Marketplace: Browse Available Household Gigs Banner
-            if (widget.onBrowseAvailableJobs != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    widget.onBrowseAvailableJobs!();
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [HomeEaseTheme.brand, HomeEaseTheme.primaryDark],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: HomeEaseTheme.brand.withValues(alpha: 0.22),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(Icons.explore_rounded, color: Colors.white, size: 26),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                LocalizationService.tr('browseJobs'),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                isUrdu
-                                    ? 'ایبٹ آباد کے گھرانوں کی پوسٹ کردہ جابز دیکھیں اور اپلائی کریں'
-                                    : 'Find and apply for open domestic tasks near you in Abbottabad',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.88),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            isUrdu ? 'دیکھیں' : 'Browse',
-                            style: const TextStyle(
-                              color: HomeEaseTheme.brand,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
             // Verification Status Banner
             if (widget.verificationStatus != 'Verified')
               Padding(
@@ -389,6 +312,99 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                   ),
                 ),
               ),
+
+            // Milestone Performance Summary Card
+            HomeEaseCard(
+              color: HomeEaseTheme.white,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: HomeEaseTheme.brand.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.insights_rounded, color: HomeEaseTheme.brand, size: 22),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              LocalizationService.tr('performanceSummary'),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: HomeEaseTheme.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              isUrdu ? 'تکمیل شدہ ملازمتوں کی مالی کارکردگی' : 'Financial yield from completed gigs',
+                              style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: HomeEaseTheme.mintSoft,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF99F6E4)),
+                        ),
+                        child: Text(
+                          'PKR ${grossEarnings.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: HomeEaseTheme.brand,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Divider(height: 1, color: HomeEaseTheme.outline),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _MetricTile(
+                          label: LocalizationService.tr('grossEarnings'),
+                          value: 'PKR ${grossEarnings.toStringAsFixed(0)}',
+                          icon: Icons.payments_outlined,
+                          color: HomeEaseTheme.brand,
+                        ),
+                      ),
+                      Container(width: 1, height: 38, color: HomeEaseTheme.outline),
+                      Expanded(
+                        child: _MetricTile(
+                          label: LocalizationService.tr('completedTasks'),
+                          value: '$completedTasks',
+                          icon: Icons.task_alt_rounded,
+                          color: HomeEaseTheme.statusVerified,
+                        ),
+                      ),
+                      Container(width: 1, height: 38, color: HomeEaseTheme.outline),
+                      Expanded(
+                        child: _MetricTile(
+                          label: LocalizationService.tr('averageYield'),
+                          value: 'PKR ${averageYield.toStringAsFixed(0)}',
+                          icon: Icons.trending_up_rounded,
+                          color: const Color(0xFF0284C7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Summary Stats Row
             Row(
@@ -649,7 +665,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                 children: [
                                   Expanded(
                                     child: SizedBox(
-                                      height: 46,
+                                      height: 48,
                                       child: ElevatedButton.icon(
                                         onPressed: () {
                                           HapticFeedback.lightImpact();
@@ -675,7 +691,7 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: SizedBox(
-                                      height: 46,
+                                      height: 48,
                                       child: OutlinedButton(
                                         onPressed: () => widget.onSelectBooking(booking),
                                         style: OutlinedButton.styleFrom(
@@ -763,6 +779,51 @@ class _SummaryCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 10.5, color: HomeEaseTheme.textSecondary, fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

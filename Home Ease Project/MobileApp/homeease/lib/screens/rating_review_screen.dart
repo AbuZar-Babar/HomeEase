@@ -4,10 +4,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../models/worker_profile.dart';
 import '../services/localization_service.dart';
+import '../services/worker_repository.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/animated_scale_button.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
+
+extension BookingEmployerIdExtension on Booking {
+  String get employerId => householdId;
+}
 
 class RatingReviewScreen extends StatefulWidget {
   const RatingReviewScreen({
@@ -16,12 +21,14 @@ class RatingReviewScreen extends StatefulWidget {
     required this.worker,
     required this.onBack,
     required this.onSubmit,
+    this.workerRepository,
   });
 
   final Booking booking;
   final WorkerProfile worker;
   final VoidCallback onBack;
   final Function(int rating, String comment) onSubmit;
+  final WorkerRepository? workerRepository;
 
   @override
   State<RatingReviewScreen> createState() => _RatingReviewScreenState();
@@ -29,6 +36,7 @@ class RatingReviewScreen extends StatefulWidget {
 
 class _RatingReviewScreenState extends State<RatingReviewScreen> {
   final TextEditingController _commentController = TextEditingController();
+  bool _isSubmitting = false;
   int _overallRating = 5;
   int _performanceRating = 5;
   int _punctualityRating = 5;
@@ -75,18 +83,25 @@ class _RatingReviewScreenState extends State<RatingReviewScreen> {
           children: List.generate(5, (index) {
             final starValue = index + 1;
             final isSelected = starValue <= value;
-            return AnimatedScaleTap(
-              scaleFactor: 0.85,
-              onTap: () {
-                HapticFeedback.selectionClick();
-                onChanged(starValue);
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 6, bottom: 4),
-                child: Icon(
-                  isSelected ? Icons.star_rounded : Icons.star_border_rounded,
-                  color: isSelected ? HomeEaseTheme.starRating : HomeEaseTheme.outline,
-                  size: 30,
+            return Semantics(
+              label: '$starValue of 5 stars',
+              button: true,
+              selected: isSelected,
+              child: AnimatedScaleTap(
+                scaleFactor: 0.85,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onChanged(starValue);
+                },
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    isSelected ? Icons.star_rounded : Icons.star_border_rounded,
+                    color: isSelected ? HomeEaseTheme.starRating : HomeEaseTheme.outline,
+                    size: 30,
+                  ),
                 ),
               ),
             );
@@ -97,129 +112,186 @@ class _RatingReviewScreenState extends State<RatingReviewScreen> {
     );
   }
 
+  Future<void> _handleSubmit() async {
+    if (_isSubmitting) return;
+
+    final comment = _commentController.text.trim();
+    final combined = _selectedCompliments.isNotEmpty
+        ? '${_selectedCompliments.join(", ")}. $comment'.trim()
+        : comment;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final repo = widget.workerRepository ?? WorkerRepository();
+    try {
+      await repo.submitReview(
+        bookingId: widget.booking.id,
+        workerId: widget.worker.id,
+        employerId: widget.booking.employerId,
+        rating: _overallRating,
+        punctualityRating: _punctualityRating,
+        behaviorRating: _behaviorRating,
+        comment: combined,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              LocalizationService.isUrdu
+                  ? 'آپ کی رائے جمع ہو گئی۔ شکریہ!'
+                  : 'Review submitted successfully. Thank you!',
+            ),
+          ),
+        );
+      }
+
+      widget.onSubmit(_overallRating, combined);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              LocalizationService.isUrdu
+                  ? 'رائے جمع کرنے میں خرابی پیش آگئی۔ براہ کرم دوبارہ کوشش کریں۔'
+                  : 'Failed to submit review. Please try again.',
+            ),
+            backgroundColor: HomeEaseTheme.statusConflict,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isUrdu = LocalizationService.isUrdu;
 
-    return AppScaffold(
-      title: isUrdu ? 'ورکر کی درجہ بندی' : 'Rate Experience',
-      subtitle: isUrdu
-          ? 'ایبٹ آباد کمیونٹی کے لیے اپنی رائے درج کریں'
-          : 'Share verified feedback to help the Abbottabad community.',
-      onBack: widget.onBack,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Worker Profile Card
-          HomeEaseCard(
-            color: HomeEaseTheme.white,
-            child: Row(
-              children: [
-                const WorkerAvatar(circular: true, size: 56),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.worker.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: HomeEaseTheme.brand,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${widget.worker.role} • ${widget.worker.location}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ).animate().fadeIn(duration: 250.ms),
-
-          const SizedBox(height: 16),
-
-          // Star Criteria Card
-          HomeEaseCard(
-            color: HomeEaseTheme.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildStarSelector(
-                  isUrdu ? 'مجموعی سروس کا معیار' : 'Overall Service Quality',
-                  _overallRating,
-                  (val) => setState(() => _overallRating = val),
-                ),
-                _buildStarSelector(
-                  isUrdu ? 'کام کی کارکردگی اور صفائی' : 'Work Performance & Quality',
-                  _performanceRating,
-                  (val) => setState(() => _performanceRating = val),
-                ),
-                _buildStarSelector(
-                  isUrdu ? 'وقت کی پابندی' : 'Punctuality & Arrival Time',
-                  _punctualityRating,
-                  (val) => setState(() => _punctualityRating = val),
-                ),
-                _buildStarSelector(
-                  isUrdu ? 'شائستگی اور پیشہ ورانہ رویہ' : 'Professionalism & Politeness',
-                  _behaviorRating,
-                  (val) => setState(() => _behaviorRating = val),
-                ),
-                const Divider(height: 20, color: HomeEaseTheme.outline),
-                const SectionLabel('Quick Compliments'),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _complimentTags.map((tag) {
-                    final isSelected = _selectedCompliments.contains(tag);
-                    return ChoiceChip(
-                      selected: isSelected,
-                      label: Text(
-                        tag,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? Colors.white : HomeEaseTheme.brand,
+    return Directionality(
+      textDirection: LocalizationService.direction,
+      child: AppScaffold(
+        title: isUrdu ? 'ورکر کی درجہ بندی' : 'Rate Experience',
+        subtitle: isUrdu
+            ? 'ایبٹ آباد کمیونٹی کے لیے اپنی رائے درج کریں'
+            : 'Share verified feedback to help the Abbottabad community.',
+        onBack: widget.onBack,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Worker Profile Card
+            HomeEaseCard(
+              color: HomeEaseTheme.white,
+              child: Row(
+                children: [
+                  const WorkerAvatar(circular: true, size: 56),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.worker.name,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: HomeEaseTheme.brand,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
-                      ),
-                      selectedColor: HomeEaseTheme.brand,
-                      backgroundColor: HomeEaseTheme.brand.withValues(alpha: 0.06),
-                      side: BorderSide(
-                        color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline,
-                      ),
-                      onSelected: (_) => _toggleCompliment(tag),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                SectionLabel(isUrdu ? 'تفصیلی رائے (اختیاری)' : 'Detailed Feedback (Optional)'),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _commentController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    hintText: 'Describe how the service went to help other households hire with confidence.',
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.worker.role} • ${widget.worker.location}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                HomeEaseButton(
-                  label: isUrdu ? 'رائے جمع کروائیں' : 'Submit Review',
-                  onPressed: () {
-                    final comment = _commentController.text.trim();
-                    final combined = _selectedCompliments.isNotEmpty
-                        ? '${_selectedCompliments.join(", ")}. $comment'.trim()
-                        : comment;
-                    widget.onSubmit(_overallRating, combined);
-                  },
-                ),
-              ],
+                ],
+              ),
+            ).animate().fadeIn(duration: 250.ms),
+
+            const SizedBox(height: 16),
+
+            // Star Criteria Card
+            HomeEaseCard(
+              color: HomeEaseTheme.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildStarSelector(
+                    isUrdu ? 'مجموعی سروس کا معیار' : 'Overall Service Quality',
+                    _overallRating,
+                    (val) => setState(() => _overallRating = val),
+                  ),
+                  _buildStarSelector(
+                    isUrdu ? 'کام کی کارکردگی اور صفائی' : 'Work Performance & Quality',
+                    _performanceRating,
+                    (val) => setState(() => _performanceRating = val),
+                  ),
+                  _buildStarSelector(
+                    isUrdu ? 'وقت کی پابندی' : 'Punctuality & Arrival Time',
+                    _punctualityRating,
+                    (val) => setState(() => _punctualityRating = val),
+                  ),
+                  _buildStarSelector(
+                    isUrdu ? 'شائستگی اور پیشہ ورانہ رویہ' : 'Professionalism & Politeness',
+                    _behaviorRating,
+                    (val) => setState(() => _behaviorRating = val),
+                  ),
+                  const Divider(height: 20, color: HomeEaseTheme.outline),
+                  const SectionLabel('Quick Compliments'),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _complimentTags.map((tag) {
+                      final isSelected = _selectedCompliments.contains(tag);
+                      return ChoiceChip(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        selected: isSelected,
+                        label: Text(
+                          tag,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? Colors.white : HomeEaseTheme.brand,
+                          ),
+                        ),
+                        selectedColor: HomeEaseTheme.brand,
+                        backgroundColor: HomeEaseTheme.brand.withValues(alpha: 0.06),
+                        side: BorderSide(
+                          color: isSelected ? HomeEaseTheme.brand : HomeEaseTheme.outline,
+                        ),
+                        onSelected: (_) => _toggleCompliment(tag),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  SectionLabel(isUrdu ? 'تفصیلی رائے (اختیاری)' : 'Detailed Feedback (Optional)'),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _commentController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      hintText: 'Describe how the service went to help other households hire with confidence.',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  HomeEaseButton(
+                    label: _isSubmitting
+                        ? (isUrdu ? 'جمع ہو رہا ہے...' : 'Submitting Review...')
+                        : (isUrdu ? 'رائے جمع کروائیں' : 'Submit Review'),
+                    onPressed: _isSubmitting ? () {} : _handleSubmit,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

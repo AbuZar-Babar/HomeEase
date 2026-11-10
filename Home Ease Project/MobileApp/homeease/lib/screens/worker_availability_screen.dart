@@ -244,6 +244,7 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
                       final isSelected = _selectedSlots.contains(day);
                       final displayLabel = isUrdu ? (_urduDays[day] ?? day) : day;
                       return ChoiceChip(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
                         label: Text(displayLabel),
                         selected: isSelected,
                         onSelected: (_) {
@@ -265,9 +266,10 @@ class _WorkerAvailabilityScreenState extends State<WorkerAvailabilityScreen> {
                   ),
                   const SizedBox(height: 24),
                   HomeEaseButton(
-                    label: isUrdu ? 'دستیابی کی ترتیبات محفوظ کریں' : 'Save Availability Settings',
+                    label: isUrdu ? 'دستیابی محفوظ کریں' : 'Save Availability Settings',
                     onPressed: () {
-                      widget.onSave(_currentStatus, _selectedSlots.toList());
+                      final orderedSlots = _daysOfWeek.where((day) => _selectedSlots.contains(day)).toList();
+                      widget.onSave(_currentStatus, orderedSlots);
                     },
                   ),
                 ],

@@ -10,6 +10,7 @@ import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/home_ease_widgets.dart';
 import '../widgets/animated_scale_button.dart';
+import '../widgets/in_app_chat_sheet.dart';
 
 class PostJobScreen extends StatefulWidget {
   const PostJobScreen({
@@ -330,6 +331,8 @@ class _PostJobScreenState extends State<PostJobScreen> {
                       });
                     },
                     child: Container(
+                      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                      alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? const Color(0xFFE6FFFA) : HomeEaseTheme.card,
@@ -381,7 +384,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 SectionLabel(isUrdu ? 'آپ کی شائع کردہ جابز اور موصولہ درخواستیں' : 'Your Posted Gigs & Applications'),
                 const SizedBox(height: 10),
                 ...widget.existingJobs.take(5).map((job) {
-                  final jobApps = widget.applications.where((a) => a.jobPostId == job.id).toList();
+                  final jobApps = widget.applications.where((a) => IdMapping.matchesJob(a.jobPostId, job.id)).toList();
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -427,21 +430,35 @@ class _PostJobScreenState extends State<PostJobScreen> {
                               ),
                             ],
                           ),
-                          if (jobApps.isNotEmpty) ...[
-                            const Divider(height: 20, color: HomeEaseTheme.outline),
-                            Row(
-                              children: [
-                                const Icon(Icons.people_outline_rounded, size: 16, color: HomeEaseTheme.brand),
-                                const SizedBox(width: 6),
-                                Text(
-                                  isUrdu
-                                      ? 'موصولہ تجاویز (${jobApps.length}):'
-                                      : 'Proposals Received (${jobApps.length}):',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
+                          const Divider(height: 20, color: HomeEaseTheme.outline),
+                          Row(
+                            children: [
+                              const Icon(Icons.people_outline_rounded, size: 16, color: HomeEaseTheme.brand),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${LocalizationService.tr('proposalsReceived')} (${jobApps.length}):',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          if (jobApps.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info_outline_rounded, size: 16, color: HomeEaseTheme.muted),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      LocalizationService.tr('noProposalsYet'),
+                                      style: const TextStyle(fontSize: 12, color: HomeEaseTheme.muted, fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
                             ...jobApps.map((app) {
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
@@ -464,7 +481,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                           ),
                                           Text(
-                                            'Bid: PKR ${app.proposedRate.toStringAsFixed(0)}',
+                                            '${LocalizationService.tr('bidAmount')}: PKR ${app.proposedRate.toStringAsFixed(0)}',
                                             style: const TextStyle(fontSize: 11, color: HomeEaseTheme.brand, fontWeight: FontWeight.bold),
                                           ),
                                           if (app.notes.isNotEmpty)
@@ -477,6 +494,21 @@ class _PostJobScreenState extends State<PostJobScreen> {
                                         ],
                                       ),
                                     ),
+                                    IconButton(
+                                      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: HomeEaseTheme.brand),
+                                      tooltip: LocalizationService.tr('chatWithApplicant'),
+                                      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                                      onPressed: () {
+                                        InAppChatSheet.show(
+                                          context,
+                                          recipientId: app.workerId,
+                                          recipientName: app.workerName,
+                                          recipientRole: 'Worker',
+                                          serviceContext: job.title,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 6),
                                     if (widget.onAcceptApplication != null && app.status.toLowerCase() == 'pending')
                                       ElevatedButton(
                                         onPressed: () {
@@ -486,32 +518,31 @@ class _PostJobScreenState extends State<PostJobScreen> {
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: HomeEaseTheme.statusVerified,
                                           foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                          minimumSize: const Size(60, 32),
+                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                          minimumSize: const Size(80, 48),
                                           elevation: 0,
                                         ),
                                         child: Text(
-                                          isUrdu ? 'قبول کریں' : 'Accept',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                          LocalizationService.tr('acceptProposal'),
+                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                         ),
                                       )
                                     else
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                                         decoration: BoxDecoration(
                                           color: HomeEaseTheme.accentLight,
                                           borderRadius: BorderRadius.circular(6),
                                         ),
                                         child: Text(
                                           app.status.toUpperCase(),
-                                          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
                                         ),
                                       ),
                                   ],
                                 ),
                               );
                             }),
-                          ],
                         ],
                       ),
                     ),

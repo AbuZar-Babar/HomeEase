@@ -96,7 +96,7 @@ void main() {
   });
 
   group('BookingRepository Operations & Conflict Engine', () {
-    final targetDate = DateTime(2026, 10, 20);
+    final targetDate = DateTime(2026, 11, 20);
 
     test('BKG-REPO-01: BookingRepository is singleton and reset restores clean state', () {
       final repo1 = BookingRepository();
@@ -364,6 +364,123 @@ void main() {
       final repo = BookingRepository();
       final updated = await repo.updateBookingStatus('booking_1', 'Completed');
       expect(updated.status, 'Completed');
+    });
+
+    test('BKG-REPO-12: Booking.arrivalOtp returns deterministic 4-digit code', () {
+      final booking1 = Booking(
+        id: '00000000-0000-0000-0000-000000000201',
+        householdId: '00000000-0000-0000-0000-000000000001',
+        workerId: '00000000-0000-0000-0000-000000000012',
+        serviceCategoryId: 'Cleaner',
+        bookingDate: DateTime(2026, 11, 20),
+        startTime: const TimeOfDay(hour: 9, minute: 0),
+        endTime: const TimeOfDay(hour: 12, minute: 0),
+        address: 'Mandian',
+        notes: '',
+        agreedAmount: 2200.0,
+        status: 'Accepted',
+        createdAt: DateTime(2026, 10, 1),
+      );
+
+      final otp1 = booking1.arrivalOtp;
+      expect(otp1.length, 4);
+      expect(int.tryParse(otp1), isNotNull);
+      expect(int.parse(otp1), inInclusiveRange(1000, 9999));
+      expect(booking1.arrivalOtp, otp1);
+
+      final booking2 = booking1.copyWith(id: '00000000-0000-0000-0000-000000000202');
+      final otp2 = booking2.arrivalOtp;
+      expect(otp2.length, 4);
+      expect(int.parse(otp2), inInclusiveRange(1000, 9999));
+    });
+
+    test('BKG-REPO-13: synthesizeConfirmedBooking creates accepted booking with agreed rate', () async {
+      final repo = BookingRepository();
+      repo.reset();
+
+      final job = JobPost(
+        id: 'job_test_sync_1',
+        householdId: '00000000-0000-0000-0000-000000000001',
+        householdName: 'Ali Khan',
+        title: 'Deep Villa Clean',
+        serviceCategory: 'Cleaner',
+        description: '5 bedroom deep clean',
+        city: 'Abbottabad',
+        area: 'Jhangi Syedan',
+        latitude: 34.19,
+        longitude: 73.23,
+        budget: 5000.0,
+        requiredDate: DateTime(2026, 12, 1),
+        status: 'open',
+        createdAt: DateTime.now(),
+      );
+
+      final app = JobApplication(
+        id: 'app_test_sync_1',
+        jobPostId: job.id,
+        workerId: '00000000-0000-0000-0000-000000000021',
+        workerName: 'Asif Ali',
+        workerRole: 'Cleaner',
+        workerRating: 4.9,
+        proposedRate: 4800.0,
+        notes: 'Ready with team',
+        status: 'pending',
+        appliedAt: DateTime.now(),
+      );
+
+      final confirmed = await repo.synthesizeConfirmedBooking(
+        job: job,
+        application: app,
+      );
+
+      expect(confirmed.status, 'Accepted');
+      expect(confirmed.agreedAmount, 4800.0);
+      expect(confirmed.workerId, '00000000-0000-0000-0000-000000000021');
+      expect(confirmed.householdId, '00000000-0000-0000-0000-000000000001');
+      expect(confirmed.arrivalOtp.length, 4);
+    });
+
+    test('BKG-REPO-14: synthesizeConfirmedBooking uses job budget when proposedRate is 0', () async {
+      final repo = BookingRepository();
+      repo.reset();
+
+      final job = JobPost(
+        id: 'job_test_sync_2',
+        householdId: '00000000-0000-0000-0000-000000000001',
+        householdName: 'Ali Khan',
+        title: 'Garden Care',
+        serviceCategory: 'Gardener',
+        description: 'Trimming',
+        city: 'Abbottabad',
+        area: 'Mandian',
+        latitude: 34.19,
+        longitude: 73.23,
+        budget: 3200.0,
+        requiredDate: DateTime(2026, 12, 2),
+        status: 'open',
+        createdAt: DateTime.now(),
+      );
+
+      final app = JobApplication(
+        id: 'app_test_sync_2',
+        jobPostId: job.id,
+        workerId: '00000000-0000-0000-0000-000000000021',
+        workerName: 'Asif Ali',
+        workerRole: 'Gardener',
+        workerRating: 4.9,
+        proposedRate: 0.0,
+        notes: 'Can do this job',
+        status: 'pending',
+        appliedAt: DateTime.now(),
+      );
+
+      final confirmed = await repo.synthesizeConfirmedBooking(
+        job: job,
+        application: app,
+      );
+
+      expect(confirmed.status, 'Accepted');
+      expect(confirmed.agreedAmount, 3200.0);
     });
   });
 

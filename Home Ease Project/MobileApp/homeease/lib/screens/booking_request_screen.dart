@@ -378,7 +378,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                           _checkSlotAvailability();
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: (_selectedDate != null &&
                                     _selectedDate!.day == DateTime.now().day &&
@@ -412,7 +413,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                           _checkSlotAvailability();
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: (_selectedDate != null &&
                                     _selectedDate!.day == DateTime.now().add(const Duration(days: 1)).day &&
@@ -442,7 +444,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                       child: AnimatedScaleTap(
                         onTap: _pickDate,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          constraints: const BoxConstraints(minHeight: 48),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: HomeEaseTheme.card,
                             borderRadius: BorderRadius.circular(12),
@@ -619,53 +622,66 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
 
                 // Real-time conflict feedback banner
                 if (_isCheckingConflict)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: HomeEaseTheme.card,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: HomeEaseTheme.brand),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          isUrdu ? 'دستیابی چیک کی جا رہی ہے...' : 'Checking slot availability...',
-                          style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
-                        ),
-                      ],
+                  Semantics(
+                    container: true,
+                    liveRegion: true,
+                    label: isUrdu ? 'دستیابی چیک کی جا رہی ہے' : 'Checking slot availability',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: HomeEaseTheme.card,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: HomeEaseTheme.brand),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            isUrdu ? 'دستیابی چیک کی جا رہی ہے...' : 'Checking slot availability...',
+                            style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                          ),
+                        ],
+                      ),
                     ),
                   ).animate().fadeIn(duration: 150.ms)
                 else if (_hasConflict == true)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2), // Red 50
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: HomeEaseTheme.statusConflict.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline_rounded, color: HomeEaseTheme.statusConflict, size: 22),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            _conflictMessage ??
-                                (isUrdu
-                                    ? 'یہ وقت پہلے سے کسی بکنگ کے ساتھ تصادم کر رہا ہے۔'
-                                    : 'Time slot overlaps with an existing booking.'),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: HomeEaseTheme.statusConflict,
-                              fontWeight: FontWeight.bold,
+                  Semantics(
+                    container: true,
+                    liveRegion: true,
+                    label: _conflictMessage ??
+                        (isUrdu
+                            ? 'یہ وقت پہلے سے کسی بکنگ کے ساتھ تصادم کر رہا ہے۔'
+                            : 'Time slot overlaps with an existing booking.'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2), // Red 50
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: HomeEaseTheme.statusConflict.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: HomeEaseTheme.statusConflict, size: 22),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _conflictMessage ??
+                                  (isUrdu
+                                      ? 'یہ وقت پہلے سے کسی بکنگ کے ساتھ تصادم کر رہا ہے۔'
+                                      : 'Time slot overlaps with an existing booking.'),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: HomeEaseTheme.statusConflict,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ).animate().fadeIn(duration: 200.ms).shake(duration: 300.ms, hz: 4)
                 else if (_hasConflict == false && durationHours != null && durationHours > 0)
