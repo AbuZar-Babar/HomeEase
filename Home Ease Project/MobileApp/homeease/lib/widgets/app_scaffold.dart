@@ -273,7 +273,7 @@ class _TopAppBar extends StatelessWidget {
                   ),
                 ),
 
-              // Notification Bell with Unread Badge (48dp touch target)
+              // Notification Bell with Unread Badge Counter (48dp touch target)
               if (onOpenNotifications != null) ...[
                 const SizedBox(width: 8),
                 Semantics(
@@ -301,14 +301,26 @@ class _TopAppBar extends StatelessWidget {
                           const Icon(Icons.notifications_none_rounded, color: HomeEaseTheme.textPrimary, size: 21),
                           if (unreadCount > 0)
                             Positioned(
-                              right: 9,
-                              top: 9,
+                              right: 4,
+                              top: 4,
                               child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
+                                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                decoration: BoxDecoration(
                                   color: HomeEaseTheme.statusConflict,
-                                  shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: HomeEaseTheme.white, width: 1.5),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    unreadCount > 9 ? '9+' : '$unreadCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.0,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

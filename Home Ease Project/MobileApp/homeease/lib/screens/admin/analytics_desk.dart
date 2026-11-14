@@ -11,12 +11,14 @@ class AnalyticsDesk extends StatelessWidget {
     required this.workers,
     required this.disputes,
     required this.isWide,
+    this.onRefresh,
   });
 
   final List<Booking> bookings;
   final List<WorkerProfile> workers;
   final List<Dispute> disputes;
   final bool isWide;
+  final Future<void> Function()? onRefresh;
 
   double get grossPkrVolume {
     return bookings
@@ -74,7 +76,8 @@ class AnalyticsDesk extends StatelessWidget {
         totalWorkers > 0 ? ((verifiedWorkers / totalWorkers) * 100).toInt() : 0;
     final catDist = categoryDistribution;
 
-    return SingleChildScrollView(
+    final content = SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.all(isWide ? 24 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,6 +252,15 @@ class AnalyticsDesk extends StatelessWidget {
         ],
       ),
     );
+
+    if (onRefresh != null) {
+      return RefreshIndicator(
+        onRefresh: onRefresh!,
+        color: HomeEaseTheme.brand,
+        child: content,
+      );
+    }
+    return content;
   }
 
   Widget _buildKpiCard({

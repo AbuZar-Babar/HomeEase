@@ -621,37 +621,59 @@ class _HomeSearchScreenState extends State<HomeSearchScreen> {
 
                   const SizedBox(width: 8),
 
-                  // Notification Bell with Badge
-                  AnimatedScaleTap(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      widget.onOpenNotifications();
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.16),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 22),
-                          if (widget.unreadNotificationsCount > 0)
-                            Positioned(
-                              top: 10,
-                              right: 11,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF59E0B),
-                                  shape: BoxShape.circle,
+                  // Notification Bell with Unread Badge Counter (>= 48x48dp touch target)
+                  Semantics(
+                    button: true,
+                    label: widget.unreadNotificationsCount > 0
+                        ? (isUrdu
+                            ? 'اطلاعات، ${widget.unreadNotificationsCount} نئی'
+                            : 'Notifications, ${widget.unreadNotificationsCount} unread')
+                        : (isUrdu ? 'اطلاعات' : 'Notifications'),
+                    child: AnimatedScaleTap(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        widget.onOpenNotifications();
+                      },
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+                            if (widget.unreadNotificationsCount > 0)
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: Container(
+                                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: HomeEaseTheme.statusConflict,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white, width: 1.5),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      widget.unreadNotificationsCount > 9 ? '9+' : '${widget.unreadNotificationsCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

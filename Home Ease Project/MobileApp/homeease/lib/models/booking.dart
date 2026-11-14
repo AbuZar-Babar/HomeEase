@@ -15,6 +15,8 @@ class Booking {
   final String paymentMethod;
   final String paymentStatus;
   final DateTime createdAt;
+  final String? receiptUrl;
+  final String? transactionId;
 
   Booking({
     required this.id,
@@ -31,6 +33,8 @@ class Booking {
     this.paymentMethod = 'cash',
     this.paymentStatus = 'unpaid',
     required this.createdAt,
+    this.receiptUrl,
+    this.transactionId,
   });
 
   /// Calculates duration in hours between startTime and endTime.
@@ -159,6 +163,12 @@ class Booking {
 
     final String paymentMethod = map['payment_method']?.toString() ?? 'cash';
     final String paymentStatus = map['payment_status']?.toString() ?? 'unpaid';
+    final String? receiptUrl = map['receipt_url']?.toString() ??
+        map['receipt_path']?.toString() ??
+        map['receiptPath']?.toString();
+    final String? transactionId = map['transaction_id']?.toString() ??
+        map['trx_id']?.toString() ??
+        map['tx_id']?.toString();
 
     DateTime createdAt = DateTime.now();
     final dynamic rawCreated = map['created_at'] ?? map['createdAt'];
@@ -183,6 +193,8 @@ class Booking {
       paymentMethod: paymentMethod,
       paymentStatus: paymentStatus,
       createdAt: createdAt,
+      receiptUrl: receiptUrl,
+      transactionId: transactionId,
     );
   }
 
@@ -207,6 +219,12 @@ class Booking {
       'address': address,
       'notes': notes,
     };
+    if (receiptUrl != null && receiptUrl!.isNotEmpty) {
+      data['receipt_url'] = receiptUrl;
+    }
+    if (transactionId != null && transactionId!.isNotEmpty) {
+      data['transaction_id'] = transactionId;
+    }
     if (id.isNotEmpty &&
         RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
             .hasMatch(id)) {
@@ -230,6 +248,8 @@ class Booking {
     String? paymentMethod,
     String? paymentStatus,
     DateTime? createdAt,
+    String? receiptUrl,
+    String? transactionId,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -246,6 +266,8 @@ class Booking {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       createdAt: createdAt ?? this.createdAt,
+      receiptUrl: receiptUrl ?? this.receiptUrl,
+      transactionId: transactionId ?? this.transactionId,
     );
   }
 }

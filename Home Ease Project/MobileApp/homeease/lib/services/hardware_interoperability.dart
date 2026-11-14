@@ -69,6 +69,14 @@ class HardwareInteroperability {
     }
   }
 
+  /// Selects an image from device photo gallery.
+  static Future<String?> pickImageFromGallery({ImagePicker? customPicker}) =>
+      pickImage(source: ImageSource.gallery, customPicker: customPicker);
+
+  /// Captures an image using device camera.
+  static Future<String?> pickImageFromCamera({ImagePicker? customPicker}) =>
+      pickImage(source: ImageSource.camera, customPicker: customPicker);
+
   /// Asynchronously uploads a local photo to a Supabase Storage bucket.
   /// Returns the uploaded path or public URL on success, or falls back to
   /// returning the local [filePath] when offline or unconfigured.
@@ -117,3 +125,6 @@ class HardwareInteroperability {
     }
   }
 }
+
+/// Convenience alias for HardwareInteroperability
+typedef HardwareInteroperabilityService = HardwareInteroperability;

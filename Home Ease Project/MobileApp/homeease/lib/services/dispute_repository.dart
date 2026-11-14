@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/worker_profile.dart';
+import 'booking_repository.dart';
 
 /// Repository for creating and managing domestic dispute filings in HomeEase.
 ///
@@ -211,6 +212,17 @@ class DisputeRepository {
           } else {
             _fallbackDisputes.insert(0, updated);
           }
+
+          // Synchronize linked booking status in Supabase & fallback cache
+          try {
+            await BookingRepository().updateBookingDisputeResolution(
+              bookingId: updated.bookingId,
+              resolutionStatus: effectiveResolution,
+            );
+          } catch (err) {
+            debugPrint('DisputeRepository sync booking error: $err');
+          }
+
           return updated;
         }
       } catch (e) {
@@ -231,6 +243,17 @@ class DisputeRepository {
         updatedAt: now,
       );
       _fallbackDisputes[idx] = updated;
+
+      // Synchronize linked booking status in fallback cache
+      try {
+        await BookingRepository().updateBookingDisputeResolution(
+          bookingId: updated.bookingId,
+          resolutionStatus: effectiveResolution,
+        );
+      } catch (err) {
+        debugPrint('DisputeRepository sync fallback booking error: $err');
+      }
+
       return updated;
     }
 
@@ -247,6 +270,14 @@ class DisputeRepository {
       updatedAt: now,
     );
     _fallbackDisputes.insert(0, synthetic);
+
+    try {
+      await BookingRepository().updateBookingDisputeResolution(
+        bookingId: synthetic.bookingId,
+        resolutionStatus: effectiveResolution,
+      );
+    } catch (_) {}
+
     return synthetic;
   }
 

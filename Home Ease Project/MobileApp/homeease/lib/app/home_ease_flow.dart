@@ -28,6 +28,7 @@ import '../screens/worker_job_feed_screen.dart';
 import '../screens/worker_list_screen.dart';
 import '../screens/worker_map_screen.dart';
 import '../screens/admin_dashboard_screen.dart';
+import '../widgets/notification_modal_sheet.dart';
 import '../services/audit_log_service.dart';
 import '../widgets/app_scaffold.dart';
 
@@ -226,7 +227,9 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
   }
 
   int _getUnreadNotificationsCount() {
-    return _notifications.where((n) => !n.isRead).length;
+    final serviceCount = NotificationService().unreadCount;
+    final localCount = _notifications.where((n) => !n.isRead).length;
+    return serviceCount > localCount ? serviceCount : localCount;
   }
 
   Future<void> _loadLiveWorkers() async {
@@ -459,7 +462,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             _goTo(AppStage.signIn);
           },
           onOpenBookings: () => _goTo(AppStage.bookingsHistory),
-          onOpenNotifications: () => _goTo(AppStage.notifications),
+          onOpenNotifications: () => NotificationModalSheet.show(context),
           unreadNotificationsCount: _getUnreadNotificationsCount(),
           onOpenPostJob: () => _goTo(AppStage.postJob),
           onOpenProfile: () => _goTo(AppStage.profile),
@@ -531,7 +534,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onBack: null,
           roleBadge: isWorker ? 'Worker' : 'Household',
           onToggleLanguage: () => setState(() {}),
-          onOpenNotifications: () => _goTo(AppStage.notifications),
+          onOpenNotifications: () => NotificationModalSheet.show(context),
           unreadNotificationsCount: _getUnreadNotificationsCount(),
           onLogout: () async {
             await SupabaseAuthService().signOut();
@@ -866,7 +869,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
             });
           },
           onManageAvailability: () => _goTo(AppStage.workerAvailability),
-          onOpenNotifications: () => _goTo(AppStage.notifications),
+          onOpenNotifications: () => NotificationModalSheet.show(context),
           unreadNotificationsCount: _getUnreadNotificationsCount(),
           onSelectBooking: (booking) {
             setState(() {
@@ -895,7 +898,7 @@ class _HomeEaseFlowState extends State<HomeEaseFlow> {
           onBack: null,
           roleBadge: 'Worker',
           onToggleLanguage: () => setState(() {}),
-          onOpenNotifications: () => _goTo(AppStage.notifications),
+          onOpenNotifications: () => NotificationModalSheet.show(context),
           unreadNotificationsCount: _getUnreadNotificationsCount(),
           onLogout: () async {
             await SupabaseAuthService().signOut();

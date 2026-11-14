@@ -6,12 +6,14 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/worker_profile.dart';
 import '../services/booking_repository.dart';
+import '../services/dispute_repository.dart';
 import '../services/hardware_interoperability.dart';
 import '../services/localization_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/digital_receipt_dialog.dart';
 import '../widgets/home_ease_widgets.dart';
+import '../widgets/p2p_payment_sheet.dart';
 import '../widgets/payment_gateway_sheet.dart';
 
 class ServiceAgreementScreen extends StatefulWidget {
@@ -49,12 +51,19 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
   final TextEditingController _otpController = TextEditingController();
   String? _receiptAttachmentPath;
   late String _currentStatus;
+  late String _currentPaymentStatus;
+  Booking? _updatedBooking;
   PaymentResult? _lastPaymentResult;
 
   @override
   void initState() {
     super.initState();
     _currentStatus = widget.booking.status;
+    _currentPaymentStatus = widget.booking.paymentStatus;
+    _receiptAttachmentPath = widget.booking.receiptUrl;
+    if (widget.booking.transactionId != null && widget.booking.transactionId!.isNotEmpty) {
+      _txController.text = widget.booking.transactionId!;
+    }
   }
 
   @override
@@ -62,6 +71,12 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
     super.didUpdateWidget(oldWidget);
     if (widget.booking.status != oldWidget.booking.status) {
       _currentStatus = widget.booking.status;
+    }
+    if (widget.booking.paymentStatus != oldWidget.booking.paymentStatus) {
+      _currentPaymentStatus = widget.booking.paymentStatus;
+    }
+    if (widget.booking.receiptUrl != oldWidget.booking.receiptUrl && widget.booking.receiptUrl != null) {
+      _receiptAttachmentPath = widget.booking.receiptUrl;
     }
   }
 
@@ -363,6 +378,162 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
     );
   }
 
+  void _showReceiptDialog(BuildContext context, String path) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Payment Receipt Proof',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: HomeEaseTheme.brand),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 380, maxWidth: double.infinity),
+                  child: _buildImageWidget(path),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openP2PPayment() async {
+    final activeBooking = _updatedBooking ?? widget.booking;
+    final updated = await P2PPaymentSheet.show(
+      context: context,
+      booking: activeBooking,
+      worker: widget.worker,
+      onPaymentSent: (b) {
+        setState(() {
+          _updatedBooking = b;
+          _currentPaymentStatus = 'payment_sent';
+          _receiptAttachmentPath = b.receiptUrl;
+          if (b.transactionId != null && b.transactionId!.isNotEmpty) {
+            _txController.text = b.transactionId!;
+          }
+        });
+        widget.onSubmitReceipt(b.transactionId ?? 'TRX-P2P', b.receiptUrl ?? '');
+      },
+    );
+
+    if (updated != null && mounted) {
+      setState(() {
+        _updatedBooking = updated;
+        _currentPaymentStatus = 'payment_sent';
+        _receiptAttachmentPath = updated.receiptUrl;
+      });
+    }
+  }
+
+  Future<void> _workerConfirmPayment() async {
+    final activeBooking = _updatedBooking ?? widget.booking;
+    try {
+      final updated = await BookingRepository().confirmPaymentReceived(
+        bookingId: activeBooking.id,
+        txId: activeBooking.transactionId ?? _txController.text.trim(),
+        paymentMethod: activeBooking.paymentMethod,
+      );
+      if (!mounted) return;
+      setState(() {
+        _updatedBooking = updated;
+        _currentStatus = 'Completed';
+        _currentPaymentStatus = 'confirmed';
+      });
+
+      final result = PaymentResult(
+        success: true,
+        txId: updated.transactionId ??
+            (activeBooking.transactionId?.isNotEmpty == true
+                ? activeBooking.transactionId!
+                : 'P2P-${activeBooking.id.hashCode.abs().toString().padLeft(8, '0').substring(0, 8)}'),
+        mode: activeBooking.paymentMethod.toLowerCase() == 'jazzcash'
+            ? PaymentMode.jazzcash
+            : activeBooking.paymentMethod.toLowerCase() == 'bank_transfer'
+                ? PaymentMode.stripe
+                : activeBooking.paymentMethod.toLowerCase() == 'cash'
+                    ? PaymentMode.cod
+                    : PaymentMode.easypaisa,
+        amount: activeBooking.agreedAmount,
+        timestamp: DateTime.now(),
+        payerIdentifier: 'Household Transfer',
+        brand: 'P2P Escrow Released',
+      );
+
+      _lastPaymentResult = result;
+
+      widget.onConfirmPayment();
+
+      await DigitalReceiptDialog.show(
+        context,
+        paymentResult: result,
+        booking: updated,
+        worker: widget.worker,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error confirming payment: $e')),
+      );
+    }
+  }
+
+  Future<void> _workerPaymentNotReceived() async {
+    final activeBooking = _updatedBooking ?? widget.booking;
+    try {
+      await DisputeRepository().createDispute(
+        bookingId: activeBooking.id,
+        complainantId: activeBooking.workerId,
+        respondentId: activeBooking.householdId,
+        category: 'Payment Not Received',
+        description:
+            'Worker reported payment of PKR ${activeBooking.agreedAmount.toStringAsFixed(0)} was not received in their account despite household marking payment_sent.',
+        evidencePath: activeBooking.receiptUrl ?? _receiptAttachmentPath,
+      );
+
+      final updated = await BookingRepository().updateBookingStatus(activeBooking.id, 'Disputed');
+      if (!mounted) return;
+      setState(() {
+        _updatedBooking = updated;
+        _currentStatus = 'Disputed';
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(LocalizationService.isUrdu
+              ? 'تنازعہ ایڈمن کو ارسال کر دیا گیا۔'
+              : 'Payment dispute filed for administrative arbitration.'),
+          backgroundColor: HomeEaseTheme.statusConflict,
+        ),
+      );
+
+      widget.onRaiseDispute();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error submitting dispute: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isUrdu = LocalizationService.isUrdu;
@@ -484,6 +655,42 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Escrow Hold Banner for Household (When payment has been marked sent)
+                if (_currentPaymentStatus == 'payment_sent') ...[
+                  HomeEaseCard(
+                    color: const Color(0xFFFEF3C7), // Amber 100
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lock_clock_rounded, color: Color(0xFFB45309), size: 32),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isUrdu ? 'ایسکرو ہولڈ فعال ہے (ادائیگی بھیج دی گئی)' : 'Escrow Hold Active (Payment Sent)',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF92400E),
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                isUrdu
+                                    ? 'آپ کی رسید جمع ہو چکی ہے۔ ورکر کے اپنے اکاؤنٹ میں رقم کی تصدیق کا انتظار ہے۔'
+                                    : 'Payment receipt uploaded. Funds are held in escrow until worker confirms receipt.',
+                                style: const TextStyle(fontSize: 11.5, color: Color(0xFFB45309)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Primary: Instant Payment Gateway (Recommended)
                 HomeEaseCard(
                   color: HomeEaseTheme.white,
@@ -515,7 +722,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 const Text(
-                                  'Easypaisa • JazzCash • Stripe Card • Cash on Delivery',
+                                  'Easypaisa • JazzCash • Stripe Card • P2P Escrow',
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: HomeEaseTheme.textSecondary,
@@ -537,6 +744,25 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                         label: LocalizationService.tr('payViaGateway'),
                         onPressed: _openPaymentGateway,
                       ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton.icon(
+                          key: const Key('open_p2p_payment_button'),
+                          onPressed: _openP2PPayment,
+                          icon: const Icon(Icons.currency_exchange_rounded, size: 18),
+                          label: Text(
+                            isUrdu ? 'پی ٹو پی ایسکرو ادائیگی' : 'Pay via P2P Escrow',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: HomeEaseTheme.brand,
+                            side: const BorderSide(color: HomeEaseTheme.brand, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -553,7 +779,7 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                       Text(
                         'Please transfer PKR ${booking.agreedAmount.toStringAsFixed(0)} manually to the worker via EasyPaisa or JazzCash:\n\n'
                         '• Account Title: ${worker.name}\n'
-                        '• Mobile Number: 0312-3456789\n\n'
+                        '• Mobile Number: ${worker.phone ?? '0312-3456789'}\n\n'
                         'Once done, enter the transaction ID/reference and select the receipt picture.',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
@@ -606,22 +832,33 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                       const SizedBox(height: 16),
                       HomeEaseButton(
                         label: isUrdu ? 'رسید جمع کرائیں' : 'Submit Payment Receipt',
-                        onPressed: () {
-                          if (_txController.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Please enter a Transaction Reference ID.')),
-                            );
-                            return;
-                          }
+                        onPressed: () async {
                           if (_receiptAttachmentPath == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Please attach the receipt screenshot.')),
                             );
                             return;
                           }
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            widget.onSubmitReceipt(_txController.text, _receiptAttachmentPath!);
-                          });
+                          final txId = _txController.text.trim().isNotEmpty
+                              ? _txController.text.trim()
+                              : 'TXN-${DateTime.now().millisecondsSinceEpoch}';
+
+                          try {
+                            final updated = await BookingRepository().markPaymentSent(
+                              bookingId: widget.booking.id,
+                              paymentMethod: 'easypaisa',
+                              receiptPath: _receiptAttachmentPath,
+                              transactionId: txId,
+                            );
+                            if (mounted) {
+                              setState(() {
+                                _updatedBooking = updated;
+                                _currentPaymentStatus = 'payment_sent';
+                              });
+                            }
+                          } catch (_) {}
+
+                          widget.onSubmitReceipt(txId, _receiptAttachmentPath!);
                         },
                       ),
                     ],
@@ -799,21 +1036,86 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
               ],
 
               if (isAccepted || isInProgress) ...[
-                // Payment Receipt Review & Confirmation Card
+                // Payment Receipt Review & Confirmation Card (Binance P2P Escrow)
                 HomeEaseCard(
                   color: HomeEaseTheme.white,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SectionLabel(isUrdu ? 'ادائیگی کی رسید کا جائزہ' : 'Review Payment Receipt'),
-                      const SizedBox(height: 10),
-                      Text(
-                        isUrdu
-                            ? 'گھریلو صارف ایزی پیسہ/جاز کیش کے ذریعے ادائیگی کرے گا۔ رسید کی تفصیلات ذیل میں چیک کریں:'
-                            : 'The household needs to transfer payment via EasyPaisa/JazzCash and submit receipt details here. If they have done so, check the submission below:',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0B90B).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.verified_user_rounded, color: Color(0xFFB48500), size: 20),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isUrdu ? 'ادائیگی کی رسید کا جائزہ' : 'Review Payment Receipt',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: HomeEaseTheme.brand,
+                                  ),
+                                ),
+                                Text(
+                                  isUrdu ? 'گھریلو صارف کی جانب سے بھیجی گئی رقم کی تصدیق کریں' : 'Verify incoming transfer from household',
+                                  style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
+
+                      if (_currentPaymentStatus == 'payment_sent') ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFF59E0B)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.shield_rounded, color: Color(0xFFB45309), size: 22),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isUrdu ? 'ادائیگی بھیج دی گئی (ایسکرو ہولڈ)' : 'Payment Sent (Escrow Hold Active)',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF92400E),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      isUrdu
+                                          ? 'براہ کرم اپنے اکاؤنٹ میں رقم کی تصدیق کریں۔ تسلی ہونے پر "ادائیگی موصول ہو گئی" دبائیں۔'
+                                          : 'Check your account before releasing escrow. If funds are not received, tap "Payment Not Received".',
+                                      style: const TextStyle(fontSize: 11, color: Color(0xFFB45309)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -835,63 +1137,139 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Text('• Reference: TXN-${booking.id.hashCode.abs().toString().take(8)}'),
-                            Text('• Agreed Amount: PKR ${booking.agreedAmount.toStringAsFixed(0)}'),
-                            Text('• Payment Channel: EasyPaisa / JazzCash'),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Icon(Icons.image_search_rounded, color: HomeEaseTheme.brand, size: 18),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'receipt_${booking.id.hashCode.abs()}.jpg (Attached)',
-                                    style: const TextStyle(
-                                      color: HomeEaseTheme.brand,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
+                            Text('• Reference / TRX ID: ${booking.transactionId ?? (_txController.text.isNotEmpty ? _txController.text : 'TXN-${booking.id.hashCode.abs().toString().take(8)}')}',
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 2),
+                            Text('• Agreed Amount: PKR ${booking.agreedAmount.toStringAsFixed(0)}',
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: HomeEaseTheme.brand)),
+                            const SizedBox(height: 2),
+                            Text('• Channel: ${booking.paymentMethod.toUpperCase()}',
+                                style: const TextStyle(fontSize: 12.5)),
+                            const SizedBox(height: 12),
+
+                            // Receipt Thumbnail Preview with tap-to-expand
+                            if (booking.receiptUrl != null || _receiptAttachmentPath != null) ...[
+                              InkWell(
+                                onTap: () => _showReceiptDialog(
+                                  context,
+                                  booking.receiptUrl ?? _receiptAttachmentPath!,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: HomeEaseTheme.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: HomeEaseTheme.brand.withValues(alpha: 0.3)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          width: 54,
+                                          height: 54,
+                                          child: _buildImageWidget(booking.receiptUrl ?? _receiptAttachmentPath!),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const Row(
+                                              children: [
+                                                Icon(Icons.zoom_in_rounded, size: 16, color: HomeEaseTheme.brand),
+                                                SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    'Receipt Screenshot Attached',
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              isUrdu ? 'بڑی تصویر دیکھنے کے لیے ٹیپ کریں' : 'Tap to preview full screenshot',
+                                              style: const TextStyle(fontSize: 11, color: HomeEaseTheme.textSecondary),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(Icons.chevron_right_rounded, color: HomeEaseTheme.muted),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ] else ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.info_outline_rounded, size: 18, color: HomeEaseTheme.muted),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        isUrdu
+                                            ? 'گھریلو صارف کی جانب سے رسید کی تصویر کا انتظار ہے۔'
+                                            : 'Awaiting receipt attachment from household employer.',
+                                        style: const TextStyle(fontSize: 12, color: HomeEaseTheme.textSecondary),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      // Two P2P Action Buttons: 'Payment Not Received' & 'Confirm Payment Received'
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
+                              key: const Key('worker_payment_not_received_button'),
                               icon: const Icon(Icons.report_problem_outlined, size: 18),
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                widget.onRaiseDispute();
-                              },
+                              onPressed: _workerPaymentNotReceived,
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: HomeEaseTheme.statusConflict,
-                                side: const BorderSide(color: HomeEaseTheme.statusConflict),
+                                side: const BorderSide(color: HomeEaseTheme.statusConflict, width: 1.5),
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 minimumSize: const Size(0, 48),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              label: Text(
-                                isUrdu ? 'تنازعہ درج کریں' : 'Raise Dispute',
-                                style: const TextStyle(fontWeight: FontWeight.w700),
+                              label: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isUrdu ? 'رقم نہیں ملی' : 'Payment Not Received',
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                  ),
+                                  Text(
+                                    isUrdu ? 'تنازعہ درج کریں' : 'Raise Dispute',
+                                    style: const TextStyle(fontSize: 10, color: HomeEaseTheme.statusConflict),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: FilledButton.icon(
+                              key: const Key('worker_confirm_payment_button'),
                               icon: const Icon(Icons.check_circle_rounded, size: 18),
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                widget.onConfirmPayment();
-                              },
+                              onPressed: _workerConfirmPayment,
                               style: FilledButton.styleFrom(
                                 backgroundColor: HomeEaseTheme.statusVerified,
                                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -900,9 +1278,19 @@ class _ServiceAgreementScreenState extends State<ServiceAgreementScreen> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              label: Text(
-                                isUrdu ? 'ادائیگی کی تصدیق کریں' : 'Confirm Payment',
-                                style: const TextStyle(fontWeight: FontWeight.w700),
+                              label: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isUrdu ? 'ادائیگی موصول ہو گئی' : 'Confirm Payment Received',
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                  ),
+                                  Text(
+                                    isUrdu ? 'ادائیگی کی تصدیق کریں' : 'Confirm Payment',
+                                    style: const TextStyle(fontSize: 10, color: Colors.white70),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

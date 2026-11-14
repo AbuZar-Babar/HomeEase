@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Immutable model representing a platform security, governance, or operational audit event.
 class AuditLogEntry {
@@ -61,13 +62,32 @@ class AuditLogEntry {
 class AuditLogService extends ChangeNotifier {
   static final AuditLogService _instance = AuditLogService._internal();
 
-  factory AuditLogService() => _instance;
+  factory AuditLogService({SupabaseClient? client}) {
+    if (client != null) {
+      _instance._customClient = client;
+    }
+    return _instance;
+  }
 
   AuditLogService._internal() {
     _initBaselineLogs();
   }
 
+  SupabaseClient? _customClient;
   final List<AuditLogEntry> _logs = [];
+
+  SupabaseClient? get client {
+    if (_customClient != null) return _customClient;
+    try {
+      return Supabase.instance.client;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void setClient(SupabaseClient? client) {
+    _customClient = client;
+  }
 
   void _initBaselineLogs() {
     _logs.clear();
@@ -113,6 +133,29 @@ class AuditLogService extends ChangeNotifier {
     ]);
   }
 
+  /// Asynchronously fetches live audit logs from Supabase if online,
+  /// falling back gracefully to deterministic local baseline logs.
+  Future<List<AuditLogEntry>> fetchLiveLogs() async {
+    final sb = client;
+    if (sb != null) {
+      try {
+        final res = await sb.from('audit_logs').select().order('timestamp', ascending: false);
+        final List<dynamic> rows = res as List<dynamic>;
+        if (rows.isNotEmpty) {
+          _logs.clear();
+          for (final r in rows) {
+            _logs.add(AuditLogEntry.fromMap(r as Map<String, dynamic>));
+          }
+          notifyListeners();
+          return List.unmodifiable(_logs);
+        }
+      } catch (e) {
+        debugPrint('AuditLogService.fetchLiveLogs error: $e. Falling back to local logs.');
+      }
+    }
+    return List.unmodifiable(_logs);
+  }
+
   /// Returns unmodifiable list of audit log entries, newest first.
   List<AuditLogEntry> getLogs({String? actionType}) {
     if (actionType == null || actionType.isEmpty || actionType.toLowerCase() == 'all') {
@@ -146,12 +189,25 @@ class AuditLogService extends ChangeNotifier {
 
     _logs.insert(0, entry);
     notifyListeners();
+
+    final sb = client;
+    if (sb != null) {
+      try {
+        sb.from('audit_logs').insert(entry.toMap()).then((_) {}, onError: (e) {
+          debugPrint('AuditLogService.logEvent live insert error: $e');
+        });
+      } catch (e) {
+        debugPrint('AuditLogService.logEvent live error: $e');
+      }
+    }
+
     return entry;
   }
 
   /// Clears and reloads default baseline logs (useful for unit tests).
   @visibleForTesting
   void resetForTesting() {
+    _customClient = null;
     _initBaselineLogs();
     notifyListeners();
   }

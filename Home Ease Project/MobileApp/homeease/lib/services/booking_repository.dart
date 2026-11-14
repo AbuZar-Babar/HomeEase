@@ -594,6 +594,157 @@ class BookingRepository {
     return fallbackUpdated;
   }
 
+  /// Updates booking when household reports payment sent in P2P escrow mode.
+  /// Sets paymentStatus to 'payment_sent' (escrow hold), stores receipt and TRX ID.
+  /// Supports live Supabase sync with automatic local fallback cache.
+  Future<Booking> markPaymentSent({
+    required String bookingId,
+    required String paymentMethod,
+    String? receiptPath,
+    String? transactionId,
+  }) async {
+    final targetUuid = IdMapping.toBookingUuid(bookingId);
+    final sb = client;
+
+    if (sb != null && isUuid(targetUuid)) {
+      try {
+        final updateMap = <String, dynamic>{
+          'payment_status': 'payment_sent',
+          'payment_method': paymentMethod.toLowerCase(),
+        };
+        if (receiptPath != null && receiptPath.isNotEmpty) {
+          updateMap['receipt_url'] = receiptPath;
+        }
+        if (transactionId != null && transactionId.isNotEmpty) {
+          updateMap['transaction_id'] = transactionId;
+        }
+
+        final response = await sb
+            .from('bookings')
+            .update(updateMap)
+            .eq('id', targetUuid)
+            .select('*')
+            .single();
+
+        final updated = Booking.fromMap(response);
+
+        final idx = _fallbackBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, bookingId));
+        if (idx != -1) {
+          _fallbackBookings[idx] = updated;
+        } else {
+          _fallbackBookings.insert(0, updated);
+        }
+
+        return updated;
+      } catch (e) {
+        debugPrint('BookingRepository.markPaymentSent error: $e. Falling back to local cache.');
+      }
+    }
+
+    final idx = _fallbackBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, bookingId));
+    if (idx != -1) {
+      final existing = _fallbackBookings[idx];
+      final updated = existing.copyWith(
+        paymentStatus: 'payment_sent',
+        paymentMethod: paymentMethod.toLowerCase(),
+        receiptUrl: receiptPath ?? existing.receiptUrl,
+        transactionId: transactionId ?? existing.transactionId,
+      );
+      _fallbackBookings[idx] = updated;
+      return updated;
+    }
+
+    final fallbackUpdated = Booking(
+      id: bookingId,
+      householdId: '00000000-0000-0000-0000-000000000001',
+      workerId: '00000000-0000-0000-0000-000000000010',
+      serviceCategoryId: 'Domestic Service',
+      bookingDate: DateTime.now(),
+      startTime: const TimeOfDay(hour: 9, minute: 0),
+      endTime: const TimeOfDay(hour: 11, minute: 0),
+      address: 'Abbottabad',
+      notes: transactionId != null ? 'TxID: $transactionId' : '',
+      agreedAmount: 2000.0,
+      status: 'Accepted',
+      paymentMethod: paymentMethod.toLowerCase(),
+      paymentStatus: 'payment_sent',
+      createdAt: DateTime.now(),
+      receiptUrl: receiptPath,
+      transactionId: transactionId,
+    );
+    _fallbackBookings.insert(0, fallbackUpdated);
+    return fallbackUpdated;
+  }
+
+  /// Worker confirms receipt of P2P payment, releasing escrow.
+  /// Sets status to 'Completed' and paymentStatus to 'confirmed'.
+  Future<Booking> confirmPaymentReceived({
+    required String bookingId,
+    String? txId,
+    String? paymentMethod,
+  }) async {
+    return completeBookingPayment(
+      bookingId: bookingId,
+      paymentMethod: paymentMethod ?? 'p2p_transfer',
+      txId: txId ?? 'P2P-${DateTime.now().millisecondsSinceEpoch}',
+      paymentStatus: 'confirmed',
+    );
+  }
+
+  /// Updates a booking's status and payment status following an administrative dispute adjudication.
+  /// (e.g. 'resolved_refund' -> status: 'Cancelled', paymentStatus: 'refunded';
+  ///       'resolved_payout' -> status: 'Completed', paymentStatus: 'confirmed';
+  ///       'dismissed' -> status: 'Completed', paymentStatus: 'confirmed').
+  Future<Booking?> updateBookingDisputeResolution({
+    required String bookingId,
+    required String resolutionStatus,
+  }) async {
+    final bool isRefund = resolutionStatus.toLowerCase() == 'resolved_refund';
+    final String newBookingStatus = isRefund ? 'Cancelled' : 'Completed';
+    final String newPaymentStatus = isRefund ? 'refunded' : 'confirmed';
+
+    final targetUuid = IdMapping.toBookingUuid(bookingId);
+    final sb = client;
+
+    if (sb != null && isUuid(targetUuid)) {
+      try {
+        final response = await sb
+            .from('bookings')
+            .update({
+              'status': newBookingStatus.toLowerCase(),
+              'payment_status': newPaymentStatus,
+            })
+            .eq('id', targetUuid)
+            .select('*')
+            .single();
+
+        final updated = Booking.fromMap(response);
+
+        final idx = _fallbackBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, bookingId));
+        if (idx != -1) {
+          _fallbackBookings[idx] = updated;
+        } else {
+          _fallbackBookings.insert(0, updated);
+        }
+        return updated;
+      } catch (e) {
+        debugPrint('BookingRepository.updateBookingDisputeResolution error: $e. Falling back to local cache.');
+      }
+    }
+
+    final idx = _fallbackBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, bookingId));
+    if (idx != -1) {
+      final updated = _fallbackBookings[idx].copyWith(
+        status: newBookingStatus,
+        paymentStatus: newPaymentStatus,
+      );
+      _fallbackBookings[idx] = updated;
+      return updated;
+    }
+
+    return null;
+  }
+
   /// Pre-flight check to see if a worker has an overlapping booking for the slot.
   Future<bool> hasConflict({
     required String workerId,

@@ -6,6 +6,7 @@ import '../services/audit_log_service.dart';
 import '../services/booking_repository.dart';
 import '../services/dispute_repository.dart';
 import '../services/localization_service.dart';
+import '../services/notification_service.dart';
 import '../services/worker_repository.dart';
 import '../theme/home_ease_theme.dart';
 import 'admin/analytics_desk.dart';
@@ -62,11 +63,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       final bookingsFuture = BookingRepository().fetchAllBookings();
       final workersFuture = WorkerRepository().fetchAllWorkersAdmin();
       final disputesFuture = DisputeRepository().fetchAllDisputes();
+      final auditLogsFuture = _auditService.fetchLiveLogs();
 
       final results = await Future.wait([
         bookingsFuture,
         workersFuture,
         disputesFuture,
+        auditLogsFuture,
       ]);
 
       if (mounted) {
@@ -172,6 +175,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         adminId: 'admin_1',
       );
 
+      await BookingRepository().updateBookingDisputeResolution(
+        bookingId: dispute.bookingId,
+        resolutionStatus: resolutionStatus,
+      );
+
       final String actionTitle = resolutionStatus == 'resolved_refund'
           ? 'Dispute Refund Authorized'
           : (resolutionStatus == 'resolved_payout'
@@ -189,6 +197,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             'Dispute #${dispute.id.substring(0, 8)} adjudicated with status $resolutionStatus: $notes',
         actor: 'Admin (admin@homeease.com)',
         severity: severity,
+      );
+
+      NotificationService().addNotification(
+        NotificationModel(
+          id: 'notif_disp_${DateTime.now().millisecondsSinceEpoch}',
+          userId: dispute.complainantId,
+          title: actionTitle,
+          titleUrdu: resolutionStatus == 'resolved_refund'
+              ? 'شکایت برائے واپسی رقم منظور'
+              : (resolutionStatus == 'resolved_payout'
+                  ? 'شکایت: ورکر کو ادائیگی جاری'
+                  : 'شکایت خارج کر دی گئی'),
+          message:
+              'Dispute #${dispute.id.length > 8 ? dispute.id.substring(0, 8) : dispute.id} has been adjudicated: $notes',
+          messageUrdu:
+              'شکایت #${dispute.id.length > 8 ? dispute.id.substring(0, 8) : dispute.id} کا فیصلہ کر دیا گیا ہے۔',
+          type: 'Dispute',
+          isRead: false,
+          createdAt: DateTime.now(),
+        ),
       );
 
       if (mounted) {
@@ -726,6 +754,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           workers: _allWorkers,
           disputes: _allDisputes,
           isWide: isWide,
+          onRefresh: _loadAllData,
         );
       case 1:
         return VerificationDesk(

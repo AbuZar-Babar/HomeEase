@@ -1,14 +1,19 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/worker_profile.dart';
 import '../services/booking_repository.dart';
+import '../services/dispute_repository.dart';
 import '../services/localization_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../theme/home_ease_theme.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/digital_receipt_dialog.dart';
 import '../widgets/home_ease_widgets.dart';
 import '../widgets/animated_scale_button.dart';
+import '../widgets/payment_gateway_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class WorkerDashboardScreen extends StatefulWidget {
@@ -170,6 +175,194 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
         SnackBar(content: Text('Error completing job: $e')),
       );
     }
+  }
+
+  Future<void> _confirmPaymentReceived(Booking booking) async {
+    try {
+      final updated = await BookingRepository().confirmPaymentReceived(
+        bookingId: booking.id,
+        txId: booking.transactionId,
+        paymentMethod: booking.paymentMethod,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+        if (idx != -1) {
+          _liveBookings[idx] = updated;
+        }
+      });
+
+      widget.onCompleteBooking?.call(updated);
+
+      final workerProfile = WorkerProfile(
+        id: booking.workerId,
+        name: widget.workerName ?? 'HomeEase Worker',
+        role: booking.serviceCategoryId,
+        rating: 4.9,
+        rate: 'PKR ${booking.agreedAmount.toStringAsFixed(0)}',
+        experience: '3 years',
+        availability: 'Available',
+        location: booking.address,
+        description: 'Verified HomeEase Service Professional',
+        highlight: 'Verified',
+      );
+
+      final paymentResult = PaymentResult(
+        success: true,
+        txId: booking.transactionId ??
+            'P2P-${booking.id.hashCode.abs().toString().padLeft(8, '0').substring(0, 8)}',
+        mode: booking.paymentMethod.toLowerCase() == 'jazzcash'
+            ? PaymentMode.jazzcash
+            : booking.paymentMethod.toLowerCase() == 'bank_transfer'
+                ? PaymentMode.stripe
+                : booking.paymentMethod.toLowerCase() == 'cash'
+                    ? PaymentMode.cod
+                    : PaymentMode.easypaisa,
+        amount: booking.agreedAmount,
+        timestamp: DateTime.now(),
+        payerIdentifier: 'Household P2P Transfer',
+        brand: 'P2P Escrow Released',
+      );
+
+      await DigitalReceiptDialog.show(
+        context,
+        paymentResult: paymentResult,
+        booking: updated,
+        worker: workerProfile,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              LocalizationService.isUrdu
+                  ? 'رقم کی تصدیق ہو گئی! ایسکرو جاری کر دیا گیا۔'
+                  : 'Payment confirmed! Escrow released and job completed.',
+            ),
+            backgroundColor: HomeEaseTheme.statusVerified,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error confirming payment: $e')),
+      );
+    }
+  }
+
+  Future<void> _paymentNotReceived(Booking booking) async {
+    try {
+      await DisputeRepository().createDispute(
+        bookingId: booking.id,
+        complainantId: booking.workerId,
+        respondentId: booking.householdId,
+        category: 'Payment Not Received',
+        description:
+            'Worker reported payment of PKR ${booking.agreedAmount.toStringAsFixed(0)} was not received in wallet/bank despite household marking payment_sent.',
+        evidencePath: booking.receiptUrl,
+      );
+
+      final updated = await BookingRepository().updateBookingStatus(booking.id, 'Disputed');
+      if (!mounted) return;
+
+      setState(() {
+        final idx = _liveBookings.indexWhere((b) => IdMapping.matchesBooking(b.id, booking.id));
+        if (idx != -1) {
+          _liveBookings[idx] = updated;
+        }
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LocalizationService.isUrdu
+                ? 'تنازعہ درج کر دیا گیا! ایڈمن ثالثی کا عمل شروع ہو چکا ہے۔'
+                : 'Dispute filed! Domestic service dispute sent for admin arbitration.',
+          ),
+          backgroundColor: HomeEaseTheme.statusConflict,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error filing dispute: $e')),
+      );
+    }
+  }
+
+  Widget _buildReceiptThumbnail(String path) {
+    Widget imageWidget;
+    if (path.isEmpty) {
+      imageWidget = _fallbackThumb();
+    } else if (kIsWeb || path.startsWith('http://') || path.startsWith('https://')) {
+      imageWidget = Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _fallbackThumb(),
+      );
+    } else {
+      final file = File(path);
+      if (file.existsSync()) {
+        imageWidget = Image.file(
+          file,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackThumb(),
+        );
+      } else {
+        imageWidget = _fallbackThumb();
+      }
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: 48,
+        height: 48,
+        child: imageWidget,
+      ),
+    );
+  }
+
+  Widget _fallbackThumb() {
+    return Container(
+      color: HomeEaseTheme.mintSoft,
+      alignment: Alignment.center,
+      child: const Icon(Icons.receipt_long_rounded, color: HomeEaseTheme.brand, size: 24),
+    );
+  }
+
+  void _showFullReceipt(String path) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Payment Receipt Screenshot', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 380, maxWidth: double.infinity),
+                child: _buildReceiptThumbnail(path),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -660,57 +853,199 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 48,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          HapticFeedback.lightImpact();
-                                          _completeBooking(booking);
+                              if (booking.paymentStatus.toLowerCase() == 'payment_sent') ...[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEF3C7),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: const Color(0xFFF59E0B)),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.lock_clock_rounded, color: Color(0xFFB45309), size: 18),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              isUrdu ? 'ایسکرو ہولڈ: گھریلو صارف نے رقم بھیج دی ہے' : 'Escrow Hold: Payment Sent by Household',
+                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF92400E)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      // Receipt Thumbnail Preview
+                                      InkWell(
+                                        onTap: () {
+                                          if (booking.receiptUrl != null && booking.receiptUrl!.isNotEmpty) {
+                                            _showFullReceipt(booking.receiptUrl!);
+                                          }
                                         },
-                                        icon: const Icon(Icons.check_circle_rounded, size: 17),
-                                        label: Text(
-                                          isUrdu ? 'مکمل کریں' : 'Mark Completed',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(color: Colors.amber.shade300),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              _buildReceiptThumbnail(booking.receiptUrl ?? ''),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      booking.transactionId != null && booking.transactionId!.isNotEmpty
+                                                          ? 'TRX ID: ${booking.transactionId}'
+                                                          : 'Receipt Screenshot Attached',
+                                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: HomeEaseTheme.brand),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                    Text(
+                                                      isUrdu ? 'رسید دیکھنے کے لیے ٹیپ کریں' : 'Tap to inspect receipt proof',
+                                                      style: const TextStyle(fontSize: 10.5, color: HomeEaseTheme.textSecondary),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const Icon(Icons.zoom_in_rounded, color: HomeEaseTheme.brand, size: 20),
+                                            ],
+                                          ),
                                         ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: HomeEaseTheme.statusVerified,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      // Two Buttons: 'Payment Not Received' & 'Confirm Payment Received'
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 46,
+                                              child: OutlinedButton.icon(
+                                                key: const Key('dashboard_payment_not_received_button'),
+                                                onPressed: () {
+                                                  HapticFeedback.lightImpact();
+                                                  _paymentNotReceived(booking);
+                                                },
+                                                icon: const Icon(Icons.report_problem_outlined, size: 16),
+                                                label: Text(
+                                                  isUrdu ? 'رقم نہیں ملی' : 'Payment Not Received',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+                                                ),
+                                                style: OutlinedButton.styleFrom(
+                                                  foregroundColor: HomeEaseTheme.statusConflict,
+                                                  side: const BorderSide(color: HomeEaseTheme.statusConflict, width: 1.5),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: SizedBox(
+                                              height: 46,
+                                              child: ElevatedButton.icon(
+                                                key: const Key('dashboard_confirm_payment_received_button'),
+                                                onPressed: () {
+                                                  HapticFeedback.lightImpact();
+                                                  _confirmPaymentReceived(booking);
+                                                },
+                                                icon: const Icon(Icons.check_circle_rounded, size: 16),
+                                                label: Text(
+                                                  isUrdu ? 'ادائیگی موصول ہو گئی' : 'Confirm Payment Received',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+                                                ),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: HomeEaseTheme.statusVerified,
+                                                  foregroundColor: Colors.white,
+                                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                                  elevation: 0,
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Center(
+                                  child: TextButton.icon(
+                                    onPressed: () => widget.onSelectBooking(booking),
+                                    icon: const Icon(Icons.description_outlined, size: 16),
+                                    label: Text(
+                                      isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement Details',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 48,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            HapticFeedback.lightImpact();
+                                            _completeBooking(booking);
+                                          },
+                                          icon: const Icon(Icons.check_circle_rounded, size: 17),
+                                          label: Text(
+                                            isUrdu ? 'مکمل کریں' : 'Mark Completed',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: HomeEaseTheme.statusVerified,
+                                            foregroundColor: Colors.white,
+                                            elevation: 0,
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 48,
-                                      child: OutlinedButton(
-                                        onPressed: () => widget.onSelectBooking(booking),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: HomeEaseTheme.brand,
-                                          side: const BorderSide(color: HomeEaseTheme.brand),
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        ),
-                                        child: Text(
-                                          isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 48,
+                                        child: OutlinedButton(
+                                          onPressed: () => widget.onSelectBooking(booking),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: HomeEaseTheme.brand,
+                                            side: const BorderSide(color: HomeEaseTheme.brand),
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          ),
+                                          child: Text(
+                                            isUrdu ? 'معاہدہ دیکھیں' : 'View Agreement',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),

@@ -860,7 +860,8 @@ void main() {
       await tester.enterText(find.byType(TextField).first, 'household@homeease.com');
       await tester.enterText(find.byType(TextField).last, 'password123');
       await tester.tap(find.text('Sign In as Household'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
 
       // Verify we are on HomeSearchScreen and tap "Map View"
       expect(find.text('Map View'), findsOneWidget);
@@ -873,7 +874,8 @@ void main() {
 
       // Verify back navigation returns to HomeSearchScreen
       await tester.tap(find.byIcon(Icons.arrow_back_rounded));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(WorkerMapScreen), findsNothing);
       expect(find.text('Map View'), findsOneWidget);
