@@ -1,11 +1,40 @@
-.agents/
-.dart_tool/
-.packages
-.pub-cache/
-.pub/
-build/
-.oleafly/build/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-*.backup
-*.bkp
-.*.bkp
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Test & cache artifacts
+coverage/
+.vite/
+.cache/
+.gmp_cache/
