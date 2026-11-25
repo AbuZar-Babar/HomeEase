@@ -9,10 +9,10 @@
 ## 1. Quick Project & Backend Summary
 
 - **Live Supabase Project:**
-  - Name: `homeease`
-  - Reference: `oiozlhpogpwlnedzueia`
+  - Name: `HomeEase`
+  - Reference: `ppuenornykkqgdxufrkg`
   - Region: `ap-southeast-1` (Singapore)
-  - URL: `https://oiozlhpogpwlnedzueia.supabase.co`
+  - URL: `https://ppuenornykkqgdxufrkg.supabase.co`
   - Status: `ACTIVE_HEALTHY`
   - Config file: `lib/config/supabase_config.dart`
 - **Schema & Migrations:**
